@@ -26,12 +26,13 @@
     position: fixed;
     inset: 0;
     display: none;
+    isolation: isolate;
   }
   .version.active { display: block; }
 
   /* ============ VIDEO DE FONDO (base) ============ */
   .bg-video {
-    position: fixed;
+    position: absolute;
     inset: 0;
     width: 100%;
     height: 100%;
@@ -56,7 +57,7 @@
     .version[data-version="afro-blur"] .bg-video-blur,
     .version[data-version="chair"] .bg-video-blur {
       display: block;
-      position: fixed;
+      position: absolute;
       inset: -10%;
       width: 120%;
       height: 120%;
@@ -70,14 +71,14 @@
   }
 
   .bg-overlay {
-    position: fixed;
+    position: absolute;
     inset: 0;
     z-index: 2;
     background: linear-gradient(180deg, rgba(10,10,10,0.35) 0%, rgba(10,10,10,0.25) 45%, rgba(10,10,10,0.85) 100%);
   }
 
   .grain {
-    position: fixed;
+    position: absolute;
     inset: 0;
     z-index: 3;
     pointer-events: none;
@@ -88,8 +89,9 @@
   /* ============ CONTENIDO ============ */
   main {
     position: relative;
-    z-index: 5;
+    z-index: 10;
     height: 100vh;
+    height: 100dvh;
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
@@ -155,7 +157,6 @@
   }
   @keyframes fill { to { width: 72%; } }
 
-  /* Número animado con JavaScript */
   .progress-number {
     min-width: 28px;
     display: inline-block;
@@ -179,6 +180,51 @@
   @keyframes fadeUp {
     from { opacity: 0; transform: translateY(24px); }
     to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ============================================================
+     VERSIÓN MIX — mismo video, encuadres distintos con crossfade
+     ============================================================ */
+
+  /* Contenedor que recorta el video: nunca deja ver franjas */
+  .mix-stage {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    background: #0a0a0a;
+    z-index: 1;
+  }
+
+  .mix-layer {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center center;
+    z-index: 1;
+    opacity: 0;
+    transition: opacity 1.2s ease-in-out,
+                transform 1.6s ease-in-out,
+                object-position 1.6s ease-in-out;
+    filter: contrast(1.05) brightness(0.8);
+    transform-origin: center center;
+    will-change: transform, opacity;
+  }
+  .mix-layer.visible { opacity: 1; }
+
+  /* ---- MOBILE / pantallas angostas: zoom + paneo vertical ---- */
+  @media (max-width: 899px) {
+    .mix-layer[data-mix-index="0"] { transform: scale(1.35) translateY(12%);  } /* zona inferior */
+    .mix-layer[data-mix-index="1"] { transform: scale(1.35) translateY(0%);   } /* zona central  */
+    .mix-layer[data-mix-index="2"] { transform: scale(1.35) translateY(-12%); } /* zona superior */
+  }
+
+  /* ---- DESKTOP / pantallas anchas: solo object-position, sin zoom ---- */
+  @media (min-width: 900px) {
+    .mix-layer[data-mix-index="0"] { object-position: center 20%; } /* zona alta  */
+    .mix-layer[data-mix-index="1"] { object-position: center 50%; } /* zona media */
+    .mix-layer[data-mix-index="2"] { object-position: center 80%; } /* zona baja  */
   }
 
   /* ============================================================
@@ -278,7 +324,7 @@
 <body>
 
   <!-- ============================================================
-       VERSIÓN 1: Afro (blur desktop) — la primera captura
+       VERSIÓN 1: Afro (blur desktop)
        ============================================================ -->
   <div class="version active" data-version="afro-blur">
     <video class="bg-video-blur" muted loop playsinline preload="none">
@@ -306,7 +352,7 @@
   </div>
 
   <!-- ============================================================
-       VERSIÓN 2: Afro V2 (cover normal, object 25%)
+       VERSIÓN 2: Afro V2 (cover, object 25%)
        ============================================================ -->
   <div class="version" data-version="afro-v2">
     <video class="bg-video" muted loop playsinline preload="none" style="object-fit: cover; object-position: center 25%;">
@@ -331,7 +377,7 @@
   </div>
 
   <!-- ============================================================
-       VERSIÓN 3: Afro V3 (sin poster, cover centrado)
+       VERSIÓN 3: Afro V3 (cover, center)
        ============================================================ -->
   <div class="version" data-version="afro-v3">
     <video class="bg-video" muted loop playsinline preload="none" style="object-fit: cover; object-position: center center;">
@@ -434,6 +480,42 @@
   </div>
 
   <!-- ============================================================
+       VERSIÓN 7: MIX — mismo video, 3 encuadres distintos cada 3s
+       ============================================================ -->
+  <div class="version" data-version="mix">
+    <div class="mix-stage">
+      <!-- Capa 0 -->
+      <video class="mix-layer" muted loop playsinline preload="none" data-mix-index="0">
+        <source data-src="https://videos.pexels.com/video-files/9370435/9370435-uhd_2160_3840_24fps.mp4" type="video/mp4">
+      </video>
+      <!-- Capa 1 -->
+      <video class="mix-layer" muted loop playsinline preload="none" data-mix-index="1">
+        <source data-src="https://videos.pexels.com/video-files/9370435/9370435-uhd_2160_3840_24fps.mp4" type="video/mp4">
+      </video>
+      <!-- Capa 2 -->
+      <video class="mix-layer" muted loop playsinline preload="none" data-mix-index="2">
+        <source data-src="https://videos.pexels.com/video-files/9370435/9370435-uhd_2160_3840_24fps.mp4" type="video/mp4">
+      </video>
+    </div>
+    <div class="bg-overlay"></div>
+    <div class="grain"></div>
+    <main>
+      <div class="content">
+        <div class="eyebrow">Próximamente</div>
+        <h1>Preparate.<br><em>Esto recién arranca.</em></h1>
+        <div class="footer">
+          <div class="progress">
+            <span>Progreso</span>
+            <div class="progress-track"><div class="progress-fill"></div></div>
+            <span class="progress-number">0%</span>
+          </div>
+          <a href="https://ezgilabert.github.io/ezequiel-dev/" target="_blank" rel="noopener noreferrer" class="dev-credit">by Ezequiel García Gilabert</a>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- ============================================================
        SELECTOR DE VERSIONES
        ============================================================ -->
   <div class="selector" id="selector">
@@ -444,6 +526,7 @@
     <button data-target="chair">Chair (laptop)</button>
     <button data-target="kid">Kid (HD 1080)</button>
     <button data-target="adult">Adult (clipboard)</button>
+    <button data-target="mix">Mix (rotación 3s)</button>
     <button id="hideSelector" style="margin-top:6px; border-color: rgba(255,255,255,0.3); color:#fff;">Ocultar selector ✕</button>
   </div>
 
@@ -456,18 +539,15 @@
     const toggleBtn = document.getElementById('toggleSelector');
     const hideBtn = document.getElementById('hideSelector');
 
-    // Animar contador de progreso con JS
     function animateProgress(versionEl) {
       const fill = versionEl.querySelector('.progress-fill');
       const numEl = versionEl.querySelector('.progress-number');
       if (!fill || !numEl) return;
 
-      // Reiniciar barra
       fill.style.animation = 'none';
       void fill.offsetWidth;
       fill.style.animation = '';
 
-      // Animar número con JS
       const duration = 3500;
       const delay = 1200;
       const target = 72;
@@ -521,6 +601,32 @@
       });
     }
 
+    let mixInterval = null;
+    let mixCurrentIndex = 0;
+
+    function startMixRotation() {
+      stopMixRotation();
+      const mixEl = document.querySelector('.version[data-version="mix"]');
+      if (!mixEl) return;
+
+      const layers = mixEl.querySelectorAll('.mix-layer');
+
+      mixCurrentIndex = 0;
+      layers.forEach((l, i) => l.classList.toggle('visible', i === 0));
+
+      mixInterval = setInterval(() => {
+        mixCurrentIndex = (mixCurrentIndex + 1) % layers.length;
+        layers.forEach((l, i) => l.classList.toggle('visible', i === mixCurrentIndex));
+      }, 3000);
+    }
+
+    function stopMixRotation() {
+      if (mixInterval) {
+        clearInterval(mixInterval);
+        mixInterval = null;
+      }
+    }
+
     versions.forEach(v => animateProgress(v));
     activateVersion(document.querySelector('.version.active'));
 
@@ -536,9 +642,16 @@
             v.classList.add('active');
             activateVersion(v);
             animateProgress(v);
+
+            if (target === 'mix') {
+              startMixRotation();
+            } else {
+              stopMixRotation();
+            }
           } else {
             deactivateVersion(v);
             v.classList.remove('active');
+            if (v.dataset.version === 'mix') stopMixRotation();
           }
         });
       });
