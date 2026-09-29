@@ -46,14 +46,15 @@
   /* Capa desenfocada (oculta en móvil) */
   .bg-video-blur { display: none; }
 
-  /* En pantallas anchas: video principal contenido + fondo blur ampliado
-     SOLO para la versión "afro-blur" */
+  /* En pantallas anchas: video principal contenido + fondo blur ampliado */
   @media (min-width: 900px) {
-    .version[data-version="afro-blur"] .bg-video {
+    .version[data-version="afro-blur"] .bg-video,
+    .version[data-version="chair"] .bg-video {
       object-fit: contain;
       object-position: center center;
     }
-    .version[data-version="afro-blur"] .bg-video-blur {
+    .version[data-version="afro-blur"] .bg-video-blur,
+    .version[data-version="chair"] .bg-video-blur {
       display: block;
       position: fixed;
       inset: -10%;
@@ -298,7 +299,7 @@
             <div class="progress-track"><div class="progress-fill"></div></div>
             <span class="progress-number">0%</span>
           </div>
-          <a href="https://ezequielgarciagilabert-dev.netlify.app/" target="_blank" rel="noopener noreferrer" class="dev-credit">by Ezequiel García Gilabert</a>
+          <a href="https://ezgilabert.github.io/ezequiel-dev/" target="_blank" rel="noopener noreferrer" class="dev-credit">by Ezequiel García Gilabert</a>
         </div>
       </div>
     </main>
@@ -323,7 +324,7 @@
             <div class="progress-track"><div class="progress-fill"></div></div>
             <span class="progress-number">0%</span>
           </div>
-          <a href="https://ezequielgarciagilabert-dev.netlify.app/" target="_blank" rel="noopener noreferrer" class="dev-credit">by Ezequiel García Gilabert</a>
+          <a href="https://ezgilabert.github.io/ezequiel-dev/" target="_blank" rel="noopener noreferrer" class="dev-credit">by Ezequiel García Gilabert</a>
         </div>
       </div>
     </main>
@@ -348,7 +349,7 @@
             <div class="progress-track"><div class="progress-fill"></div></div>
             <span class="progress-number">0%</span>
           </div>
-          <a href="https://ezequielgarciagilabert-dev.netlify.app/" target="_blank" rel="noopener noreferrer" class="dev-credit">by Ezequiel García Gilabert</a>
+          <a href="https://ezgilabert.github.io/ezequiel-dev/" target="_blank" rel="noopener noreferrer" class="dev-credit">by Ezequiel García Gilabert</a>
         </div>
       </div>
     </main>
@@ -358,7 +359,10 @@
        VERSIÓN 4: Chair (businessman laptop)
        ============================================================ -->
   <div class="version" data-version="chair">
-    <video class="bg-video" muted loop playsinline preload="none" style="object-fit: cover; object-position: center center;">
+    <video class="bg-video-blur" muted loop playsinline preload="none">
+      <source data-src="https://videos.pexels.com/video-files/8061755/8061755-uhd_2160_3840_25fps.mp4" type="video/mp4">
+    </video>
+    <video class="bg-video" muted loop playsinline preload="none">
       <source data-src="https://videos.pexels.com/video-files/8061755/8061755-uhd_2160_3840_25fps.mp4" type="video/mp4">
     </video>
     <div class="bg-overlay"></div>
@@ -373,7 +377,7 @@
             <div class="progress-track"><div class="progress-fill"></div></div>
             <span class="progress-number">0%</span>
           </div>
-          <a href="https://ezequielgarciagilabert-dev.netlify.app/" target="_blank" rel="noopener noreferrer" class="dev-credit">by Ezequiel García Gilabert</a>
+          <a href="https://ezgilabert.github.io/ezequiel-dev/" target="_blank" rel="noopener noreferrer" class="dev-credit">by Ezequiel García Gilabert</a>
         </div>
       </div>
     </main>
@@ -398,7 +402,7 @@
             <div class="progress-track"><div class="progress-fill"></div></div>
             <span class="progress-number">0%</span>
           </div>
-          <a href="https://ezequielgarciagilabert-dev.netlify.app/" target="_blank" rel="noopener noreferrer" class="dev-credit">by Ezequiel García Gilabert</a>
+          <a href="https://ezgilabert.github.io/ezequiel-dev/" target="_blank" rel="noopener noreferrer" class="dev-credit">by Ezequiel García Gilabert</a>
         </div>
       </div>
     </main>
@@ -423,7 +427,7 @@
             <div class="progress-track"><div class="progress-fill"></div></div>
             <span class="progress-number">0%</span>
           </div>
-          <a href="https://ezequielgarciagilabert-dev.netlify.app/" target="_blank" rel="noopener noreferrer" class="dev-credit">by Ezequiel García Gilabert</a>
+          <a href="https://ezgilabert.github.io/ezequiel-dev/" target="_blank" rel="noopener noreferrer" class="dev-credit">by Ezequiel García Gilabert</a>
         </div>
       </div>
     </main>
