@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Coming Soon — Selector de versiones</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400&family=Fraunces:ital,opsz,wght@0,9..144,300;1,9..144,300&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    height: 100%;
+    overflow: hidden;
+    background: #0a0a0a;
+    color: #fff;
+    font-family: 'Inter', sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ============================================================
+     CONTENEDOR DE CADA VERSIÓN
+     ============================================================ */
+  .version {
+    position: fixed;
+    inset: 0;
+    display: none;
+  }
+  .version.active { display: block; }
+
+  /* ============ VIDEO DE FONDO (base) ============ */
+  .bg-video {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center center;
+    z-index: 1;
+    filter: contrast(1.05) brightness(0.8);
+    animation: videoFadeIn 1.8s ease forwards;
+  }
+  @keyframes videoFadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+  /* Capa desenfocada (oculta en móvil) */
+  .bg-video-blur { display: none; }
+
+  /* En pantallas anchas: video principal contenido + fondo blur ampliado
+     SOLO para la versión "afro-blur" */
+  @media (min-width: 900px) {
+    .version[data-version="afro-blur"] .bg-video {
+      object-fit: contain;
+      object-position: center center;
+    }
+    .version[data-version="afro-blur"] .bg-video-blur {
+      display: block;
+      position: fixed;
+      inset: -10%;
+      width: 120%;
+      height: 120%;
+      object-fit: cover;
+      object-position: center center;
+      z-index: 0;
+      filter: blur(48px) saturate(1.4) brightness(0.55) contrast(1.1);
+      transform: scale(1.15);
+      opacity: 0.9;
+    }
+  }
+
+  .bg-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 2;
+    background: linear-gradient(180deg, rgba(10,10,10,0.35) 0%, rgba(10,10,10,0.25) 45%, rgba(10,10,10,0.85) 100%);
+  }
+
+  .grain {
+    position: fixed;
+    inset: 0;
+    z-index: 3;
+    pointer-events: none;
+    opacity: 0.05;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' /%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  /* ============ CONTENIDO ============ */
+  main {
+    position: relative;
+    z-index: 5;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 56px;
+  }
+  .content { max-width: 900px; }
+
+  .eyebrow {
+    font-size: 0.7rem;
+    font-weight: 300;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.6);
+    margin-bottom: 40px;
+    animation: fadeUp 1.4s cubic-bezier(0.16, 1, 0.3, 1) 0.3s both;
+  }
+
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-weight: 300;
+    font-size: clamp(3rem, 7.5vw, 7rem);
+    line-height: 1;
+    letter-spacing: -0.025em;
+    color: #fff;
+    margin-bottom: 56px;
+    animation: fadeUp 1.6s cubic-bezier(0.16, 1, 0.3, 1) 0.45s both;
+  }
+  h1 em { font-style: italic; color: rgba(255, 255, 255, 0.5); }
+
+  /* ============ FOOTER ============ */
+  .footer {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 20px;
+    font-size: 0.68rem;
+    font-weight: 300;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.45);
+    animation: fadeUp 1.6s cubic-bezier(0.16, 1, 0.3, 1) 0.7s both;
+  }
+
+  .progress {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .progress-track {
+    width: 100px;
+    height: 1px;
+    background: rgba(255, 255, 255, 0.18);
+    position: relative;
+    overflow: hidden;
+  }
+  .progress-fill {
+    position: absolute;
+    inset: 0;
+    width: 0%;
+    background: rgba(255, 255, 255, 0.9);
+    animation: fill 3.5s cubic-bezier(0.65, 0, 0.35, 1) 1.2s forwards;
+  }
+  @keyframes fill { to { width: 72%; } }
+
+  /* Número animado con JavaScript */
+  .progress-number {
+    min-width: 28px;
+    display: inline-block;
+  }
+
+  /* ============ CRÉDITO ============ */
+  .dev-credit {
+    display: inline-block;
+    color: rgba(255, 255, 255, 0.35);
+    text-decoration: none;
+    transition: color 0.35s ease;
+    letter-spacing: 0.18em;
+    font-size: 0.58rem;
+    font-weight: 300;
+    text-transform: uppercase;
+    animation: fadeUp 1.6s cubic-bezier(0.16, 1, 0.3, 1) 0.85s both;
+  }
+  .dev-credit:hover { color: rgba(255, 255, 255, 0.8); }
+
+  /* ============ ANIMACIONES ============ */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ============================================================
+     SELECTOR DE VERSIONES
+     ============================================================ */
+  .selector {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 999;
+    background: rgba(15, 15, 20, 0.85);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 12px;
+    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-width: 230px;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
+  }
+  .selector.hidden {
+    transform: translateY(calc(100% + 40px));
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .selector-title {
+    font-size: 0.6rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.5);
+    margin-bottom: 2px;
+  }
+
+  .selector button {
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.15);
+    color: rgba(255,255,255,0.8);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 300;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    text-align: left;
+  }
+  .selector button:hover {
+    background: rgba(255,255,255,0.08);
+    color: #fff;
+  }
+  .selector button.active {
+    background: #2563eb;
+    border-color: #2563eb;
+    color: #fff;
+  }
+
+  .toggle-selector {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 1000;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: rgba(15, 15, 20, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #fff;
+    font-size: 1.1rem;
+    cursor: pointer;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    transition: background 0.3s ease, transform 0.3s ease;
+  }
+  .toggle-selector:hover { background: #2563eb; transform: scale(1.05); }
+  .toggle-selector.visible { display: flex; }
+
+  /* ============ RESPONSIVE ============ */
+  @media (max-width: 768px) {
+    main { padding: 28px 24px; }
+    h1 { margin-bottom: 40px; letter-spacing: -0.02em; }
+    .eyebrow { margin-bottom: 28px; }
+    .dev-credit { font-size: 0.52rem; letter-spacing: 0.14em; }
+    .selector { bottom: 16px; right: 16px; min-width: 190px; padding: 12px; }
+    .toggle-selector { bottom: 16px; right: 16px; }
+  }
+</style>
+</head>
+<body>
+
+  <!-- ============================================================
+       VERSIÓN 1: Afro (blur desktop) — la primera captura
+       ============================================================ -->
+  <div class="version active" data-version="afro-blur">
+    <video class="bg-video-blur" autoplay muted loop playsinline>
+      <source src="https://videos.pexels.com/video-files/9370435/9370435-uhd_2160_3840_24fps.mp4" type="video/mp4">
+    </video>
+    <video class="bg-video" autoplay muted loop playsinline>
+      <source src="https://videos.pexels.com/video-files/9370435/9370435-uhd_2160_3840_24fps.mp4" type="video/mp4">
+    </video>
+    <div class="bg-overlay"></div>
+    <div class="grain"></div>
+    <main>
+      <div class="content">
+        <div class="eyebrow">Próximamente</div>
+        <h1>Preparate.<br><em>Esto recién arranca.</em></h1>
+        <div class="footer">
+          <div class="progress">
+            <span>Progreso</span>
+            <div class="progress-track"><div class="progress-fill"></div></div>
+            <span class="progress-number">0%</span>
+          </div>
+          <a href="https://ezequielgarciagilabert-dev.netlify.app/" target="_blank" rel="noopener noreferrer" class="dev-credit">by Ezequiel García Gilabert</a>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- ============================================================
+       VERSIÓN 2: Afro V2 (cover normal, object 25%)
+       ============================================================ -->
+  <div class="version" data-version="afro-v2">
+    <video class="bg-video" autoplay muted loop playsinline style="object-fit: cover; object-position: center 25%;">
+      <source src="https://videos.pexels.com/video-files/9370435/9370435-uhd_2160_3840_24fps.mp4" type="video/mp4">
+    </video>
+    <div class="bg-overlay"></div>
+    <div class="grain"></div>
+    <main>
+      <div class="content">
+        <div class="eyebrow">Próximamente</div>
+        <h1>Preparate.<br><em>Esto recién arranca.</em></h1>
+        <div class="footer">
+          <div class="progress">
+            <span>Progreso</span>
+            <div class="progress-track"><div class="progress-fill"></div></div>
+            <span class="progress-number">0%</span>
+          </div>
+          <a href="https://ezequielgarciagilabert-dev.netlify.app/" target="_blank" rel="noopener noreferrer" class="dev-credit">by Ezequiel García Gilabert</a>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- ============================================================
+       VERSIÓN 3: Afro V3 (sin poster, cover centrado)
+       ============================================================ -->
+  <div class="version" data-version="afro-v3">
+    <video class="bg-video" autoplay muted loop playsinline style="object-fit: cover; object-position: center center;">
+      <source src="https://videos.pexels.com/video-files/9370435/9370435-uhd_2160_3840_24fps.mp4" type="video/mp4">
+    </video>
+    <div class="bg-overlay"></div>
+    <div class="grain"></div>
+    <main>
+      <div class="content">
+        <div class="eyebrow">Próximamente</div>
+        <h1>Preparate.<br><em>Esto recién arranca.</em></h1>
+        <div class="footer">
+          <div class="progress">
+            <span>Progreso</span>
+            <div class="progress-track"><div class="progress-fill"></div></div>
+            <span class="progress-number">0%</span>
+          </div>
+          <a href="https://ezequielgarciagilabert-dev.netlify.app/" target="_blank" rel="noopener noreferrer" class="dev-credit">by Ezequiel García Gilabert</a>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- ============================================================
+       VERSIÓN 4: Chair (businessman laptop)
+       ============================================================ -->
+  <div class="version" data-version="chair">
+    <video class="bg-video" autoplay muted loop playsinline style="object-fit: cover; object-position: center center;">
+      <source src="https://videos.pexels.com/video-files/8061755/8061755-uhd_2160_3840_25fps.mp4" type="video/mp4">
+    </video>
+    <div class="bg-overlay"></div>
+    <div class="grain"></div>
+    <main>
+      <div class="content">
+        <div class="eyebrow">Próximamente</div>
+        <h1>Preparate.<br><em>Esto recién arranca.</em></h1>
+        <div class="footer">
+          <div class="progress">
+            <span>Progreso</span>
+            <div class="progress-track"><div class="progress-fill"></div></div>
+            <span class="progress-number">0%</span>
+          </div>
+          <a href="https://ezequielgarciagilabert-dev.netlify.app/" target="_blank" rel="noopener noreferrer" class="dev-credit">by Ezequiel García Gilabert</a>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- ============================================================
+       VERSIÓN 5: Kid (hombre profesional HD)
+       ============================================================ -->
+  <div class="version" data-version="kid">
+    <video class="bg-video" autoplay muted loop playsinline style="object-fit: cover; object-position: center center; filter: contrast(1.05) brightness(0.75);">
+      <source src="https://videos.pexels.com/video-files/3209828/3209828-hd_1920_1080_25fps.mp4" type="video/mp4">
+    </video>
+    <div class="bg-overlay"></div>
+    <div class="grain"></div>
+    <main>
+      <div class="content">
+        <div class="eyebrow">Próximamente</div>
+        <h1>Preparate.<br><em>Esto recién arranca.</em></h1>
+        <div class="footer">
+          <div class="progress">
+            <span>Progreso</span>
+            <div class="progress-track"><div class="progress-fill"></div></div>
+            <span class="progress-number">0%</span>
+          </div>
+          <a href="https://ezequielgarciagilabert-dev.netlify.app/" target="_blank" rel="noopener noreferrer" class="dev-credit">by Ezequiel García Gilabert</a>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- ============================================================
+       VERSIÓN 6: Adult (realtor clipboard)
+       ============================================================ -->
+  <div class="version" data-version="adult">
+    <video class="bg-video" autoplay muted loop playsinline style="object-fit: cover; object-position: center center;">
+      <source src="https://videos.pexels.com/video-files/7647327/7647327-uhd_2160_3840_24fps.mp4" type="video/mp4">
+    </video>
+    <div class="bg-overlay"></div>
+    <div class="grain"></div>
+    <main>
+      <div class="content">
+        <div class="eyebrow">Próximamente</div>
+        <h1>Preparate.<br><em>Esto recién arranca.</em></h1>
+        <div class="footer">
+          <div class="progress">
+            <span>Progreso</span>
+            <div class="progress-track"><div class="progress-fill"></div></div>
+            <span class="progress-number">0%</span>
+          </div>
+          <a href="https://ezequielgarciagilabert-dev.netlify.app/" target="_blank" rel="noopener noreferrer" class="dev-credit">by Ezequiel García Gilabert</a>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- ============================================================
+       SELECTOR DE VERSIONES
+       ============================================================ -->
+  <div class="selector" id="selector">
+    <div class="selector-title">Elegir versión</div>
+    <button data-target="afro-blur" class="active">Afro (blur desktop)</button>
+    <button data-target="afro-v2">Afro V2 (object 25%)</button>
+    <button data-target="afro-v3">Afro V3 (sin poster)</button>
+    <button data-target="chair">Chair (laptop)</button>
+    <button data-target="kid">Kid (HD 1080)</button>
+    <button data-target="adult">Adult (clipboard)</button>
+    <button id="hideSelector" style="margin-top:6px; border-color: rgba(255,255,255,0.3); color:#fff;">Ocultar selector ✕</button>
+  </div>
+
+  <button class="toggle-selector" id="toggleSelector" title="Mostrar selector">☰</button>
+
+  <script>
+    const buttons = document.querySelectorAll('.selector button[data-target]');
+    const versions = document.querySelectorAll('.version');
+    const selector = document.getElementById('selector');
+    const toggleBtn = document.getElementById('toggleSelector');
+    const hideBtn = document.getElementById('hideSelector');
+
+    // Animar contador de progreso con JS
+    function animateProgress(versionEl) {
+      const fill = versionEl.querySelector('.progress-fill');
+      const numEl = versionEl.querySelector('.progress-number');
+      if (!fill || !numEl) return;
+
+      // Reiniciar barra
+      fill.style.animation = 'none';
+      void fill.offsetWidth;
+      fill.style.animation = '';
+
+      // Animar número con JS
+      const duration = 3500;
+      const delay = 1200;
+      const target = 72;
+      const start = performance.now() + delay;
+
+      if (numEl._raf) cancelAnimationFrame(numEl._raf);
+
+      function tick(now) {
+        const elapsed = now - start;
+        if (elapsed < 0) {
+          numEl.textContent = '0%';
+          numEl._raf = requestAnimationFrame(tick);
+          return;
+        }
+        const t = Math.min(elapsed / duration, 1);
+        const eased = cubicBezier(t, 0.65, 0, 0.35, 1);
+        numEl.textContent = Math.round(eased * target) + '%';
+        if (t < 1) numEl._raf = requestAnimationFrame(tick);
+      }
+      numEl._raf = requestAnimationFrame(tick);
+    }
+
+    function cubicBezier(t, p1x, p1y, p2x, p2y) {
+      function bezier(x1, x2, t) {
+        return 3 * (1 - t) * (1 - t) * t * x1 + 3 * (1 - t) * t * t * x2 + t * t * t;
+      }
+      let low = 0, high = 1, mid;
+      for (let i = 0; i < 20; i++) {
+        mid = (low + high) / 2;
+        const x = bezier(p1x, p2x, mid);
+        if (x < t) low = mid; else high = mid;
+      }
+      return bezier(p1y, p2y, mid);
+    }
+
+    versions.forEach(v => animateProgress(v));
+
+    buttons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const target = btn.dataset.target;
+
+        buttons.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        versions.forEach(v => {
+          if (v.dataset.version === target) {
+            v.classList.add('active');
+            animateProgress(v);
+          } else {
+            v.classList.remove('active');
+          }
+        });
+      });
+    });
+
+    hideBtn.addEventListener('click', () => {
+      selector.classList.add('hidden');
+      toggleBtn.classList.add('visible');
+    });
+
+    toggleBtn.addEventListener('click', () => {
+      selector.classList.remove('hidden');
+      toggleBtn.classList.remove('visible');
+    });
+  </script>
+
+</body>
+</html>
