@@ -280,11 +280,11 @@
        VERSIÓN 1: Afro (blur desktop) — la primera captura
        ============================================================ -->
   <div class="version active" data-version="afro-blur">
-    <video class="bg-video-blur" autoplay muted loop playsinline>
-      <source src="https://videos.pexels.com/video-files/9370435/9370435-uhd_2160_3840_24fps.mp4" type="video/mp4">
+    <video class="bg-video-blur" muted loop playsinline preload="none">
+      <source data-src="https://videos.pexels.com/video-files/9370435/9370435-uhd_2160_3840_24fps.mp4" type="video/mp4">
     </video>
-    <video class="bg-video" autoplay muted loop playsinline>
-      <source src="https://videos.pexels.com/video-files/9370435/9370435-uhd_2160_3840_24fps.mp4" type="video/mp4">
+    <video class="bg-video" muted loop playsinline preload="none">
+      <source data-src="https://videos.pexels.com/video-files/9370435/9370435-uhd_2160_3840_24fps.mp4" type="video/mp4">
     </video>
     <div class="bg-overlay"></div>
     <div class="grain"></div>
@@ -308,8 +308,8 @@
        VERSIÓN 2: Afro V2 (cover normal, object 25%)
        ============================================================ -->
   <div class="version" data-version="afro-v2">
-    <video class="bg-video" autoplay muted loop playsinline style="object-fit: cover; object-position: center 25%;">
-      <source src="https://videos.pexels.com/video-files/9370435/9370435-uhd_2160_3840_24fps.mp4" type="video/mp4">
+    <video class="bg-video" muted loop playsinline preload="none" style="object-fit: cover; object-position: center 25%;">
+      <source data-src="https://videos.pexels.com/video-files/9370435/9370435-uhd_2160_3840_24fps.mp4" type="video/mp4">
     </video>
     <div class="bg-overlay"></div>
     <div class="grain"></div>
@@ -333,8 +333,8 @@
        VERSIÓN 3: Afro V3 (sin poster, cover centrado)
        ============================================================ -->
   <div class="version" data-version="afro-v3">
-    <video class="bg-video" autoplay muted loop playsinline style="object-fit: cover; object-position: center center;">
-      <source src="https://videos.pexels.com/video-files/9370435/9370435-uhd_2160_3840_24fps.mp4" type="video/mp4">
+    <video class="bg-video" muted loop playsinline preload="none" style="object-fit: cover; object-position: center center;">
+      <source data-src="https://videos.pexels.com/video-files/9370435/9370435-uhd_2160_3840_24fps.mp4" type="video/mp4">
     </video>
     <div class="bg-overlay"></div>
     <div class="grain"></div>
@@ -358,8 +358,8 @@
        VERSIÓN 4: Chair (businessman laptop)
        ============================================================ -->
   <div class="version" data-version="chair">
-    <video class="bg-video" autoplay muted loop playsinline style="object-fit: cover; object-position: center center;">
-      <source src="https://videos.pexels.com/video-files/8061755/8061755-uhd_2160_3840_25fps.mp4" type="video/mp4">
+    <video class="bg-video" muted loop playsinline preload="none" style="object-fit: cover; object-position: center center;">
+      <source data-src="https://videos.pexels.com/video-files/8061755/8061755-uhd_2160_3840_25fps.mp4" type="video/mp4">
     </video>
     <div class="bg-overlay"></div>
     <div class="grain"></div>
@@ -383,8 +383,8 @@
        VERSIÓN 5: Kid (hombre profesional HD)
        ============================================================ -->
   <div class="version" data-version="kid">
-    <video class="bg-video" autoplay muted loop playsinline style="object-fit: cover; object-position: center center; filter: contrast(1.05) brightness(0.75);">
-      <source src="https://videos.pexels.com/video-files/3209828/3209828-hd_1920_1080_25fps.mp4" type="video/mp4">
+    <video class="bg-video" muted loop playsinline preload="none" style="object-fit: cover; object-position: center center; filter: contrast(1.05) brightness(0.75);">
+      <source data-src="https://videos.pexels.com/video-files/3209828/3209828-hd_1920_1080_25fps.mp4" type="video/mp4">
     </video>
     <div class="bg-overlay"></div>
     <div class="grain"></div>
@@ -408,8 +408,8 @@
        VERSIÓN 6: Adult (realtor clipboard)
        ============================================================ -->
   <div class="version" data-version="adult">
-    <video class="bg-video" autoplay muted loop playsinline style="object-fit: cover; object-position: center center;">
-      <source src="https://videos.pexels.com/video-files/7647327/7647327-uhd_2160_3840_24fps.mp4" type="video/mp4">
+    <video class="bg-video" muted loop playsinline preload="none" style="object-fit: cover; object-position: center center;">
+      <source data-src="https://videos.pexels.com/video-files/7647327/7647327-uhd_2160_3840_24fps.mp4" type="video/mp4">
     </video>
     <div class="bg-overlay"></div>
     <div class="grain"></div>
@@ -499,7 +499,26 @@
       return bezier(p1y, p2y, mid);
     }
 
+    function activateVersion(versionEl) {
+      versionEl.querySelectorAll('video').forEach(video => {
+        video.querySelectorAll('source[data-src]').forEach(source => {
+          if (!source.hasAttribute('src')) source.src = source.dataset.src;
+        });
+        video.load();
+        video.play().catch(() => {});
+      });
+    }
+
+    function deactivateVersion(versionEl) {
+      versionEl.querySelectorAll('video').forEach(video => {
+        video.pause();
+        video.querySelectorAll('source[data-src]').forEach(source => source.removeAttribute('src'));
+        video.load();
+      });
+    }
+
     versions.forEach(v => animateProgress(v));
+    activateVersion(document.querySelector('.version.active'));
 
     buttons.forEach(btn => {
       btn.addEventListener('click', () => {
@@ -511,8 +530,10 @@
         versions.forEach(v => {
           if (v.dataset.version === target) {
             v.classList.add('active');
+            activateVersion(v);
             animateProgress(v);
           } else {
+            deactivateVersion(v);
             v.classList.remove('active');
           }
         });
