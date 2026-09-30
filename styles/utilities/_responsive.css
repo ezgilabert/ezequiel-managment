@@ -1,0 +1,26 @@
+@media (max-width: 768px) {
+  .content {
+    padding: var(--stage-padding-mobile);
+  }
+
+  .headline {
+    margin-bottom: 22px;
+  }
+
+  .subtitle {
+    margin-bottom: 32px;
+  }
+
+  .badge {
+    font-size: 0.64rem;
+  }
+
+  .credit {
+    font-size: 0.56rem;
+  }
+
+  .flash--streak {
+    width: 180px;
+    height: 1.5px;
+  }
+}

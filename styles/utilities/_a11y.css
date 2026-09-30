@@ -1,0 +1,17 @@
+@media (prefers-reduced-motion: reduce) {
+  .stage__flashes {
+    display: none;
+  }
+
+  .video-layer {
+    transition: opacity 0.6s linear;
+  }
+
+  .badge,
+  .headline,
+  .subtitle,
+  .content__footer {
+    animation-duration: 0.6s;
+    animation-delay: 0s;
+  }
+}

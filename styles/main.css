@@ -1,0 +1,30 @@
+/* ============================================================
+   MAIN — Punto de entrada de estilos.
+   El orden de los @import define el orden en la cascada.
+   ============================================================ */
+
+/* Base */
+@import url('./base/_reset.css');
+@import url('./base/_tokens.css');
+@import url('./base/_typography.css');
+
+/* Layout */
+@import url('./layout/_stage.css');
+@import url('./layout/_content.css');
+
+/* Componentes */
+@import url('./components/_badge.css');
+@import url('./components/_headline.css');
+@import url('./components/_subtitle.css');
+@import url('./components/_progress.css');
+@import url('./components/_credit.css');
+
+/* Efectos */
+@import url('./effects/_flashes.css');
+
+/* Animaciones */
+@import url('./animations/_keyframes.css');
+
+/* Utilidades (siempre al final) */
+@import url('./utilities/_responsive.css');
+@import url('./utilities/_a11y.css');

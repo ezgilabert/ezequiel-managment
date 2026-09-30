@@ -1,0 +1,33 @@
+.progress {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 0.65rem;
+  font-weight: 400;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(255, 245, 235, 0.5);
+}
+
+.progress__track {
+  position: relative;
+  width: 100px;
+  height: 1px;
+  background: var(--color-line-soft);
+  overflow: hidden;
+}
+
+.progress__fill {
+  position: absolute;
+  inset: 0;
+  width: 0%;
+  background: linear-gradient(90deg, var(--color-accent-soft), var(--color-accent));
+  animation: progress-fill 6s cubic-bezier(0.65, 0, 0.35, 1) 2.6s forwards;
+}
+
+.progress__value {
+  min-width: 34px;
+  display: inline-block;
+  color: var(--color-accent-soft);
+  font-variant-numeric: tabular-nums;
+}

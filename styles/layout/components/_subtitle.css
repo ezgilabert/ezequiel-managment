@@ -1,0 +1,14 @@
+.subtitle {
+  font-size: clamp(0.95rem, 1.5vw, 1.1rem);
+  font-weight: 300;
+  line-height: 1.7;
+  color: var(--color-text-muted);
+  max-width: 540px;
+  margin-bottom: 44px;
+  animation: reveal-soft 3.6s var(--ease-reveal) 1.8s both;
+}
+
+.subtitle strong {
+  color: var(--color-text);
+  font-weight: 500;
+}

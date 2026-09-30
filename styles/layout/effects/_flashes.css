@@ -1,0 +1,130 @@
+.flash {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+  contain: layout style paint;
+}
+
+.flash--screen { mix-blend-mode: screen; }
+
+/* ---- Cone ---- */
+.flash--cone {
+  top: 0;
+  height: 100%;
+  width: 130%;
+  max-width: 1600px;
+  animation: flash-cone 140ms var(--ease-flash) forwards;
+}
+
+.flash--cone.from-left {
+  left: 0;
+  transform-origin: left var(--y, 50%);
+  background: radial-gradient(
+    ellipse 45% 55% at 0% var(--y, 50%),
+    rgba(255, 255, 255, 1) 0%,
+    rgba(255, 250, 240, 0.95) 3%,
+    rgba(255, 235, 215, 0.70) 10%,
+    rgba(255, 210, 180, 0.30) 25%,
+    rgba(255, 190, 160, 0.08) 50%,
+    transparent 72%
+  );
+}
+
+.flash--cone.from-right {
+  right: 0;
+  transform-origin: right var(--y, 50%);
+  background: radial-gradient(
+    ellipse 45% 55% at 100% var(--y, 50%),
+    rgba(255, 255, 255, 1) 0%,
+    rgba(255, 250, 240, 0.95) 3%,
+    rgba(255, 235, 215, 0.70) 10%,
+    rgba(255, 210, 180, 0.30) 25%,
+    rgba(255, 190, 160, 0.08) 50%,
+    transparent 72%
+  );
+}
+
+/* ---- Core ---- */
+.flash--core {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #fff;
+  transform: translateY(-50%);
+  animation: flash-core 120ms var(--ease-flash) forwards;
+  box-shadow:
+    0 0 6px 2px #fff,
+    0 0 18px 6px rgba(255, 240, 220, 1),
+    0 0 60px 20px rgba(255, 210, 170, 0.8),
+    0 0 160px 50px rgba(255, 180, 130, 0.4);
+}
+
+/* ---- Halo ---- */
+.flash--halo {
+  top: 0;
+  height: 100%;
+  width: 55%;
+  max-width: 700px;
+  filter: blur(18px);
+  animation: flash-halo 200ms var(--ease-flash) forwards;
+}
+
+.flash--halo.from-left  { left: 0; }
+.flash--halo.from-right { right: 0; }
+
+/* ---- Streak ---- */
+.flash--streak {
+  height: 2px;
+  width: 300px;
+  transform-origin: left center;
+  animation: flash-streak 160ms var(--ease-flash) forwards;
+}
+
+.flash--streak::before,
+.flash--streak::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  transform: translateY(-50%);
+}
+
+.flash--streak::before {
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(90deg, rgba(255, 248, 240, 1) 0%, rgba(255, 240, 225, 0.5) 50%, transparent 100%);
+}
+
+.flash--streak::after {
+  width: 100%;
+  height: 70%;
+  background: linear-gradient(90deg, rgba(255, 220, 190, 0.6) 0%, rgba(255, 190, 150, 0.2) 35%, transparent 100%);
+  filter: blur(1.5px);
+}
+
+.flash--streak.from-right { transform-origin: right center; }
+
+.flash--streak.from-right::before {
+  left: auto;
+  right: 0;
+  background: linear-gradient(270deg, rgba(255, 248, 240, 1) 0%, rgba(255, 240, 225, 0.5) 50%, transparent 100%);
+}
+
+.flash--streak.from-right::after {
+  left: auto;
+  right: 0;
+  background: linear-gradient(270deg, rgba(255, 220, 190, 0.6) 0%, rgba(255, 190, 150, 0.2) 35%, transparent 100%);
+}
+
+/* ---- Floor ---- */
+.flash--floor {
+  bottom: 0;
+  height: 35%;
+  width: 60%;
+  max-width: 800px;
+  filter: blur(14px);
+  animation: flash-floor 220ms var(--ease-flash) forwards;
+}
+
+.flash--floor.from-left  { left: 0; }
+.flash--floor.from-right { right: 0; }
