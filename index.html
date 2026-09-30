@@ -3,11 +3,17 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Próximamente — Ezequiel</title>
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#0a0807">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
+<title>⚡ Próximamente...</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Fraunces:ital,opsz,wght@0,9..144,300;1,9..144,500&display=swap" rel="stylesheet">
 <style>
+  /* ==================================================================
+     1. RESET + TOKENS
+     ================================================================== */
   *,
   *::before,
   *::after {
@@ -23,6 +29,18 @@
     --text-primary: #fff;
     --text-muted: rgba(255, 245, 235, 0.7);
     --text-faint: rgba(255, 245, 235, 0.4);
+
+    --t-headline:   1.6s;
+    --t-subtitle:   4.0s;
+    --t-f-eyebrow:  7.4s;
+    --t-f-progress: 8.6s;
+    --t-f-credit:   9.8s;
+    --t-done:      11.2s;
+
+    --d-reveal:  1.2s;
+    --d-curtain: 2.6s;
+    --ease-out:  cubic-bezier(0.19, 1, 0.22, 1);
+    --ease-soft: cubic-bezier(0.16, 1, 0.3, 1);
   }
 
   html,
@@ -31,8 +49,9 @@
     overflow: hidden;
     background: var(--bg-dark);
     color: var(--text-primary);
-    font-family: 'Inter', sans-serif;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
     -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
   }
 
   .stage-root {
@@ -41,16 +60,16 @@
     isolation: isolate;
   }
 
-  /* ------------------------------------------------------------------
-     Video stage
-     ------------------------------------------------------------------ */
+  /* ==================================================================
+     VIDEO STAGE
+     ================================================================== */
   .mix-stage {
     position: absolute;
     inset: 0;
     overflow: hidden;
     background: var(--bg-dark);
     z-index: 1;
-    contain: strict;
+    contain: layout paint;
   }
 
   .mix-layer {
@@ -64,6 +83,7 @@
     filter: contrast(1.05) brightness(0.95) saturate(1.1);
     transform-origin: center;
     backface-visibility: hidden;
+    will-change: opacity, transform;
     transition:
       opacity 1.4s ease-in-out,
       transform 1.8s ease-in-out,
@@ -86,14 +106,14 @@
     .mix-layer[data-mix-index="2"] { object-position: center 80%; }
   }
 
-  /* ------------------------------------------------------------------
-     Overlays
-     ------------------------------------------------------------------ */
+  /* ==================================================================
+     OVERLAYS
+     ================================================================== */
   .overlay {
     position: absolute;
     inset: 0;
     pointer-events: none;
-    contain: strict;
+    contain: layout paint;
   }
 
   .overlay--gradient {
@@ -122,9 +142,9 @@
     background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   }
 
-  /* ------------------------------------------------------------------
-     Paparazzi flashes
-     ------------------------------------------------------------------ */
+  /* ==================================================================
+     PAPARAZZI FLASHES
+     ================================================================== */
   .paparazzi {
     position: absolute;
     inset: 0;
@@ -148,7 +168,6 @@
     mix-blend-mode: screen;
   }
 
-  /* Cone ---------------------------------------------------------- */
   .flash--cone {
     top: 0;
     height: 100%;
@@ -185,7 +204,6 @@
     );
   }
 
-  /* Core ---------------------------------------------------------- */
   .flash--core {
     width: 8px;
     height: 8px;
@@ -200,7 +218,6 @@
       0 0 160px 50px rgba(255, 180, 130, 0.4);
   }
 
-  /* Halo ---------------------------------------------------------- */
   .flash--halo {
     top: 0;
     height: 100%;
@@ -213,7 +230,6 @@
   .flash--halo.from-left  { left: 0; }
   .flash--halo.from-right { right: 0; }
 
-  /* Streak -------------------------------------------------------- */
   .flash--streak {
     height: 2px;
     width: 300px;
@@ -259,7 +275,6 @@
     background: linear-gradient(270deg, rgba(255,220,190,0.6) 0%, rgba(255,190,150,0.2) 35%, transparent 100%);
   }
 
-  /* Floor --------------------------------------------------------- */
   .flash--floor {
     bottom: 0;
     height: 35%;
@@ -272,7 +287,6 @@
   .flash--floor.from-left  { left: 0; }
   .flash--floor.from-right { right: 0; }
 
-  /* Keyframes ----------------------------------------------------- */
   @keyframes flash-cone {
     0%   { opacity: 0; transform: scaleX(0.3) scaleY(0.5); }
     2%   { opacity: 1; transform: scaleX(1) scaleY(1); }
@@ -309,9 +323,9 @@
     100% { opacity: 0; transform: scaleY(1.1); }
   }
 
-  /* ------------------------------------------------------------------
-     Content — cinematic reveal
-     ------------------------------------------------------------------ */
+  /* ==================================================================
+     CONTENT STAGE
+     ================================================================== */
   .content-stage {
     position: relative;
     z-index: 10;
@@ -320,44 +334,27 @@
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
+    align-items: flex-start;
     padding: 56px;
   }
 
   .content {
     max-width: 820px;
-  }
-
-  .eyebrow {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 0.7rem;
-    font-weight: 400;
-    letter-spacing: 0.22em;
-    text-transform: uppercase;
-    color: var(--accent-soft);
-    margin-bottom: 8px;
-    animation: reveal-soft 3.2s cubic-bezier(0.19, 1, 0.22, 1) 0.3s both;
-  }
-
-  .eyebrow__dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: var(--accent);
-    box-shadow: 0 0 10px var(--accent);
-    animation: dot-pulse 2s ease-in-out infinite;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    text-align: left;
   }
 
   .headline {
-    font-family: 'Fraunces', serif;
+    font-family: 'Fraunces', Georgia, serif;
     font-weight: 300;
     font-size: clamp(2.5rem, 6vw, 5.5rem);
     line-height: 1.05;
     letter-spacing: -0.03em;
     color: var(--text-primary);
     margin-bottom: 28px;
-    animation: reveal-curtain 4.2s cubic-bezier(0.16, 1, 0.3, 1) 0.9s both;
+    animation: reveal-curtain var(--d-curtain) var(--ease-soft) var(--t-headline) both;
   }
 
   .headline__accent {
@@ -373,7 +370,7 @@
     color: var(--text-muted);
     max-width: 540px;
     margin-bottom: 44px;
-    animation: reveal-soft 3.6s cubic-bezier(0.19, 1, 0.22, 1) 1.8s both;
+    animation: reveal-soft var(--d-reveal) var(--ease-out) var(--t-subtitle) both;
   }
 
   .subtitle strong {
@@ -381,12 +378,66 @@
     font-weight: 500;
   }
 
+  .subtitle .typewriter-char {
+    opacity: 0;
+    transition: opacity 0.12s ease;
+  }
+
+  .subtitle .typewriter-char.is-typed {
+    opacity: 1;
+  }
+
+  /* Cursor: la animación vive SOLO en .is-active
+     para que al quitarla desaparezca suavemente */
+  .subtitle .typewriter-cursor {
+    display: inline-block;
+    width: 1px;
+    height: 1em;
+    margin-left: 2px;
+    vertical-align: -0.15em;
+    background: var(--accent-soft);
+    box-shadow: 0 0 8px var(--accent-soft);
+    opacity: 0;
+    transition: opacity 0.35s ease;
+  }
+
+  .subtitle .typewriter-cursor.is-active {
+    opacity: 1;
+    animation: cursor-blink 0.9s steps(1) infinite;
+  }
+
+  @keyframes cursor-blink {
+    0%, 49%   { opacity: 1; }
+    50%, 100% { opacity: 0; }
+  }
+
   .footer {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
     gap: 16px;
-    animation: reveal-soft 3.6s cubic-bezier(0.19, 1, 0.22, 1) 2.6s both;
+  }
+
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.7rem;
+    font-weight: 400;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--accent-soft);
+    margin-bottom: 8px;
+    animation: reveal-soft var(--d-reveal) var(--ease-out) var(--t-f-eyebrow) both;
+  }
+
+  .eyebrow__dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 10px var(--accent);
+    animation: dot-pulse 2s ease-in-out infinite;
   }
 
   .progress {
@@ -398,6 +449,7 @@
     letter-spacing: 0.2em;
     text-transform: uppercase;
     color: rgba(255, 245, 235, 0.5);
+    animation: reveal-soft var(--d-reveal) var(--ease-out) var(--t-f-progress) both;
   }
 
   .progress__track {
@@ -413,7 +465,7 @@
     inset: 0;
     width: 0%;
     background: linear-gradient(90deg, var(--accent-soft), var(--accent));
-    animation: progress-fill 6s cubic-bezier(0.65, 0, 0.35, 1) 2.6s forwards;
+    animation: progress-fill 6s cubic-bezier(0.65, 0, 0.35, 1) var(--t-f-progress) forwards;
   }
 
   .progress__value {
@@ -431,47 +483,29 @@
     color: var(--text-faint);
     text-decoration: none;
     transition: color 0.3s ease;
+    animation: reveal-soft var(--d-reveal) var(--ease-out) var(--t-f-credit) both;
   }
 
-  .credit:hover {
+  .credit:hover,
+  .credit:focus-visible {
     color: var(--accent-soft);
+    outline: none;
   }
 
   @keyframes reveal-soft {
-    0% {
-      opacity: 0;
-      transform: translateY(36px);
-      filter: blur(6px);
-    }
-    40% {
-      opacity: 1;
-      filter: blur(0);
-    }
-    100% {
-      opacity: 1;
-      transform: translateY(0);
-      filter: blur(0);
-    }
+    0%   { opacity: 0; transform: translateY(36px); filter: blur(6px); }
+    40%  { opacity: 1; filter: blur(0); }
+    100% { opacity: 1; transform: translateY(0);   filter: blur(0); }
   }
 
   @keyframes reveal-curtain {
-    0% {
-      opacity: 0;
-      transform: translateY(48px);
-      clip-path: inset(0 0 100% 0);
-    }
-    35% {
-      opacity: 1;
-    }
-    100% {
-      opacity: 1;
-      transform: translateY(0);
-      clip-path: inset(0 0 -10% 0);
-    }
+    0%   { opacity: 0; transform: translateY(48px); clip-path: inset(0 0 100% 0); }
+    35%  { opacity: 1; }
+    100% { opacity: 1; transform: translateY(0);    clip-path: inset(0 0 -10% 0); }
   }
 
   @keyframes dot-pulse {
-    0%, 100% { opacity: 1; transform: scale(1); }
+    0%, 100% { opacity: 1;   transform: scale(1); }
     50%      { opacity: 0.4; transform: scale(0.8); }
   }
 
@@ -479,24 +513,40 @@
     to { width: 78%; }
   }
 
+  /* ==================================================================
+     RESPONSIVE
+     ================================================================== */
   @media (max-width: 768px) {
     .content-stage { padding: 32px 24px; }
     .headline { margin-bottom: 22px; }
     .subtitle { margin-bottom: 32px; }
-    .eyebrow { margin-bottom: 8px; font-size: 0.64rem; }
-    .credit { font-size: 0.56rem; }
+    .eyebrow  { font-size: 0.64rem; }
+    .credit   { font-size: 0.56rem; }
     .flash--streak { width: 180px; height: 1.5px; }
   }
 
+  /* ==================================================================
+     REDUCED MOTION
+     ================================================================== */
   @media (prefers-reduced-motion: reduce) {
     .paparazzi { display: none; }
     .mix-layer { transition: opacity 0.6s linear; }
-    .eyebrow,
+    .eyebrow__dot,
+    .subtitle .typewriter-cursor { animation: none; }
+
     .headline,
     .subtitle,
-    .footer {
-      animation-duration: 0.6s;
+    .eyebrow,
+    .progress,
+    .credit,
+    .subtitle .typewriter-char {
+      animation-duration: 0.01ms;
       animation-delay: 0s;
+      transition: none;
+      opacity: 1;
+      transform: none;
+      filter: none;
+      clip-path: none;
     }
   }
 </style>
@@ -505,56 +555,53 @@
 
   <div class="stage-root">
 
-    <div class="mix-stage" id="mixStage">
-      <video class="mix-layer" muted loop playsinline preload="auto" data-mix-index="0">
+    <div class="mix-stage" id="mixStage" aria-hidden="true">
+      <video class="mix-layer" muted loop playsinline preload="metadata" data-mix-index="0">
         <source src="https://videos.pexels.com/video-files/9370435/9370435-hd_1080_1920_24fps.mp4" type="video/mp4">
         <source src="https://videos.pexels.com/video-files/9370435/9370435-uhd_2160_3840_24fps.mp4" type="video/mp4">
       </video>
-      <video class="mix-layer" muted loop playsinline preload="auto" data-mix-index="1">
+      <video class="mix-layer" muted loop playsinline preload="metadata" data-mix-index="1">
         <source src="https://videos.pexels.com/video-files/9370435/9370435-hd_1080_1920_24fps.mp4" type="video/mp4">
         <source src="https://videos.pexels.com/video-files/9370435/9370435-uhd_2160_3840_24fps.mp4" type="video/mp4">
       </video>
-      <video class="mix-layer" muted loop playsinline preload="auto" data-mix-index="2">
+      <video class="mix-layer" muted loop playsinline preload="metadata" data-mix-index="2">
         <source src="https://videos.pexels.com/video-files/9370435/9370435-hd_1080_1920_24fps.mp4" type="video/mp4">
         <source src="https://videos.pexels.com/video-files/9370435/9370435-uhd_2160_3840_24fps.mp4" type="video/mp4">
       </video>
     </div>
 
-    <div class="overlay overlay--gradient"></div>
-    <div class="overlay overlay--warm"></div>
-    <div class="overlay overlay--grain"></div>
+    <div class="overlay overlay--gradient" aria-hidden="true"></div>
+    <div class="overlay overlay--warm" aria-hidden="true"></div>
+    <div class="overlay overlay--grain" aria-hidden="true"></div>
 
-    <div class="paparazzi" id="paparazzi"></div>
+    <div class="paparazzi" id="paparazzi" aria-hidden="true"></div>
 
     <main class="content-stage">
       <div class="content">
 
-        <h1 class="headline">
-          Estas listo para<br>
-          <span class="headline__accent">alcanzar tu máximo potencial?</span>
-        </h1>
+        <h1 class="headline">Estas listo para<br><span class="headline__accent">alcanzar tu máximo potencial?</span></h1>
 
-        <p class="subtitle">
-          No hace falta suerte. Hace falta <strong>idea, estructura y cabeza</strong>.<br>
-          Con eso, se logra lo que sea.
-        </p>
+        <p class="subtitle" id="subtitleTypewriter" aria-live="polite">No hace falta suerte. Hace falta <strong>idea, estructura y cabeza</strong>.<br>Con eso, se logra lo que sea.</p>
 
         <div class="footer">
           <div class="eyebrow">
-            <span class="eyebrow__dot"></span>
+            <span class="eyebrow__dot" aria-hidden="true"></span>
             <span>Próximamente</span>
           </div>
-          <div class="progress">
+
+          <div class="progress" role="status" aria-label="Progreso del proyecto">
             <span>Avanzando</span>
-            <div class="progress__track">
+            <div class="progress__track" aria-hidden="true">
               <div class="progress__fill"></div>
             </div>
             <span class="progress__value">0%</span>
           </div>
+
           <a class="credit"
              href="https://ezgilabert.github.io/ezequiel-dev/"
              target="_blank"
-             rel="noopener noreferrer">
+             rel="noopener noreferrer"
+             title="Sitio de Ezequiel García Gilabert">
             Ezequiel García Gilabert
           </a>
         </div>
@@ -568,55 +615,53 @@
     (() => {
       'use strict';
 
-      // ----------------------------------------------------------------
-      // Timing de la barra de progreso
-      // ----------------------------------------------------------------
-      const PROGRESS = Object.freeze({
-        startDelay: 2600,   // ms hasta que arranca la barra
-        duration:   6000,   // ms que tarda en llegar al target
-        target:     78      // % final
+      /* ==============================================================
+         1. CONFIGURACIÓN MAESTRA
+         ============================================================== */
+      const TIMING = Object.freeze({
+        headlineStart:    1600,
+        cursorAppear:     5000,
+        typewriterStart:  5600,
+        progressStart:    8600,
+        textsDone:       11200,
+        progressDuration: 6000,
+        progressTarget:    78,
+        charDelay:          22,
+        punctDelay:        140,
+        dashDelay:         100,
+        cursorFadeOut:     900
       });
 
-      // Estado global leído por el sistema de paparazzi
-      window.__progress = 0; // 0..1 (progreso normalizado 0 -> target)
-
-      const CONFIG = Object.freeze({
+      const FLASH = Object.freeze({
         layerRotationMs: 3200,
+        maxConcurrent: 16,
+        startDelayMin: TIMING.progressStart,
+        startDelayRange: 400,
 
-        // Los flashes arrancan justo cuando empieza la barra
-        startDelay: [PROGRESS.startDelay, PROGRESS.startDelay + 400],
+        gapBuckets: [
+          { p: 0.55, min: 450,  max: 1200 },
+          { p: 0.85, min: 1200, max: 2600 },
+          { p: 0.97, min: 2600, max: 6000 },
+          { min: 6000, max: 10000 }
+        ],
 
-        gaps: {
-          short:  { p: 0.55, min: 450,  max: 1200 },
-          medium: { p: 0.85, min: 1200, max: 2600 },
-          long:   { p: 0.97, min: 2600, max: 6000 },
-          rare:   { min: 6000, max: 10000 }
-        },
+        intraGapBuckets: [
+          { p: 0.40, min: 40,  max: 90  },
+          { p: 0.80, min: 90,  max: 190 },
+          { min: 190, max: 400 }
+        ],
 
-        intraGaps: {
-          tight:  { p: 0.40, min: 40,  max: 90  },
-          normal: { p: 0.80, min: 90,  max: 190 },
-          slow:   { min: 190, max: 400 }
-        },
+        y: { min: 12, range: 76, skew: 1.4 },
 
-        flashY: { min: 12, range: 76, skew: 1.4 },
+        events: { chaotic: 0.20, crossed: 0.42, double: 0.60, burst: 0.82 },
 
-        // Probabilidades base (se modulan con el progreso)
-        events: {
-          chaotic: 0.20,
-          crossed: 0.42,
-          double:  0.60,
-          burst:   0.82
-        },
-
-        echoChance: 0.45,
-        echoDelay: [150, 700],
+        echo: { chance: 0.45, min: 150, max: 700 },
 
         bursts: {
           sameSide: { min: 2, extra: 3, intensity: [0.65, 1.15], falloff: [0.45, 0.85] },
           crossed:  { min: 2, extra: 4, intensity: [0.55, 1.05] },
           chaotic:  { min: 2, extra: 4 },
-          double:   { delay: [50, 140], intensity1: [0.85, 1.15], intensity2: [0.45, 0.80] },
+          double:   { delay: [50, 140], i1: [0.85, 1.15], i2: [0.45, 0.80] },
           single:   { intensity: [0.60, 1.10] }
         },
 
@@ -628,306 +673,409 @@
           floor:  [190, 270]
         },
 
-        cleanup: {
-          cone:   350,
-          core:   300,
-          halo:   400,
-          streak: 400,
-          floor:  450
-        },
-
-        maxConcurrentFlashes: 16
+        cleanup: { cone: 350, core: 300, halo: 400, streak: 400, floor: 450 }
       });
 
-      // ----------------------------------------------------------------
-      // Helpers
-      // ----------------------------------------------------------------
-      const rand = (min, max) => min + Math.random() * (max - min);
-      const coin = (p = 0.5) => Math.random() < p;
+      /* ==============================================================
+         2. HELPERS
+         ============================================================== */
+      const rand   = (a, b) => a + Math.random() * (b - a);
+      const coin   = (p = 0.5) => Math.random() < p;
       const pickSide = () => (coin() ? 'left' : 'right');
-      const skew = (power) => Math.pow(Math.random(), power);
-      const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+      const clamp  = (v, a, b) => v < a ? a : v > b ? b : v;
 
-      // Progreso actual normalizado 0..1
-      const progress = () => clamp(window.__progress || 0, 0, 1);
-
-      function sampleDistribution(dist) {
+      function sampleBuckets(buckets) {
         const roll = Math.random();
-        for (const bucket of Object.values(dist)) {
-          if (bucket.p === undefined || roll < bucket.p) {
-            return rand(bucket.min, bucket.max);
-          }
+        for (let i = 0; i < buckets.length; i++) {
+          const b = buckets[i];
+          if (b.p === undefined || roll < b.p) return rand(b.min, b.max);
         }
         return rand(0, 1000);
       }
 
-      // Los gaps se acortan conforme sube el progreso
-      function sampleGapScaled(dist) {
-        const base = sampleDistribution(dist);
-        const p = progress();
-        // De 1.4x (inicio) a 0.45x (final) -> más seguido al final
-        const factor = 1.4 - p * 0.95;
-        return base * factor;
+      function makeBezier(p1x, p1y, p2x, p2y) {
+        const bx = (u) => 3 * (1 - u) ** 2 * u * p1x + 3 * (1 - u) * u ** 2 * p2x + u ** 3;
+        const by = (u) => 3 * (1 - u) ** 2 * u * p1y + 3 * (1 - u) * u ** 2 * p2y + u ** 3;
+        return (t) => {
+          let lo = 0, hi = 1, mid = 0.5;
+          for (let i = 0; i < 20; i++) {
+            mid = (lo + hi) * 0.5;
+            if (bx(mid) < t) lo = mid; else hi = mid;
+          }
+          return by(mid);
+        };
       }
 
-      function sampleIntraGapScaled() {
-        const base = sampleDistribution(CONFIG.intraGaps);
-        const p = progress();
-        const factor = 1.3 - p * 0.85;
-        return base * factor;
+      const easeProgress = makeBezier(0.65, 0, 0.35, 1);
+
+      /* ==============================================================
+         3. ESTADO INTERNO
+         ============================================================== */
+      const state = {
+        progress: 0,
+        reducedMotion: false,
+        canceled: false
+      };
+
+      const timers = new Set();
+      function later(fn, ms) {
+        const id = setTimeout(() => {
+          timers.delete(id);
+          if (!state.canceled) fn();
+        }, ms);
+        timers.add(id);
+        return id;
       }
 
-      // Intensidad del flash en función del progreso
-      // Al inicio suave (0.35) y al final fuerte (1.3)
-      function currentIntensity(baseMin = 0.35, baseMax = 1.3) {
-        const p = progress();
-        const t = 0.35 + p * 0.95; // 0.35 -> 1.30
-        return t;
-      }
+      /* ==============================================================
+         4. PROGRESO
+         ============================================================== */
+      function initProgress(counterEl) {
+        if (!counterEl) return;
 
-      function cubicBezier(t, p1x, p1y, p2x, p2y) {
-        const bez = (a, b, u) =>
-          3 * (1 - u) ** 2 * u * a + 3 * (1 - u) * u ** 2 * b + u ** 3;
-        let lo = 0;
-        let hi = 1;
-        let mid = 0.5;
-        for (let i = 0; i < 20; i++) {
-          mid = (lo + hi) / 2;
-          if (bez(p1x, p2x, mid) < t) lo = mid;
-          else hi = mid;
-        }
-        return bez(p1y, p2y, mid);
-      }
+        const start = performance.now() + TIMING.progressStart;
+        const dur   = TIMING.progressDuration;
+        const target = TIMING.progressTarget;
 
-      // ----------------------------------------------------------------
-      // Progress counter — actualiza window.__progress en tiempo real
-      // ----------------------------------------------------------------
-      function animateCounter(el) {
-        const DURATION = PROGRESS.duration;
-        const DELAY = PROGRESS.startDelay;
-        const TARGET = PROGRESS.target;
-        const start = performance.now() + DELAY;
+        function frame(now) {
+          if (state.canceled) return;
 
-        function tick(now) {
           const elapsed = now - start;
+
           if (elapsed < 0) {
-            el.textContent = '0%';
-            window.__progress = 0;
-            requestAnimationFrame(tick);
+            counterEl.textContent = '0%';
+            state.progress = 0;
+            requestAnimationFrame(frame);
             return;
           }
-          const t = Math.min(elapsed / DURATION, 1);
-          const eased = cubicBezier(t, 0.65, 0, 0.35, 1);
-          const value = eased * TARGET;
 
-          el.textContent = Math.round(value) + '%';
-          window.__progress = t; // progreso temporal 0..1
+          const t = Math.min(elapsed / dur, 1);
+          const value = easeProgress(t) * target;
 
-          if (t < 1) requestAnimationFrame(tick);
+          counterEl.textContent = Math.round(value) + '%';
+          state.progress = t;
+
+          if (t < 1) requestAnimationFrame(frame);
         }
 
-        requestAnimationFrame(tick);
+        requestAnimationFrame(frame);
       }
 
-      // ----------------------------------------------------------------
-      // Layer rotation — only the visible video plays
-      // ----------------------------------------------------------------
+      /* ==============================================================
+         5. TYPEWRITER
+         ============================================================== */
+      function initTypewriter() {
+        const el = document.getElementById('subtitleTypewriter');
+        if (!el || state.reducedMotion) return;
+
+        const originalHTML = el.innerHTML;
+
+        const wrapper = document.createElement('span');
+        wrapper.style.display = 'contents';
+        wrapper.innerHTML = originalHTML;
+
+        const charSpans = [];
+        const textNodes = [];
+
+        (function collect(node) {
+          for (let i = 0; i < node.childNodes.length; i++) {
+            const child = node.childNodes[i];
+            if (child.nodeType === Node.TEXT_NODE) {
+              textNodes.push(child);
+            } else if (child.nodeType === Node.ELEMENT_NODE) {
+              collect(child);
+            }
+          }
+        })(wrapper);
+
+        for (let n = 0; n < textNodes.length; n++) {
+          const textNode = textNodes[n];
+          const frag = document.createDocumentFragment();
+          const text = textNode.nodeValue;
+
+          for (let c = 0; c < text.length; c++) {
+            const ch = text[c];
+            if (ch === ' ') {
+              frag.appendChild(document.createTextNode('\u00A0'));
+            } else {
+              const span = document.createElement('span');
+              span.className = 'typewriter-char';
+              span.textContent = ch;
+              frag.appendChild(span);
+              charSpans.push(span);
+            }
+          }
+
+          textNode.parentNode.replaceChild(frag, textNode);
+        }
+
+        el.innerHTML = '';
+        while (wrapper.firstChild) {
+          el.appendChild(wrapper.firstChild);
+        }
+
+        const cursor = document.createElement('span');
+        cursor.className = 'typewriter-cursor';
+        cursor.setAttribute('aria-hidden', 'true');
+
+        let i = 0;
+        let nextAt = 0;
+        let cursorReady = false;
+
+        // 1) Aparece el cursor solo
+        later(() => {
+          if (state.canceled) return;
+          el.insertBefore(cursor, el.firstChild);
+          void cursor.offsetWidth;
+          cursor.classList.add('is-active');
+          cursorReady = true;
+        }, TIMING.cursorAppear);
+
+        // 2) Arranca el tipeo
+        function typeFrame(now) {
+          if (state.canceled) return;
+
+          if (!cursorReady) {
+            requestAnimationFrame(typeFrame);
+            return;
+          }
+
+          if (!nextAt) nextAt = now;
+
+          if (now < nextAt) {
+            requestAnimationFrame(typeFrame);
+            return;
+          }
+
+          if (i >= charSpans.length) {
+            // 👇 Al terminar de tipear: quitamos .is-active
+            //    La animación se detiene y la opacidad hace fade-out
+            //    por la transition de .typewriter-cursor
+            later(() => {
+              cursor.classList.remove('is-active');
+              // Después del fade, lo removemos del DOM
+              later(() => {
+                if (cursor.isConnected) cursor.remove();
+              }, 400);
+            }, TIMING.cursorFadeOut);
+            return;
+          }
+
+          const span = charSpans[i];
+          span.classList.add('is-typed');
+          const ch = span.textContent;
+          i++;
+
+          span.parentNode.insertBefore(cursor, span.nextSibling);
+
+          let delay = TIMING.charDelay;
+          if (ch === '.' || ch === ',' || ch === ';') delay = TIMING.punctDelay;
+          else if (ch === '—') delay = TIMING.dashDelay;
+
+          nextAt = now + delay;
+          requestAnimationFrame(typeFrame);
+        }
+
+        later(() => requestAnimationFrame(typeFrame), TIMING.typewriterStart);
+      }
+
+      /* ==============================================================
+         6. ROTACIÓN DE VIDEOS
+         ============================================================== */
       function initLayerRotation() {
         const layers = Array.from(document.querySelectorAll('.mix-layer'));
-        let current = 0;
+        if (!layers.length) return;
 
-        const play = (video) => {
-          const p = video.play();
+        let current = 0;
+        let started = false;
+
+        const play = (v) => {
+          const p = v.play();
           if (p && p.catch) p.catch(() => {});
         };
 
         const show = (index) => {
-          layers.forEach((layer, i) => {
+          for (let i = 0; i < layers.length; i++) {
             const active = i === index;
-            layer.classList.toggle('is-visible', active);
-            if (active) play(layer);
-            else layer.pause();
-          });
+            layers[i].classList.toggle('is-visible', active);
+            if (active) play(layers[i]);
+            else layers[i].pause();
+          }
         };
 
         show(0);
 
         document.addEventListener('visibilitychange', () => {
           if (document.hidden) {
-            layers.forEach((l) => l.pause());
+            for (const l of layers) l.pause();
           } else {
             play(layers[current]);
           }
-        });
+        }, { passive: true });
 
-        setInterval(() => {
-          current = (current + 1) % layers.length;
-          show(current);
-        }, CONFIG.layerRotationMs);
+        function startRotation() {
+          if (started) return;
+          started = true;
+          setInterval(() => {
+            current = (current + 1) % layers.length;
+            show(current);
+          }, FLASH.layerRotationMs);
+        }
+
+        window.__startVideoRotation = startRotation;
       }
 
-      // ----------------------------------------------------------------
-      // Paparazzi — intensidad y frecuencia ligadas al progreso
-      // ----------------------------------------------------------------
+      /* ==============================================================
+         7. PAPARAZZI
+         ============================================================== */
       function initPaparazzi() {
-        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+        if (state.reducedMotion) return;
 
         const root = document.getElementById('paparazzi');
-        let liveFlashes = 0;
+        if (!root) return;
+
+        let live = 0;
 
         function spawn(className, cleanupMs, configure) {
-          if (liveFlashes >= CONFIG.maxConcurrentFlashes) return null;
+          if (live >= FLASH.maxConcurrent) return null;
 
           const el = document.createElement('div');
           el.className = className;
           if (configure) configure(el);
           root.appendChild(el);
-          liveFlashes++;
+          live++;
 
-          setTimeout(() => {
-            el.remove();
-            liveFlashes--;
+          later(() => {
+            if (el.isConnected) el.remove();
+            live--;
           }, cleanupMs);
 
           return el;
         }
 
-        function fireFlash(side, intensity = 1) {
-          const p = progress();
-          // La intensidad se multiplica por el progreso
-          const finalIntensity = intensity * (0.5 + p * 0.9);
+        function fireFlash(side, intensity) {
+          const p = state.progress;
+          const fi = intensity * (0.5 + p * 0.9);
+          const y = FLASH.y.min + Math.pow(Math.random(), FLASH.y.skew) * FLASH.y.range;
 
-          const { min, range, skew: ySkew } = CONFIG.flashY;
-          const y = min + skew(ySkew) * range;
-
-          spawn(`flash flash--cone from-${side}`, CONFIG.cleanup.cone, (el) => {
+          spawn(`flash flash--cone from-${side}`, FLASH.cleanup.cone, (el) => {
             el.style.setProperty('--y', y + '%');
-            el.style.animationDuration = rand(...CONFIG.durations.cone) + 'ms';
-            el.style.filter = `brightness(${0.7 + finalIntensity * 0.5})`;
+            el.style.animationDuration = rand(...FLASH.durations.cone) + 'ms';
+            el.style.filter = `brightness(${0.7 + fi * 0.5})`;
           });
 
-          spawn('flash flash--core', CONFIG.cleanup.core, (el) => {
+          spawn('flash flash--core', FLASH.cleanup.core, (el) => {
             el.style.top = y + '%';
             el.style[side === 'left' ? 'left' : 'right'] = '-2px';
-            el.style.animationDuration = rand(...CONFIG.durations.core) + 'ms';
-            el.style.transform = `translateY(-50%) scale(${0.7 + finalIntensity * 0.6})`;
+            el.style.animationDuration = rand(...FLASH.durations.core) + 'ms';
+            el.style.transform = `translateY(-50%) scale(${0.7 + fi * 0.6})`;
           });
 
-          spawn(`flash flash--halo from-${side}`, CONFIG.cleanup.halo, (el) => {
-            el.style.animationDuration = rand(...CONFIG.durations.halo) + 'ms';
+          spawn(`flash flash--halo from-${side}`, FLASH.cleanup.halo, (el) => {
+            el.style.animationDuration = rand(...FLASH.durations.halo) + 'ms';
             const pos = side === 'left' ? '0%' : '100%';
             el.style.background =
               `radial-gradient(ellipse 70% 80% at ${pos} ${y}%,` +
-              ` rgba(255,245,230,${0.55 * finalIntensity}) 0%,` +
-              ` rgba(255,225,200,${0.2 * finalIntensity}) 35%, transparent 70%)`;
+              ` rgba(255,245,230,${0.55 * fi}) 0%,` +
+              ` rgba(255,225,200,${0.2 * fi}) 35%, transparent 70%)`;
           });
 
           const streaks = coin() ? 1 : (coin(0.7) ? 2 : 0);
           for (let i = 0; i < streaks; i++) {
-            setTimeout(() => {
-              spawn(`flash flash--streak from-${side}`, CONFIG.cleanup.streak, (el) => {
+            later(() => {
+              spawn(`flash flash--streak from-${side}`, FLASH.cleanup.streak, (el) => {
                 el.style.top = (y + rand(-4, 4)) + '%';
                 el.style[side === 'left' ? 'left' : 'right'] = '0px';
                 el.style.width = rand(180, 400) + 'px';
-                el.style.animationDuration = rand(...CONFIG.durations.streak) + 'ms';
+                el.style.animationDuration = rand(...FLASH.durations.streak) + 'ms';
               });
             }, i * rand(20, 60));
           }
 
-          spawn(`flash flash--floor from-${side}`, CONFIG.cleanup.floor, (el) => {
-            el.style.animationDuration = rand(...CONFIG.durations.floor) + 'ms';
+          spawn(`flash flash--floor from-${side}`, FLASH.cleanup.floor, (el) => {
+            el.style.animationDuration = rand(...FLASH.durations.floor) + 'ms';
             const pos = side === 'left' ? '0%' : '100%';
             el.style.background =
               `radial-gradient(ellipse 70% 60% at ${pos} 100%,` +
-              ` rgba(255,235,200,${0.5 * finalIntensity}) 0%,` +
-              ` rgba(255,210,170,${0.15 * finalIntensity}) 40%, transparent 75%)`;
+              ` rgba(255,235,200,${0.5 * fi}) 0%,` +
+              ` rgba(255,210,170,${0.15 * fi}) 40%, transparent 75%)`;
           });
+        }
+
+        function gapScaled(buckets) {
+          const base = sampleBuckets(buckets);
+          return base * (1.4 - state.progress * 0.95);
+        }
+
+        function intraGapScaled() {
+          const base = sampleBuckets(FLASH.intraGapBuckets);
+          return base * (1.3 - state.progress * 0.85);
         }
 
         function scheduleBurst(count, sideAt, intensityAt) {
           let elapsed = 0;
           for (let i = 0; i < count; i++) {
-            elapsed += sampleIntraGapScaled();
+            elapsed += intraGapScaled();
             const side = sideAt(i);
             const intensity = intensityAt(i);
-            const delay = elapsed;
-            setTimeout(() => fireFlash(side, intensity), delay);
+            later(() => fireFlash(side, intensity), elapsed);
           }
         }
 
         function burstSameSide() {
-          const cfg = CONFIG.bursts.sameSide;
+          const cfg = FLASH.bursts.sameSide;
           const side = pickSide();
           const count = cfg.min + Math.floor(Math.random() * cfg.extra);
           const base = rand(...cfg.intensity);
-
-          scheduleBurst(
-            count,
-            () => side,
-            (i) => (i === 0 ? base : base * rand(...cfg.falloff))
-          );
+          scheduleBurst(count, () => side, (i) => (i === 0 ? base : base * rand(...cfg.falloff)));
         }
 
         function burstCrossed() {
-          const cfg = CONFIG.bursts.crossed;
-          const sequence = coin()
+          const cfg = FLASH.bursts.crossed;
+          const seq = coin()
             ? ['left', 'right', 'left', 'right', 'left']
             : ['right', 'left', 'right', 'left', 'right'];
           const count = cfg.min + Math.floor(Math.random() * cfg.extra);
-
-          scheduleBurst(
-            count,
-            (i) => sequence[i % sequence.length],
-            () => rand(...cfg.intensity)
-          );
+          scheduleBurst(count, (i) => seq[i % seq.length], () => rand(...cfg.intensity));
         }
 
         function doublePop(side = pickSide()) {
-          const cfg = CONFIG.bursts.double;
-          setTimeout(() => fireFlash(side, rand(...cfg.intensity1)), 0);
-          setTimeout(() => fireFlash(side, rand(...cfg.intensity2)), rand(...cfg.delay));
+          const cfg = FLASH.bursts.double;
+          later(() => fireFlash(side, rand(...cfg.i1)), 0);
+          later(() => fireFlash(side, rand(...cfg.i2)), rand(...cfg.delay));
         }
 
         function singleFlash() {
-          fireFlash(pickSide(), rand(...CONFIG.bursts.single.intensity));
+          fireFlash(pickSide(), rand(...FLASH.bursts.single.intensity));
         }
 
         function chaoticCluster() {
-          const cfg = CONFIG.bursts.chaotic;
+          const cfg = FLASH.bursts.chaotic;
           const size = cfg.min + Math.floor(Math.random() * cfg.extra);
           let elapsed = 0;
-
           for (let i = 0; i < size; i++) {
-            elapsed += sampleIntraGapScaled() + rand(0, 80);
-            const delay = elapsed;
-
-            setTimeout(() => {
+            elapsed += intraGapScaled() + rand(0, 80);
+            later(() => {
               const roll = Math.random();
               if (roll < 0.35) doublePop();
               else if (roll < 0.70) singleFlash();
               else fireFlash(pickSide(), rand(0.7, 1.1));
-            }, delay);
+            }, elapsed);
           }
         }
 
-        // Selección de evento con probabilidades moduladas por el progreso
         function pickEvent() {
-          const p = progress();
-          // Al inicio favorece flashes simples; al final, clusters complejos
-          const bias = p * 0.35;
-
+          const bias = state.progress * 0.35;
           const ev = {
-            chaotic: CONFIG.events.chaotic + bias,
-            crossed: CONFIG.events.crossed + bias * 0.6,
-            double:  CONFIG.events.double  + bias * 0.4,
-            burst:   CONFIG.events.burst   + bias * 0.2
+            chaotic: FLASH.events.chaotic + bias,
+            crossed: FLASH.events.crossed + bias * 0.6,
+            double:  FLASH.events.double  + bias * 0.4,
+            burst:   FLASH.events.burst   + bias * 0.2
           };
-
-          // Normalizamos para que nunca pase de 1
           const total = ev.burst;
           const scale = total > 1 ? 1 / total : 1;
-
           const roll = Math.random();
+
           if (roll < ev.chaotic * scale) chaoticCluster();
           else if (roll < ev.crossed * scale) burstCrossed();
           else if (roll < ev.double * scale) doublePop();
@@ -936,32 +1084,53 @@
         }
 
         function scheduleNext() {
-          const gap = sampleGapScaled(CONFIG.gaps);
-          setTimeout(() => {
+          if (state.canceled) return;
+          const gap = gapScaled(FLASH.gapBuckets);
+          later(() => {
             pickEvent();
-
-            if (coin(CONFIG.echoChance * (0.5 + progress()))) {
-              setTimeout(singleFlash, rand(...CONFIG.echoDelay));
+            if (coin(FLASH.echo.chance * (0.5 + state.progress))) {
+              later(singleFlash, rand(FLASH.echo.min, FLASH.echo.max));
             }
-
             scheduleNext();
           }, gap);
         }
 
-        setTimeout(() => {
+        later(() => {
           doublePop();
           scheduleNext();
-        }, rand(...CONFIG.startDelay));
+        }, rand(FLASH.startDelayMin, FLASH.startDelayMin + FLASH.startDelayRange));
       }
 
-      // ----------------------------------------------------------------
-      // Boot
-      // ----------------------------------------------------------------
-      document.addEventListener('DOMContentLoaded', () => {
+      /* ==============================================================
+         8. BOOT
+         ============================================================== */
+      function boot() {
+        state.reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
         initLayerRotation();
-        animateCounter(document.querySelector('.progress__value'));
-        initPaparazzi();
-      });
+
+        const counterEl = document.querySelector('.progress__value');
+        initProgress(counterEl);
+
+        initTypewriter();
+
+        later(() => {
+          if (window.__startVideoRotation) window.__startVideoRotation();
+          initPaparazzi();
+        }, TIMING.textsDone);
+      }
+
+      window.addEventListener('pagehide', () => {
+        state.canceled = true;
+        for (const id of timers) clearTimeout(id);
+        timers.clear();
+      }, { once: true });
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', boot, { once: true });
+      } else {
+        boot();
+      }
     })();
   </script>
 
