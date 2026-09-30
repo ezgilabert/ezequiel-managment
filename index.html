@@ -1,657 +1,699 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Próximamente — Ezequiel</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Fraunces:ital,opsz,wght@0,9..144,300;1,9..144,500&display=swap" rel="stylesheet">
-<style>
-  *,
-  *::before,
-  *::after {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-  }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Próximamente — Un nuevo proyecto de Ezequiel García Gilabert.">
+  <meta name="theme-color" content="#0a0807">
+  <title>Próximamente — Ezequiel García Gilabert</title>
 
-  :root {
-    --accent: #ff6b4a;
-    --accent-soft: #ffb89a;
-    --bg-dark: #0a0807;
-    --text-primary: #fff;
-    --text-muted: rgba(255, 245, 235, 0.7);
-    --text-faint: rgba(255, 245, 235, 0.4);
-  }
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Fraunces:ital,opsz,wght@0,9..144,300;1,9..144,500&display=swap" rel="stylesheet">
 
-  html,
-  body {
-    height: 100%;
-    overflow: hidden;
-    background: var(--bg-dark);
-    color: var(--text-primary);
-    font-family: 'Inter', sans-serif;
-    -webkit-font-smoothing: antialiased;
-  }
+  <style>
+    /* ================================================================
+       01. RESET
+       ================================================================ */
+    *,
+    *::before,
+    *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-  .stage-root {
-    position: fixed;
-    inset: 0;
-    isolation: isolate;
-  }
+    /* ================================================================
+       02. DESIGN TOKENS
+       ================================================================ */
+    :root {
+      /* Color */
+      --color-accent:        #ff6b4a;
+      --color-accent-soft:   #ffb89a;
+      --color-bg:            #0a0807;
+      --color-text:          #ffffff;
+      --color-text-muted:    rgba(255, 245, 235, 0.70);
+      --color-text-faint:    rgba(255, 245, 235, 0.40);
 
-  /* ------------------------------------------------------------------
-     Video stage
-     ------------------------------------------------------------------ */
-  .mix-stage {
-    position: absolute;
-    inset: 0;
-    overflow: hidden;
-    background: var(--bg-dark);
-    z-index: 1;
-    contain: strict;
-  }
+      --color-line-soft:     rgba(255, 255, 255, 0.15);
 
-  .mix-layer {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: center;
-    opacity: 0;
-    filter: contrast(1.05) brightness(0.95) saturate(1.1);
-    transform-origin: center;
-    backface-visibility: hidden;
-    transition:
-      opacity 1.4s ease-in-out,
-      transform 1.8s ease-in-out,
-      object-position 1.8s ease-in-out;
-  }
+      /* Overlays */
+      --overlay-top:         rgba(10, 8, 7, 0.15);
+      --overlay-mid:         rgba(10, 8, 7, 0.05);
+      --overlay-bottom:      rgba(10, 8, 7, 0.85);
+      --overlay-warm:        rgba(255, 107, 74, 0.18);
 
-  .mix-layer.is-visible {
-    opacity: 1;
-  }
+      /* Typography */
+      --font-sans:  'Inter', system-ui, -apple-system, sans-serif;
+      --font-serif: 'Fraunces', Georgia, serif;
 
-  @media (max-width: 899px) {
-    .mix-layer[data-mix-index="0"] { transform: scale(1.35) translateY(12%); }
-    .mix-layer[data-mix-index="1"] { transform: scale(1.35) translateY(0%); }
-    .mix-layer[data-mix-index="2"] { transform: scale(1.35) translateY(-12%); }
-  }
+      --tracking-wide: 0.22em;
+      --tracking-tight: -0.03em;
 
-  @media (min-width: 900px) {
-    .mix-layer[data-mix-index="0"] { object-position: center 20%; }
-    .mix-layer[data-mix-index="1"] { object-position: center 50%; }
-    .mix-layer[data-mix-index="2"] { object-position: center 80%; }
-  }
+      /* Layout */
+      --stage-padding: 56px;
+      --stage-padding-mobile: 32px 24px;
 
-  /* ------------------------------------------------------------------
-     Overlays
-     ------------------------------------------------------------------ */
-  .overlay {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    contain: strict;
-  }
+      /* Motion */
+      --ease-reveal:  cubic-bezier(0.19, 1, 0.22, 1);
+      --ease-curtain: cubic-bezier(0.16, 1, 0.3, 1);
+      --ease-flash:   cubic-bezier(0.02, 0.98, 0.1, 1);
 
-  .overlay--gradient {
-    z-index: 2;
-    background: linear-gradient(
-      180deg,
-      rgba(10, 8, 7, 0.15) 0%,
-      rgba(10, 8, 7, 0.05) 40%,
-      rgba(10, 8, 7, 0.85) 100%
-    );
-  }
+      /* Z-index scale */
+      --z-video:    1;
+      --z-overlay:  2;
+      --z-grain:    3;
+      --z-flash:    8;
+      --z-content: 10;
+    }
 
-  .overlay--warm {
-    z-index: 2;
-    mix-blend-mode: soft-light;
-    background: linear-gradient(
-      135deg,
-      rgba(255, 107, 74, 0.18) 0%,
-      rgba(0, 0, 0, 0) 100%
-    );
-  }
+    /* ================================================================
+       03. BASE
+       ================================================================ */
+    html,
+    body {
+      height: 100%;
+      overflow: hidden;
+    }
 
-  .overlay--grain {
-    z-index: 3;
-    opacity: 0.06;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  }
+    body {
+      background: var(--color-bg);
+      color: var(--color-text);
+      font-family: var(--font-sans);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
 
-  /* ------------------------------------------------------------------
-     Paparazzi flashes
-     ------------------------------------------------------------------ */
-  .paparazzi {
-    position: absolute;
-    inset: 0;
-    z-index: 8;
-    pointer-events: none;
-    overflow: hidden;
-    contain: layout style paint;
-  }
+    /* ================================================================
+       04. STAGE LAYOUT
+       ================================================================ */
+    .stage {
+      position: fixed;
+      inset: 0;
+      isolation: isolate;
+    }
 
-  .flash {
-    position: absolute;
-    opacity: 0;
-    pointer-events: none;
-    contain: layout style paint;
-  }
+    /* ---- Video layers ---- */
+    .stage__video {
+      position: absolute;
+      inset: 0;
+      z-index: var(--z-video);
+      overflow: hidden;
+      background: var(--color-bg);
+      contain: strict;
+    }
 
-  .flash--cone,
-  .flash--halo,
-  .flash--streak,
-  .flash--floor {
-    mix-blend-mode: screen;
-  }
-
-  /* Cone ---------------------------------------------------------- */
-  .flash--cone {
-    top: 0;
-    height: 100%;
-    width: 130%;
-    max-width: 1600px;
-    animation: flash-cone 140ms cubic-bezier(0.02, 0.98, 0.1, 1) forwards;
-  }
-
-  .flash--cone.from-left {
-    left: 0;
-    transform-origin: left var(--y, 50%);
-    background: radial-gradient(
-      ellipse 45% 55% at 0% var(--y, 50%),
-      rgba(255, 255, 255, 1) 0%,
-      rgba(255, 250, 240, 0.95) 3%,
-      rgba(255, 235, 215, 0.7) 10%,
-      rgba(255, 210, 180, 0.3) 25%,
-      rgba(255, 190, 160, 0.08) 50%,
-      transparent 72%
-    );
-  }
-
-  .flash--cone.from-right {
-    right: 0;
-    transform-origin: right var(--y, 50%);
-    background: radial-gradient(
-      ellipse 45% 55% at 100% var(--y, 50%),
-      rgba(255, 255, 255, 1) 0%,
-      rgba(255, 250, 240, 0.95) 3%,
-      rgba(255, 235, 215, 0.7) 10%,
-      rgba(255, 210, 180, 0.3) 25%,
-      rgba(255, 190, 160, 0.08) 50%,
-      transparent 72%
-    );
-  }
-
-  /* Core ---------------------------------------------------------- */
-  .flash--core {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: #fff;
-    transform: translateY(-50%);
-    animation: flash-core 120ms cubic-bezier(0.02, 0.98, 0.1, 1) forwards;
-    box-shadow:
-      0 0 6px 2px #fff,
-      0 0 18px 6px rgba(255, 240, 220, 1),
-      0 0 60px 20px rgba(255, 210, 170, 0.8),
-      0 0 160px 50px rgba(255, 180, 130, 0.4);
-  }
-
-  /* Halo ---------------------------------------------------------- */
-  .flash--halo {
-    top: 0;
-    height: 100%;
-    width: 55%;
-    max-width: 700px;
-    filter: blur(18px);
-    animation: flash-halo 200ms cubic-bezier(0.02, 0.98, 0.1, 1) forwards;
-  }
-
-  .flash--halo.from-left  { left: 0; }
-  .flash--halo.from-right { right: 0; }
-
-  /* Streak -------------------------------------------------------- */
-  .flash--streak {
-    height: 2px;
-    width: 300px;
-    transform-origin: left center;
-    animation: flash-streak 160ms cubic-bezier(0.02, 0.98, 0.1, 1) forwards;
-  }
-
-  .flash--streak::before,
-  .flash--streak::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 0;
-    transform: translateY(-50%);
-  }
-
-  .flash--streak::before {
-    width: 50%;
-    height: 100%;
-    background: linear-gradient(90deg, rgba(255,248,240,1) 0%, rgba(255,240,225,0.5) 50%, transparent 100%);
-  }
-
-  .flash--streak::after {
-    width: 100%;
-    height: 70%;
-    background: linear-gradient(90deg, rgba(255,220,190,0.6) 0%, rgba(255,190,150,0.2) 35%, transparent 100%);
-    filter: blur(1.5px);
-  }
-
-  .flash--streak.from-right {
-    transform-origin: right center;
-  }
-
-  .flash--streak.from-right::before {
-    left: auto;
-    right: 0;
-    background: linear-gradient(270deg, rgba(255,248,240,1) 0%, rgba(255,240,225,0.5) 50%, transparent 100%);
-  }
-
-  .flash--streak.from-right::after {
-    left: auto;
-    right: 0;
-    background: linear-gradient(270deg, rgba(255,220,190,0.6) 0%, rgba(255,190,150,0.2) 35%, transparent 100%);
-  }
-
-  /* Floor --------------------------------------------------------- */
-  .flash--floor {
-    bottom: 0;
-    height: 35%;
-    width: 60%;
-    max-width: 800px;
-    filter: blur(14px);
-    animation: flash-floor 220ms cubic-bezier(0.02, 0.98, 0.1, 1) forwards;
-  }
-
-  .flash--floor.from-left  { left: 0; }
-  .flash--floor.from-right { right: 0; }
-
-  /* Keyframes ----------------------------------------------------- */
-  @keyframes flash-cone {
-    0%   { opacity: 0; transform: scaleX(0.3) scaleY(0.5); }
-    2%   { opacity: 1; transform: scaleX(1) scaleY(1); }
-    15%  { opacity: 0.9; }
-    40%  { opacity: 0.35; }
-    100% { opacity: 0; transform: scaleX(1.1) scaleY(1.05); }
-  }
-
-  @keyframes flash-core {
-    0%   { opacity: 0; transform: translateY(-50%) scale(0.15); }
-    3%   { opacity: 1; transform: translateY(-50%) scale(1.4); }
-    20%  { opacity: 1; transform: translateY(-50%) scale(1); }
-    100% { opacity: 0; transform: translateY(-50%) scale(0.8); }
-  }
-
-  @keyframes flash-halo {
-    0%   { opacity: 0; transform: scale(0.6); }
-    5%   { opacity: 1; transform: scale(1); }
-    30%  { opacity: 0.6; }
-    100% { opacity: 0; transform: scale(1.1); }
-  }
-
-  @keyframes flash-streak {
-    0%   { opacity: 0; transform: scaleX(0.1); }
-    4%   { opacity: 1; transform: scaleX(1); }
-    25%  { opacity: 0.7; }
-    100% { opacity: 0; transform: scaleX(1.15); }
-  }
-
-  @keyframes flash-floor {
-    0%   { opacity: 0; transform: scaleY(0.2); }
-    6%   { opacity: 0.7; transform: scaleY(1); }
-    35%  { opacity: 0.3; }
-    100% { opacity: 0; transform: scaleY(1.1); }
-  }
-
-  /* ------------------------------------------------------------------
-     Content — cinematic reveal
-     ------------------------------------------------------------------ */
-  .content-stage {
-    position: relative;
-    z-index: 10;
-    height: 100vh;
-    height: 100dvh;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    padding: 56px;
-  }
-
-  .content {
-    max-width: 820px;
-  }
-
-  .eyebrow {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 0.7rem;
-    font-weight: 400;
-    letter-spacing: 0.22em;
-    text-transform: uppercase;
-    color: var(--accent-soft);
-    margin-bottom: 36px;
-    animation: reveal-soft 3.2s cubic-bezier(0.19, 1, 0.22, 1) 0.3s both;
-  }
-
-  .eyebrow__dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: var(--accent);
-    box-shadow: 0 0 10px var(--accent);
-    animation: dot-pulse 2s ease-in-out infinite;
-  }
-
-  .headline {
-    font-family: 'Fraunces', serif;
-    font-weight: 300;
-    font-size: clamp(2.5rem, 6vw, 5.5rem);
-    line-height: 1.05;
-    letter-spacing: -0.03em;
-    color: var(--text-primary);
-    margin-bottom: 28px;
-    animation: reveal-curtain 4.2s cubic-bezier(0.16, 1, 0.3, 1) 0.9s both;
-  }
-
-  .headline__accent {
-    font-style: italic;
-    font-weight: 500;
-    color: var(--accent-soft);
-  }
-
-  .subtitle {
-    font-size: clamp(0.95rem, 1.5vw, 1.1rem);
-    font-weight: 300;
-    line-height: 1.7;
-    color: var(--text-muted);
-    max-width: 540px;
-    margin-bottom: 44px;
-    animation: reveal-soft 3.6s cubic-bezier(0.19, 1, 0.22, 1) 1.8s both;
-  }
-
-  .subtitle strong {
-    color: var(--text-primary);
-    font-weight: 500;
-  }
-
-  .footer {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 16px;
-    animation: reveal-soft 3.6s cubic-bezier(0.19, 1, 0.22, 1) 2.6s both;
-  }
-
-  .progress {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    font-size: 0.65rem;
-    font-weight: 400;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: rgba(255, 245, 235, 0.5);
-  }
-
-  .progress__track {
-    position: relative;
-    width: 100px;
-    height: 1px;
-    background: rgba(255, 255, 255, 0.15);
-    overflow: hidden;
-  }
-
-  .progress__fill {
-    position: absolute;
-    inset: 0;
-    width: 0%;
-    background: linear-gradient(90deg, var(--accent-soft), var(--accent));
-    animation: progress-fill 6s cubic-bezier(0.65, 0, 0.35, 1) 2.6s forwards;
-  }
-
-  .progress__value {
-    min-width: 34px;
-    display: inline-block;
-    color: var(--accent-soft);
-    font-variant-numeric: tabular-nums;
-  }
-
-  .credit {
-    font-size: 0.62rem;
-    font-weight: 400;
-    letter-spacing: 0.22em;
-    text-transform: uppercase;
-    color: var(--text-faint);
-    text-decoration: none;
-    transition: color 0.3s ease;
-  }
-
-  .credit:hover {
-    color: var(--accent-soft);
-  }
-
-  @keyframes reveal-soft {
-    0% {
+    .video-layer {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
       opacity: 0;
-      transform: translateY(36px);
-      filter: blur(6px);
+      filter: contrast(1.05) brightness(0.95) saturate(1.1);
+      transform-origin: center;
+      backface-visibility: hidden;
+      transition:
+        opacity 1.4s ease-in-out,
+        transform 1.8s ease-in-out,
+        object-position 1.8s ease-in-out;
     }
-    40% {
-      opacity: 1;
-      filter: blur(0);
-    }
-    100% {
-      opacity: 1;
-      transform: translateY(0);
-      filter: blur(0);
-    }
-  }
 
-  @keyframes reveal-curtain {
-    0% {
+    .video-layer.is-visible {
+      opacity: 1;
+    }
+
+    @media (max-width: 899px) {
+      .video-layer[data-index="0"] { transform: scale(1.35) translateY(12%); }
+      .video-layer[data-index="1"] { transform: scale(1.35) translateY(0%); }
+      .video-layer[data-index="2"] { transform: scale(1.35) translateY(-12%); }
+    }
+
+    @media (min-width: 900px) {
+      .video-layer[data-index="0"] { object-position: center 20%; }
+      .video-layer[data-index="1"] { object-position: center 50%; }
+      .video-layer[data-index="2"] { object-position: center 80%; }
+    }
+
+    /* ---- Overlays ---- */
+    .stage__overlay {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      contain: strict;
+    }
+
+    .stage__overlay--gradient {
+      z-index: var(--z-overlay);
+      background: linear-gradient(
+        180deg,
+        var(--overlay-top) 0%,
+        var(--overlay-mid) 40%,
+        var(--overlay-bottom) 100%
+      );
+    }
+
+    .stage__overlay--warm {
+      z-index: var(--z-overlay);
+      mix-blend-mode: soft-light;
+      background: linear-gradient(
+        135deg,
+        var(--overlay-warm) 0%,
+        transparent 100%
+      );
+    }
+
+    .stage__overlay--grain {
+      z-index: var(--z-grain);
+      opacity: 0.06;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    }
+
+    /* ================================================================
+       05. PAPARAZZI FLASHES
+       ================================================================ */
+    .stage__flashes {
+      position: absolute;
+      inset: 0;
+      z-index: var(--z-flash);
+      pointer-events: none;
+      overflow: hidden;
+      contain: layout style paint;
+    }
+
+    .flash {
+      position: absolute;
       opacity: 0;
-      transform: translateY(48px);
-      clip-path: inset(0 0 100% 0);
+      pointer-events: none;
+      contain: layout style paint;
     }
-    35% {
-      opacity: 1;
+
+    .flash--screen { mix-blend-mode: screen; }
+
+    /* ---- Cone ---- */
+    .flash--cone {
+      top: 0;
+      height: 100%;
+      width: 130%;
+      max-width: 1600px;
+      animation: flash-cone 140ms var(--ease-flash) forwards;
     }
-    100% {
-      opacity: 1;
-      transform: translateY(0);
-      clip-path: inset(0 0 -10% 0);
+
+    .flash--cone.from-left {
+      left: 0;
+      transform-origin: left var(--y, 50%);
+      background: radial-gradient(
+        ellipse 45% 55% at 0% var(--y, 50%),
+        rgba(255, 255, 255, 1) 0%,
+        rgba(255, 250, 240, 0.95) 3%,
+        rgba(255, 235, 215, 0.70) 10%,
+        rgba(255, 210, 180, 0.30) 25%,
+        rgba(255, 190, 160, 0.08) 50%,
+        transparent 72%
+      );
     }
-  }
 
-  @keyframes dot-pulse {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50%      { opacity: 0.4; transform: scale(0.8); }
-  }
-
-  @keyframes progress-fill {
-    to { width: 78%; }
-  }
-
-  @media (max-width: 768px) {
-    .content-stage { padding: 32px 24px; }
-    .headline { margin-bottom: 22px; }
-    .subtitle { margin-bottom: 32px; }
-    .eyebrow { margin-bottom: 26px; font-size: 0.64rem; }
-    .credit { font-size: 0.56rem; }
-    .flash--streak { width: 180px; height: 1.5px; }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .paparazzi { display: none; }
-    .mix-layer { transition: opacity 0.6s linear; }
-    .eyebrow,
-    .headline,
-    .subtitle,
-    .footer {
-      animation-duration: 0.6s;
-      animation-delay: 0s;
+    .flash--cone.from-right {
+      right: 0;
+      transform-origin: right var(--y, 50%);
+      background: radial-gradient(
+        ellipse 45% 55% at 100% var(--y, 50%),
+        rgba(255, 255, 255, 1) 0%,
+        rgba(255, 250, 240, 0.95) 3%,
+        rgba(255, 235, 215, 0.70) 10%,
+        rgba(255, 210, 180, 0.30) 25%,
+        rgba(255, 190, 160, 0.08) 50%,
+        transparent 72%
+      );
     }
-  }
-</style>
+
+    /* ---- Core ---- */
+    .flash--core {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #fff;
+      transform: translateY(-50%);
+      animation: flash-core 120ms var(--ease-flash) forwards;
+      box-shadow:
+        0 0 6px 2px #fff,
+        0 0 18px 6px rgba(255, 240, 220, 1),
+        0 0 60px 20px rgba(255, 210, 170, 0.8),
+        0 0 160px 50px rgba(255, 180, 130, 0.4);
+    }
+
+    /* ---- Halo ---- */
+    .flash--halo {
+      top: 0;
+      height: 100%;
+      width: 55%;
+      max-width: 700px;
+      filter: blur(18px);
+      animation: flash-halo 200ms var(--ease-flash) forwards;
+    }
+
+    .flash--halo.from-left  { left: 0; }
+    .flash--halo.from-right { right: 0; }
+
+    /* ---- Streak ---- */
+    .flash--streak {
+      height: 2px;
+      width: 300px;
+      transform-origin: left center;
+      animation: flash-streak 160ms var(--ease-flash) forwards;
+    }
+
+    .flash--streak::before,
+    .flash--streak::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 0;
+      transform: translateY(-50%);
+    }
+
+    .flash--streak::before {
+      width: 50%;
+      height: 100%;
+      background: linear-gradient(90deg, rgba(255, 248, 240, 1) 0%, rgba(255, 240, 225, 0.5) 50%, transparent 100%);
+    }
+
+    .flash--streak::after {
+      width: 100%;
+      height: 70%;
+      background: linear-gradient(90deg, rgba(255, 220, 190, 0.6) 0%, rgba(255, 190, 150, 0.2) 35%, transparent 100%);
+      filter: blur(1.5px);
+    }
+
+    .flash--streak.from-right { transform-origin: right center; }
+
+    .flash--streak.from-right::before {
+      left: auto;
+      right: 0;
+      background: linear-gradient(270deg, rgba(255, 248, 240, 1) 0%, rgba(255, 240, 225, 0.5) 50%, transparent 100%);
+    }
+
+    .flash--streak.from-right::after {
+      left: auto;
+      right: 0;
+      background: linear-gradient(270deg, rgba(255, 220, 190, 0.6) 0%, rgba(255, 190, 150, 0.2) 35%, transparent 100%);
+    }
+
+    /* ---- Floor ---- */
+    .flash--floor {
+      bottom: 0;
+      height: 35%;
+      width: 60%;
+      max-width: 800px;
+      filter: blur(14px);
+      animation: flash-floor 220ms var(--ease-flash) forwards;
+    }
+
+    .flash--floor.from-left  { left: 0; }
+    .flash--floor.from-right { right: 0; }
+
+    /* ---- Keyframes ---- */
+    @keyframes flash-cone {
+      0%   { opacity: 0; transform: scaleX(0.3) scaleY(0.5); }
+      2%   { opacity: 1; transform: scaleX(1) scaleY(1); }
+      15%  { opacity: 0.9; }
+      40%  { opacity: 0.35; }
+      100% { opacity: 0; transform: scaleX(1.1) scaleY(1.05); }
+    }
+
+    @keyframes flash-core {
+      0%   { opacity: 0; transform: translateY(-50%) scale(0.15); }
+      3%   { opacity: 1; transform: translateY(-50%) scale(1.4); }
+      20%  { opacity: 1; transform: translateY(-50%) scale(1); }
+      100% { opacity: 0; transform: translateY(-50%) scale(0.8); }
+    }
+
+    @keyframes flash-halo {
+      0%   { opacity: 0; transform: scale(0.6); }
+      5%   { opacity: 1; transform: scale(1); }
+      30%  { opacity: 0.6; }
+      100% { opacity: 0; transform: scale(1.1); }
+    }
+
+    @keyframes flash-streak {
+      0%   { opacity: 0; transform: scaleX(0.1); }
+      4%   { opacity: 1; transform: scaleX(1); }
+      25%  { opacity: 0.7; }
+      100% { opacity: 0; transform: scaleX(1.15); }
+    }
+
+    @keyframes flash-floor {
+      0%   { opacity: 0; transform: scaleY(0.2); }
+      6%   { opacity: 0.7; transform: scaleY(1); }
+      35%  { opacity: 0.3; }
+      100% { opacity: 0; transform: scaleY(1.1); }
+    }
+
+    /* ================================================================
+       06. CONTENT STAGE
+       ================================================================ */
+    .content {
+      position: relative;
+      z-index: var(--z-content);
+      height: 100vh;
+      height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: var(--stage-padding);
+    }
+
+    .content__main {
+      max-width: 820px;
+    }
+
+    .headline {
+      font-family: var(--font-serif);
+      font-weight: 300;
+      font-size: clamp(2.5rem, 6vw, 5.5rem);
+      line-height: 1.05;
+      letter-spacing: var(--tracking-tight);
+      color: var(--color-text);
+      margin-bottom: 28px;
+      animation: reveal-curtain 4.2s var(--ease-curtain) 0.9s both;
+    }
+
+    .headline__accent {
+      font-style: italic;
+      font-weight: 500;
+      color: var(--color-accent-soft);
+    }
+
+    .subtitle {
+      font-size: clamp(0.95rem, 1.5vw, 1.1rem);
+      font-weight: 300;
+      line-height: 1.7;
+      color: var(--color-text-muted);
+      max-width: 540px;
+      margin-bottom: 44px;
+      animation: reveal-soft 3.6s var(--ease-reveal) 1.8s both;
+    }
+
+    .subtitle strong {
+      color: var(--color-text);
+      font-weight: 500;
+    }
+
+    /* ---- Footer ---- */
+    .content__footer {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 20px;
+      animation: reveal-soft 3.6s var(--ease-reveal) 2.6s both;
+    }
+
+    /* ---- Badge "Próximamente" ---- */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.7rem;
+      font-weight: 400;
+      letter-spacing: var(--tracking-wide);
+      text-transform: uppercase;
+      color: var(--color-accent-soft);
+      animation: reveal-soft 3.2s var(--ease-reveal) 2.4s both;
+    }
+
+    .badge__dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--color-accent);
+      box-shadow: 0 0 10px var(--color-accent);
+      animation: dot-pulse 2s ease-in-out infinite;
+    }
+
+    /* ---- Progress ---- */
+    .progress {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      font-size: 0.65rem;
+      font-weight: 400;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(255, 245, 235, 0.5);
+    }
+
+    .progress__track {
+      position: relative;
+      width: 100px;
+      height: 1px;
+      background: var(--color-line-soft);
+      overflow: hidden;
+    }
+
+    .progress__fill {
+      position: absolute;
+      inset: 0;
+      width: 0%;
+      background: linear-gradient(90deg, var(--color-accent-soft), var(--color-accent));
+      animation: progress-fill 6s cubic-bezier(0.65, 0, 0.35, 1) 2.6s forwards;
+    }
+
+    .progress__value {
+      min-width: 34px;
+      display: inline-block;
+      color: var(--color-accent-soft);
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* ---- Credit ---- */
+    .credit {
+      font-size: 0.62rem;
+      font-weight: 400;
+      letter-spacing: var(--tracking-wide);
+      text-transform: uppercase;
+      color: var(--color-text-faint);
+      text-decoration: none;
+      transition: color 0.3s ease;
+    }
+
+    .credit:hover {
+      color: var(--color-accent-soft);
+    }
+
+    /* ================================================================
+       07. KEYFRAMES (contenido)
+       ================================================================ */
+    @keyframes reveal-soft {
+      0%   { opacity: 0; transform: translateY(36px); filter: blur(6px); }
+      40%  { opacity: 1; filter: blur(0); }
+      100% { opacity: 1; transform: translateY(0); filter: blur(0); }
+    }
+
+    @keyframes reveal-curtain {
+      0%   { opacity: 0; transform: translateY(48px); clip-path: inset(0 0 100% 0); }
+      35%  { opacity: 1; }
+      100% { opacity: 1; transform: translateY(0); clip-path: inset(0 0 -10% 0); }
+    }
+
+    @keyframes dot-pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%      { opacity: 0.4; transform: scale(0.8); }
+    }
+
+    @keyframes progress-fill {
+      to { width: 78%; }
+    }
+
+    /* ================================================================
+       08. RESPONSIVE
+       ================================================================ */
+    @media (max-width: 768px) {
+      .content { padding: var(--stage-padding-mobile); }
+      .headline { margin-bottom: 22px; }
+      .subtitle { margin-bottom: 32px; }
+      .badge { font-size: 0.64rem; }
+      .credit { font-size: 0.56rem; }
+      .flash--streak { width: 180px; height: 1.5px; }
+    }
+
+    /* ================================================================
+       09. ACCESIBILIDAD
+       ================================================================ */
+    @media (prefers-reduced-motion: reduce) {
+      .stage__flashes { display: none; }
+      .video-layer { transition: opacity 0.6s linear; }
+      .badge,
+      .headline,
+      .subtitle,
+      .content__footer {
+        animation-duration: 0.6s;
+        animation-delay: 0s;
+      }
+    }
+  </style>
 </head>
 <body>
 
-  <div class="stage-root">
+  <div class="stage">
 
-    <div class="mix-stage" id="mixStage">
-      <video class="mix-layer" muted loop playsinline preload="auto" data-mix-index="0">
+    <!-- Video layers -->
+    <div class="stage__video">
+      <video class="video-layer" muted loop playsinline preload="auto" data-index="0">
         <source src="https://videos.pexels.com/video-files/9370435/9370435-hd_1080_1920_24fps.mp4" type="video/mp4">
         <source src="https://videos.pexels.com/video-files/9370435/9370435-uhd_2160_3840_24fps.mp4" type="video/mp4">
       </video>
-      <video class="mix-layer" muted loop playsinline preload="auto" data-mix-index="1">
+      <video class="video-layer" muted loop playsinline preload="auto" data-index="1">
         <source src="https://videos.pexels.com/video-files/9370435/9370435-hd_1080_1920_24fps.mp4" type="video/mp4">
         <source src="https://videos.pexels.com/video-files/9370435/9370435-uhd_2160_3840_24fps.mp4" type="video/mp4">
       </video>
-      <video class="mix-layer" muted loop playsinline preload="auto" data-mix-index="2">
+      <video class="video-layer" muted loop playsinline preload="auto" data-index="2">
         <source src="https://videos.pexels.com/video-files/9370435/9370435-hd_1080_1920_24fps.mp4" type="video/mp4">
         <source src="https://videos.pexels.com/video-files/9370435/9370435-uhd_2160_3840_24fps.mp4" type="video/mp4">
       </video>
     </div>
 
-    <div class="overlay overlay--gradient"></div>
-    <div class="overlay overlay--warm"></div>
-    <div class="overlay overlay--grain"></div>
+    <!-- Overlays -->
+    <div class="stage__overlay stage__overlay--gradient"></div>
+    <div class="stage__overlay stage__overlay--warm"></div>
+    <div class="stage__overlay stage__overlay--grain"></div>
 
-    <div class="paparazzi" id="paparazzi"></div>
+    <!-- Paparazzi flashes -->
+    <div class="stage__flashes" id="flashes" aria-hidden="true"></div>
 
-    <main class="content-stage">
-      <div class="content">
+    <!-- Content -->
+    <main class="content">
 
-        <div class="eyebrow">
-          <span class="eyebrow__dot"></span>
-          <span>Próximamente</span>
-        </div>
-
+      <section class="content__main">
         <h1 class="headline">
-          Pronto vas a poder<br>
-          <span class="headline__accent">alcanzar tu máximo potencial.</span>
+          ¿Estás listo para<br>
+          <span class="headline__accent">alcanzar tu máximo potencial?</span>
         </h1>
 
         <p class="subtitle">
           No hace falta suerte. Hace falta <strong>idea, estructura y cabeza</strong>.<br>
           Con eso, se logra lo que sea.
         </p>
+      </section>
 
-        <div class="footer">
-          <div class="progress">
-            <span>Avanzando</span>
-            <div class="progress__track">
-              <div class="progress__fill"></div>
-            </div>
-            <span class="progress__value">0%</span>
-          </div>
-          <a class="credit"
-             href="https://ezgilabert.github.io/ezequiel-dev/"
-             target="_blank"
-             rel="noopener noreferrer">
-            Ezequiel García Gilabert
-          </a>
+      <footer class="content__footer">
+
+        <div class="badge">
+          <span class="badge__dot"></span>
+          <span>Próximamente</span>
         </div>
 
-      </div>
-    </main>
+        <div class="progress">
+          <span>Avanzando</span>
+          <div class="progress__track">
+            <div class="progress__fill"></div>
+          </div>
+          <span class="progress__value" id="progressValue">0%</span>
+        </div>
 
+        <a class="credit"
+           href="https://ezgilabert.github.io/ezequiel-dev/"
+           target="_blank"
+           rel="noopener noreferrer">
+          Ezequiel García Gilabert
+        </a>
+
+      </footer>
+
+    </main>
   </div>
 
   <script>
     (() => {
       'use strict';
 
-      // ----------------------------------------------------------------
-      // Timing de la barra de progreso
-      // ----------------------------------------------------------------
-      const PROGRESS = Object.freeze({
-        startDelay: 2600,   // ms hasta que arranca la barra
-        duration:   6000,   // ms que tarda en llegar al target
-        target:     78      // % final
-      });
-
-      // Estado global leído por el sistema de paparazzi
-      window.__progress = 0; // 0..1 (progreso normalizado 0 -> target)
-
+      /* ==============================================================
+         CONFIG
+         ============================================================== */
       const CONFIG = Object.freeze({
-        layerRotationMs: 3200,
-
-        // Los flashes arrancan justo cuando empieza la barra
-        startDelay: [PROGRESS.startDelay, PROGRESS.startDelay + 400],
-
-        gaps: {
-          short:  { p: 0.55, min: 450,  max: 1200 },
-          medium: { p: 0.85, min: 1200, max: 2600 },
-          long:   { p: 0.97, min: 2600, max: 6000 },
-          rare:   { min: 6000, max: 10000 }
+        progress: {
+          startDelay: 2600,
+          duration:   6000,
+          target:     78
         },
 
-        intraGaps: {
-          tight:  { p: 0.40, min: 40,  max: 90  },
-          normal: { p: 0.80, min: 90,  max: 190 },
-          slow:   { min: 190, max: 400 }
+        video: {
+          rotationMs: 3200
         },
 
-        flashY: { min: 12, range: 76, skew: 1.4 },
+        flash: {
+          startDelay: [2600, 3000],
+          maxConcurrent: 16,
 
-        // Probabilidades base (se modulan con el progreso)
-        events: {
-          chaotic: 0.20,
-          crossed: 0.42,
-          double:  0.60,
-          burst:   0.82
-        },
+          gaps: {
+            short:  { p: 0.55, min: 450,  max: 1200 },
+            medium: { p: 0.85, min: 1200, max: 2600 },
+            long:   { p: 0.97, min: 2600, max: 6000 },
+            rare:   { min: 6000, max: 10000 }
+          },
 
-        echoChance: 0.45,
-        echoDelay: [150, 700],
+          intraGaps: {
+            tight:  { p: 0.40, min: 40,  max: 90  },
+            normal: { p: 0.80, min: 90,  max: 190 },
+            slow:   { min: 190, max: 400 }
+          },
 
-        bursts: {
-          sameSide: { min: 2, extra: 3, intensity: [0.65, 1.15], falloff: [0.45, 0.85] },
-          crossed:  { min: 2, extra: 4, intensity: [0.55, 1.05] },
-          chaotic:  { min: 2, extra: 4 },
-          double:   { delay: [50, 140], intensity1: [0.85, 1.15], intensity2: [0.45, 0.80] },
-          single:   { intensity: [0.60, 1.10] }
-        },
+          y: { min: 12, range: 76, skew: 1.4 },
 
-        durations: {
-          cone:   [110, 190],
-          core:   [90,  150],
-          halo:   [170, 250],
-          streak: [130, 200],
-          floor:  [190, 270]
-        },
+          events: {
+            chaotic: 0.20,
+            crossed: 0.42,
+            double:  0.60,
+            burst:   0.82
+          },
 
-        cleanup: {
-          cone:   350,
-          core:   300,
-          halo:   400,
-          streak: 400,
-          floor:  450
-        },
+          echo: {
+            chance: 0.45,
+            delay:  [150, 700]
+          },
 
-        maxConcurrentFlashes: 16
+          bursts: {
+            sameSide: { min: 2, extra: 3, intensity: [0.65, 1.15], falloff: [0.45, 0.85] },
+            crossed:  { min: 2, extra: 4, intensity: [0.55, 1.05] },
+            chaotic:  { min: 2, extra: 4 },
+            double:   { delay: [50, 140], intensity1: [0.85, 1.15], intensity2: [0.45, 0.80] },
+            single:   { intensity: [0.60, 1.10] }
+          },
+
+          durations: {
+            cone:   [110, 190],
+            core:   [90,  150],
+            halo:   [170, 250],
+            streak: [130, 200],
+            floor:  [190, 270]
+          },
+
+          cleanup: {
+            cone:   350,
+            core:   300,
+            halo:   400,
+            streak: 400,
+            floor:  450
+          }
+        }
       });
 
-      // ----------------------------------------------------------------
-      // Helpers
-      // ----------------------------------------------------------------
-      const rand = (min, max) => min + Math.random() * (max - min);
-      const coin = (p = 0.5) => Math.random() < p;
+      /* ==============================================================
+         HELPERS
+         ============================================================== */
+      const rand     = (min, max) => min + Math.random() * (max - min);
+      const coin     = (p = 0.5) => Math.random() < p;
       const pickSide = () => (coin() ? 'left' : 'right');
-      const skew = (power) => Math.pow(Math.random(), power);
-      const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+      const skew     = (power) => Math.pow(Math.random(), power);
+      const clamp    = (v, a, b) => Math.min(b, Math.max(a, v));
 
-      // Progreso actual normalizado 0..1
-      const progress = () => clamp(window.__progress || 0, 0, 1);
+      const state = { progress: 0 };
 
+      const progress = () => clamp(state.progress, 0, 1);
+
+      /* ==============================================================
+         DISTRIBUCIONES
+         ============================================================== */
       function sampleDistribution(dist) {
         const roll = Math.random();
         for (const bucket of Object.values(dist)) {
@@ -662,36 +704,29 @@
         return rand(0, 1000);
       }
 
-      // Los gaps se acortan conforme sube el progreso
       function sampleGapScaled(dist) {
         const base = sampleDistribution(dist);
-        const p = progress();
-        // De 1.4x (inicio) a 0.45x (final) -> más seguido al final
-        const factor = 1.4 - p * 0.95;
+        const factor = 1.4 - progress() * 0.95;
         return base * factor;
       }
 
       function sampleIntraGapScaled() {
-        const base = sampleDistribution(CONFIG.intraGaps);
-        const p = progress();
-        const factor = 1.3 - p * 0.85;
+        const base = sampleDistribution(CONFIG.flash.intraGaps);
+        const factor = 1.3 - progress() * 0.85;
         return base * factor;
       }
 
-      // Intensidad del flash en función del progreso
-      // Al inicio suave (0.35) y al final fuerte (1.3)
-      function currentIntensity(baseMin = 0.35, baseMax = 1.3) {
-        const p = progress();
-        const t = 0.35 + p * 0.95; // 0.35 -> 1.30
-        return t;
-      }
-
+      /* ==============================================================
+         MATH — cubic bezier easing
+         ============================================================== */
       function cubicBezier(t, p1x, p1y, p2x, p2y) {
         const bez = (a, b, u) =>
           3 * (1 - u) ** 2 * u * a + 3 * (1 - u) * u ** 2 * b + u ** 3;
+
         let lo = 0;
         let hi = 1;
         let mid = 0.5;
+
         for (let i = 0; i < 20; i++) {
           mid = (lo + hi) / 2;
           if (bez(p1x, p2x, mid) < t) lo = mid;
@@ -700,29 +735,29 @@
         return bez(p1y, p2y, mid);
       }
 
-      // ----------------------------------------------------------------
-      // Progress counter — actualiza window.__progress en tiempo real
-      // ----------------------------------------------------------------
-      function animateCounter(el) {
-        const DURATION = PROGRESS.duration;
-        const DELAY = PROGRESS.startDelay;
-        const TARGET = PROGRESS.target;
-        const start = performance.now() + DELAY;
+      /* ==============================================================
+         MODULE: Progress counter
+         ============================================================== */
+      function initProgressCounter(el) {
+        const { startDelay, duration, target } = CONFIG.progress;
+        const start = performance.now() + startDelay;
 
         function tick(now) {
           const elapsed = now - start;
+
           if (elapsed < 0) {
             el.textContent = '0%';
-            window.__progress = 0;
+            state.progress = 0;
             requestAnimationFrame(tick);
             return;
           }
-          const t = Math.min(elapsed / DURATION, 1);
+
+          const t = Math.min(elapsed / duration, 1);
           const eased = cubicBezier(t, 0.65, 0, 0.35, 1);
-          const value = eased * TARGET;
+          const value = eased * target;
 
           el.textContent = Math.round(value) + '%';
-          window.__progress = t; // progreso temporal 0..1
+          state.progress = t;
 
           if (t < 1) requestAnimationFrame(tick);
         }
@@ -730,11 +765,13 @@
         requestAnimationFrame(tick);
       }
 
-      // ----------------------------------------------------------------
-      // Layer rotation — only the visible video plays
-      // ----------------------------------------------------------------
-      function initLayerRotation() {
-        const layers = Array.from(document.querySelectorAll('.mix-layer'));
+      /* ==============================================================
+         MODULE: Video rotation
+         ============================================================== */
+      function initVideoRotation() {
+        const layers = Array.from(document.querySelectorAll('.video-layer'));
+        if (!layers.length) return;
+
         let current = 0;
 
         const play = (video) => {
@@ -746,48 +783,46 @@
           layers.forEach((layer, i) => {
             const active = i === index;
             layer.classList.toggle('is-visible', active);
-            if (active) play(layer);
-            else layer.pause();
+            active ? play(layer) : layer.pause();
           });
         };
 
         show(0);
 
         document.addEventListener('visibilitychange', () => {
-          if (document.hidden) {
-            layers.forEach((l) => l.pause());
-          } else {
-            play(layers[current]);
-          }
+          if (document.hidden) layers.forEach((l) => l.pause());
+          else play(layers[current]);
         });
 
         setInterval(() => {
           current = (current + 1) % layers.length;
           show(current);
-        }, CONFIG.layerRotationMs);
+        }, CONFIG.video.rotationMs);
       }
 
-      // ----------------------------------------------------------------
-      // Paparazzi — intensidad y frecuencia ligadas al progreso
-      // ----------------------------------------------------------------
-      function initPaparazzi() {
+      /* ==============================================================
+         MODULE: Paparazzi flashes
+         ============================================================== */
+      function initFlashes() {
         if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
-        const root = document.getElementById('paparazzi');
-        let liveFlashes = 0;
+        const root = document.getElementById('flashes');
+        if (!root) return;
+
+        let liveCount = 0;
 
         function spawn(className, cleanupMs, configure) {
-          if (liveFlashes >= CONFIG.maxConcurrentFlashes) return null;
+          if (liveCount >= CONFIG.flash.maxConcurrent) return null;
 
           const el = document.createElement('div');
           el.className = className;
           if (configure) configure(el);
           root.appendChild(el);
-          liveFlashes++;
+          liveCount++;
 
           setTimeout(() => {
             el.remove();
-            liveFlashes--;
+            liveCount--;
           }, cleanupMs);
 
           return el;
@@ -795,53 +830,52 @@
 
         function fireFlash(side, intensity = 1) {
           const p = progress();
-          // La intensidad se multiplica por el progreso
-          const finalIntensity = intensity * (0.5 + p * 0.9);
+          const strength = intensity * (0.5 + p * 0.9);
 
-          const { min, range, skew: ySkew } = CONFIG.flashY;
+          const { min, range, skew: ySkew } = CONFIG.flash.y;
           const y = min + skew(ySkew) * range;
 
-          spawn(`flash flash--cone from-${side}`, CONFIG.cleanup.cone, (el) => {
+          spawn(`flash flash--screen flash--cone from-${side}`, CONFIG.flash.cleanup.cone, (el) => {
             el.style.setProperty('--y', y + '%');
-            el.style.animationDuration = rand(...CONFIG.durations.cone) + 'ms';
-            el.style.filter = `brightness(${0.7 + finalIntensity * 0.5})`;
+            el.style.animationDuration = rand(...CONFIG.flash.durations.cone) + 'ms';
+            el.style.filter = `brightness(${0.7 + strength * 0.5})`;
           });
 
-          spawn('flash flash--core', CONFIG.cleanup.core, (el) => {
+          spawn('flash flash--core', CONFIG.flash.cleanup.core, (el) => {
             el.style.top = y + '%';
             el.style[side === 'left' ? 'left' : 'right'] = '-2px';
-            el.style.animationDuration = rand(...CONFIG.durations.core) + 'ms';
-            el.style.transform = `translateY(-50%) scale(${0.7 + finalIntensity * 0.6})`;
+            el.style.animationDuration = rand(...CONFIG.flash.durations.core) + 'ms';
+            el.style.transform = `translateY(-50%) scale(${0.7 + strength * 0.6})`;
           });
 
-          spawn(`flash flash--halo from-${side}`, CONFIG.cleanup.halo, (el) => {
-            el.style.animationDuration = rand(...CONFIG.durations.halo) + 'ms';
+          spawn(`flash flash--screen flash--halo from-${side}`, CONFIG.flash.cleanup.halo, (el) => {
+            el.style.animationDuration = rand(...CONFIG.flash.durations.halo) + 'ms';
             const pos = side === 'left' ? '0%' : '100%';
             el.style.background =
               `radial-gradient(ellipse 70% 80% at ${pos} ${y}%,` +
-              ` rgba(255,245,230,${0.55 * finalIntensity}) 0%,` +
-              ` rgba(255,225,200,${0.2 * finalIntensity}) 35%, transparent 70%)`;
+              ` rgba(255,245,230,${0.55 * strength}) 0%,` +
+              ` rgba(255,225,200,${0.20 * strength}) 35%, transparent 70%)`;
           });
 
           const streaks = coin() ? 1 : (coin(0.7) ? 2 : 0);
           for (let i = 0; i < streaks; i++) {
             setTimeout(() => {
-              spawn(`flash flash--streak from-${side}`, CONFIG.cleanup.streak, (el) => {
+              spawn(`flash flash--screen flash--streak from-${side}`, CONFIG.flash.cleanup.streak, (el) => {
                 el.style.top = (y + rand(-4, 4)) + '%';
                 el.style[side === 'left' ? 'left' : 'right'] = '0px';
                 el.style.width = rand(180, 400) + 'px';
-                el.style.animationDuration = rand(...CONFIG.durations.streak) + 'ms';
+                el.style.animationDuration = rand(...CONFIG.flash.durations.streak) + 'ms';
               });
             }, i * rand(20, 60));
           }
 
-          spawn(`flash flash--floor from-${side}`, CONFIG.cleanup.floor, (el) => {
-            el.style.animationDuration = rand(...CONFIG.durations.floor) + 'ms';
+          spawn(`flash flash--screen flash--floor from-${side}`, CONFIG.flash.cleanup.floor, (el) => {
+            el.style.animationDuration = rand(...CONFIG.flash.durations.floor) + 'ms';
             const pos = side === 'left' ? '0%' : '100%';
             el.style.background =
               `radial-gradient(ellipse 70% 60% at ${pos} 100%,` +
-              ` rgba(255,235,200,${0.5 * finalIntensity}) 0%,` +
-              ` rgba(255,210,170,${0.15 * finalIntensity}) 40%, transparent 75%)`;
+              ` rgba(255,235,200,${0.5 * strength}) 0%,` +
+              ` rgba(255,210,170,${0.15 * strength}) 40%, transparent 75%)`;
           });
         }
 
@@ -851,13 +885,12 @@
             elapsed += sampleIntraGapScaled();
             const side = sideAt(i);
             const intensity = intensityAt(i);
-            const delay = elapsed;
-            setTimeout(() => fireFlash(side, intensity), delay);
+            setTimeout(() => fireFlash(side, intensity), elapsed);
           }
         }
 
         function burstSameSide() {
-          const cfg = CONFIG.bursts.sameSide;
+          const cfg = CONFIG.flash.bursts.sameSide;
           const side = pickSide();
           const count = cfg.min + Math.floor(Math.random() * cfg.extra);
           const base = rand(...cfg.intensity);
@@ -870,7 +903,7 @@
         }
 
         function burstCrossed() {
-          const cfg = CONFIG.bursts.crossed;
+          const cfg = CONFIG.flash.bursts.crossed;
           const sequence = coin()
             ? ['left', 'right', 'left', 'right', 'left']
             : ['right', 'left', 'right', 'left', 'right'];
@@ -884,65 +917,61 @@
         }
 
         function doublePop(side = pickSide()) {
-          const cfg = CONFIG.bursts.double;
+          const cfg = CONFIG.flash.bursts.double;
           setTimeout(() => fireFlash(side, rand(...cfg.intensity1)), 0);
           setTimeout(() => fireFlash(side, rand(...cfg.intensity2)), rand(...cfg.delay));
         }
 
         function singleFlash() {
-          fireFlash(pickSide(), rand(...CONFIG.bursts.single.intensity));
+          fireFlash(pickSide(), rand(...CONFIG.flash.bursts.single.intensity));
         }
 
         function chaoticCluster() {
-          const cfg = CONFIG.bursts.chaotic;
+          const cfg = CONFIG.flash.bursts.chaotic;
           const size = cfg.min + Math.floor(Math.random() * cfg.extra);
           let elapsed = 0;
 
           for (let i = 0; i < size; i++) {
             elapsed += sampleIntraGapScaled() + rand(0, 80);
-            const delay = elapsed;
 
             setTimeout(() => {
               const roll = Math.random();
-              if (roll < 0.35) doublePop();
+              if (roll < 0.35)      doublePop();
               else if (roll < 0.70) singleFlash();
-              else fireFlash(pickSide(), rand(0.7, 1.1));
-            }, delay);
+              else                  fireFlash(pickSide(), rand(0.7, 1.1));
+            }, elapsed);
           }
         }
 
-        // Selección de evento con probabilidades moduladas por el progreso
         function pickEvent() {
           const p = progress();
-          // Al inicio favorece flashes simples; al final, clusters complejos
           const bias = p * 0.35;
 
           const ev = {
-            chaotic: CONFIG.events.chaotic + bias,
-            crossed: CONFIG.events.crossed + bias * 0.6,
-            double:  CONFIG.events.double  + bias * 0.4,
-            burst:   CONFIG.events.burst   + bias * 0.2
+            chaotic: CONFIG.flash.events.chaotic + bias,
+            crossed: CONFIG.flash.events.crossed + bias * 0.6,
+            double:  CONFIG.flash.events.double  + bias * 0.4,
+            burst:   CONFIG.flash.events.burst   + bias * 0.2
           };
 
-          // Normalizamos para que nunca pase de 1
-          const total = ev.burst;
-          const scale = total > 1 ? 1 / total : 1;
-
+          const scale = ev.burst > 1 ? 1 / ev.burst : 1;
           const roll = Math.random();
-          if (roll < ev.chaotic * scale) chaoticCluster();
+
+          if      (roll < ev.chaotic * scale) chaoticCluster();
           else if (roll < ev.crossed * scale) burstCrossed();
-          else if (roll < ev.double * scale) doublePop();
-          else if (roll < ev.burst * scale) burstSameSide();
-          else singleFlash();
+          else if (roll < ev.double  * scale) doublePop();
+          else if (roll < ev.burst   * scale) burstSameSide();
+          else                                singleFlash();
         }
 
         function scheduleNext() {
-          const gap = sampleGapScaled(CONFIG.gaps);
+          const gap = sampleGapScaled(CONFIG.flash.gaps);
+
           setTimeout(() => {
             pickEvent();
 
-            if (coin(CONFIG.echoChance * (0.5 + progress()))) {
-              setTimeout(singleFlash, rand(...CONFIG.echoDelay));
+            if (coin(CONFIG.flash.echo.chance * (0.5 + progress()))) {
+              setTimeout(singleFlash, rand(...CONFIG.flash.echo.delay));
             }
 
             scheduleNext();
@@ -952,17 +981,19 @@
         setTimeout(() => {
           doublePop();
           scheduleNext();
-        }, rand(...CONFIG.startDelay));
+        }, rand(...CONFIG.flash.startDelay));
       }
 
-      // ----------------------------------------------------------------
-      // Boot
-      // ----------------------------------------------------------------
-      document.addEventListener('DOMContentLoaded', () => {
-        initLayerRotation();
-        animateCounter(document.querySelector('.progress__value'));
-        initPaparazzi();
-      });
+      /* ==============================================================
+         BOOT
+         ============================================================== */
+      function boot() {
+        initVideoRotation();
+        initProgressCounter(document.getElementById('progressValue'));
+        initFlashes();
+      }
+
+      document.addEventListener('DOMContentLoaded', boot);
     })();
   </script>
 
