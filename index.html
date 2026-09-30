@@ -87,10 +87,16 @@
     opacity: 1;
   }
 
+  /* FIX: bajamos el scale en mobile para no ahogar la GPU */
   @media (max-width: 899px) {
-    .mix-layer[data-mix-index="0"] { transform: scale(1.35) translateY(12%); }
-    .mix-layer[data-mix-index="1"] { transform: scale(1.35) translateY(0%); }
-    .mix-layer[data-mix-index="2"] { transform: scale(1.35) translateY(-12%); }
+    .mix-layer[data-mix-index="0"] { transform: scale(1.18) translateY(6%); }
+    .mix-layer[data-mix-index="1"] { transform: scale(1.18) translateY(0%); }
+    .mix-layer[data-mix-index="2"] { transform: scale(1.18) translateY(-6%); }
+
+    /* FIX: en mobile ocultamos capas 1 y 2 del render por completo */
+    .mix-layer:not([data-mix-index="0"]) {
+      display: none;
+    }
   }
 
   @media (min-width: 900px) {
@@ -367,7 +373,6 @@
     min-width: 0;
     margin-bottom: 44px;
     white-space: normal;
-    /* 👇 ya no necesitamos overflow-wrap porque las palabras son atómicas */
     animation: reveal-soft var(--d-reveal) var(--ease-out) var(--t-subtitle) both;
   }
 
@@ -376,13 +381,11 @@
     font-weight: 500;
   }
 
-  /* 👇 CLAVE: cada palabra es un bloque atómico */
   .subtitle .word {
     display: inline-block;
     white-space: nowrap;
   }
 
-  /* Los espacios entre palabras también son atómicos pero sin fondo */
   .subtitle .space {
     display: inline-block;
     white-space: pre;
@@ -572,18 +575,25 @@
 
   <div class="stage-root">
 
+    <!-- FIX: los 3 videos ahora tienen sources separados por media query.
+         En mobile solo se sirve el HD, nunca el UHD.
+         FIX: preload="auto" en la capa 0 para arrancar rápido.
+         FIX: webkit-playsinline + disablepictureinpicture para iOS. -->
     <div class="mix-stage" id="mixStage" aria-hidden="true">
-      <video class="mix-layer" muted loop playsinline preload="metadata" data-mix-index="0">
+      <video class="mix-layer" muted loop playsinline webkit-playsinline disablepictureinpicture preload="auto" data-mix-index="0">
+        <source src="https://videos.pexels.com/video-files/9370435/9370435-hd_1080_1920_24fps.mp4" type="video/mp4" media="(max-width: 899px)">
+        <source src="https://videos.pexels.com/video-files/9370435/9370435-uhd_2160_3840_24fps.mp4" type="video/mp4" media="(min-width: 900px)">
         <source src="https://videos.pexels.com/video-files/9370435/9370435-hd_1080_1920_24fps.mp4" type="video/mp4">
-        <source src="https://videos.pexels.com/video-files/9370435/9370435-uhd_2160_3840_24fps.mp4" type="video/mp4">
       </video>
-      <video class="mix-layer" muted loop playsinline preload="metadata" data-mix-index="1">
+      <video class="mix-layer" muted loop playsinline webkit-playsinline disablepictureinpicture preload="metadata" data-mix-index="1">
+        <source src="https://videos.pexels.com/video-files/9370435/9370435-hd_1080_1920_24fps.mp4" type="video/mp4" media="(max-width: 899px)">
+        <source src="https://videos.pexels.com/video-files/9370435/9370435-uhd_2160_3840_24fps.mp4" type="video/mp4" media="(min-width: 900px)">
         <source src="https://videos.pexels.com/video-files/9370435/9370435-hd_1080_1920_24fps.mp4" type="video/mp4">
-        <source src="https://videos.pexels.com/video-files/9370435/9370435-uhd_2160_3840_24fps.mp4" type="video/mp4">
       </video>
-      <video class="mix-layer" muted loop playsinline preload="metadata" data-mix-index="2">
+      <video class="mix-layer" muted loop playsinline webkit-playsinline disablepictureinpicture preload="metadata" data-mix-index="2">
+        <source src="https://videos.pexels.com/video-files/9370435/9370435-hd_1080_1920_24fps.mp4" type="video/mp4" media="(max-width: 899px)">
+        <source src="https://videos.pexels.com/video-files/9370435/9370435-uhd_2160_3840_24fps.mp4" type="video/mp4" media="(min-width: 900px)">
         <source src="https://videos.pexels.com/video-files/9370435/9370435-hd_1080_1920_24fps.mp4" type="video/mp4">
-        <source src="https://videos.pexels.com/video-files/9370435/9370435-uhd_2160_3840_24fps.mp4" type="video/mp4">
       </video>
     </div>
 
@@ -721,7 +731,8 @@
       const state = {
         progress: 0,
         reducedMotion: false,
-        canceled: false
+        canceled: false,
+        isMobile: false
       };
 
       const timers = new Set();
@@ -774,12 +785,10 @@
 
         const originalHTML = el.innerHTML;
 
-        // Envolvemos el contenido en un wrapper temporal para procesarlo
         const wrapper = document.createElement('span');
         wrapper.style.display = 'contents';
         wrapper.innerHTML = originalHTML;
 
-        // Recolectamos los nodos de texto para procesarlos
         const textNodes = [];
         (function collect(node) {
           for (let i = 0; i < node.childNodes.length; i++) {
@@ -794,13 +803,11 @@
 
         const charSpans = [];
 
-        // Procesamos cada nodo de texto: dividimos en palabras y caracteres
         for (let n = 0; n < textNodes.length; n++) {
           const textNode = textNodes[n];
           const text = textNode.nodeValue;
           const frag = document.createDocumentFragment();
 
-          // Dividimos por espacios conservándolos
           const tokens = text.split(/(\s+)/);
 
           for (let t = 0; t < tokens.length; t++) {
@@ -808,13 +815,11 @@
             if (token === '') continue;
 
             if (/^\s+$/.test(token)) {
-              // Es un espacio: creamos un span .space
               const spaceSpan = document.createElement('span');
               spaceSpan.className = 'space';
               spaceSpan.textContent = '\u00A0';
               frag.appendChild(spaceSpan);
             } else {
-              // Es una palabra: creamos un span .word con caracteres internos
               const wordSpan = document.createElement('span');
               wordSpan.className = 'word';
               for (let c = 0; c < token.length; c++) {
@@ -883,8 +888,6 @@
           const ch = span.textContent;
           i++;
 
-          // Movemos el cursor al lugar correcto: después del char actual,
-          // pero dentro de la misma palabra si es posible
           span.parentNode.insertBefore(cursor, span.nextSibling);
 
           let delay = TIMING.charDelay;
@@ -898,16 +901,38 @@
         later(() => requestAnimationFrame(typeFrame), TIMING.typewriterStart);
       }
 
+      // FIX: reescrita la función de rotación de capas.
+      // - En mobile solo 1 capa activa (nada de decodificar 3 videos).
+      // - play() fuerza muted por propiedad además del atributo.
+      // - No rotamos capas en mobile.
+      // - visibilitychange no rompe el estado.
       function initLayerRotation() {
-        const layers = Array.from(document.querySelectorAll('.mix-layer'));
-        if (!layers.length) return;
+        const allLayers = Array.from(document.querySelectorAll('.mix-layer'));
+        if (!allLayers.length) return;
+
+        const isMobile = state.isMobile;
+
+        // En mobile solo usamos la capa 0 (las otras están display:none por CSS)
+        const layers = isMobile ? [allLayers[0]] : allLayers;
 
         let current = 0;
         let started = false;
+        let rotationTimer = null;
 
         const play = (v) => {
+          // FIX: forzamos muted en la propiedad (crítico en iOS)
+          v.muted = true;
+          v.defaultMuted = true;
+          v.setAttribute('muted', '');
+          v.setAttribute('playsinline', '');
+
           const p = v.play();
-          if (p && p.catch) p.catch(() => {});
+          if (p && p.catch) {
+            p.catch((err) => {
+              // FIX: log para diagnosticar en el celu
+              console.warn('[video] play bloqueado:', err.name, err.message);
+            });
+          }
         };
 
         const show = (index) => {
@@ -921,24 +946,34 @@
 
         show(0);
 
+        // FIX: reanudar sin re-pausar todo por scroll de barra de URL
         document.addEventListener('visibilitychange', () => {
           if (document.hidden) {
-            for (const l of layers) l.pause();
+            layers.forEach((v) => v.pause());
           } else {
             play(layers[current]);
           }
         }, { passive: true });
 
-        function startRotation() {
-          if (started) return;
+        // FIX: en mobile NO rotamos capas
+        window.__startVideoRotation = () => {
+          if (started || isMobile) return;
           started = true;
-          setInterval(() => {
+          rotationTimer = setInterval(() => {
             current = (current + 1) % layers.length;
             show(current);
           }, FLASH.layerRotationMs);
-        }
+        };
 
-        window.__startVideoRotation = startRotation;
+        // FIX: primer intento de play tras un toque del usuario (fallback
+        // por si el autoplay fue bloqueado por política del navegador).
+        const unlock = () => {
+          play(layers[current]);
+          document.removeEventListener('touchstart', unlock, { passive: true });
+          document.removeEventListener('click', unlock, { passive: true });
+        };
+        document.addEventListener('touchstart', unlock, { passive: true, once: false });
+        document.addEventListener('click', unlock, { passive: true, once: false });
       }
 
       function initPaparazzi() {
@@ -1116,6 +1151,8 @@
 
       function boot() {
         state.reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        // FIX: detectamos mobile con matchMedia (mismo breakpoint que el CSS)
+        state.isMobile = window.matchMedia('(max-width: 899px)').matches;
 
         initLayerRotation();
 
