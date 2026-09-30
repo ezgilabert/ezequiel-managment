@@ -6,7 +6,7 @@
 <meta name="color-scheme" content="dark">
 <meta name="theme-color" content="#0a0807">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
-<title>Próximamente...</title>
+<title>⚡ Próximamente...</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Fraunces:ital,opsz,wght@0,9..144,300;1,9..144,500&display=swap" rel="stylesheet">
@@ -32,10 +32,10 @@
 
     --t-headline:   1.6s;
     --t-subtitle:   4.0s;
-    --t-f-eyebrow:  7.4s;
-    --t-f-progress: 8.6s;
-    --t-f-credit:   9.8s;
-    --t-done:      11.2s;
+    --t-f-eyebrow:  8.6s;   /* después de que desaparece el cursor */
+    --t-f-progress: 9.8s;
+    --t-f-credit:  11.0s;
+    --t-done:      12.4s;
 
     --d-reveal:  1.2s;
     --d-curtain: 2.6s;
@@ -387,8 +387,6 @@
     opacity: 1;
   }
 
-  /* Cursor: la animación vive SOLO en .is-active
-     para que al quitarla desaparezca suavemente */
   .subtitle .typewriter-cursor {
     display: inline-block;
     width: 1px;
@@ -579,7 +577,7 @@
     <main class="content-stage">
       <div class="content">
 
-        <h1 class="headline">Estas listo para<br><span class="headline__accent">alcanzar tu máximo potencial?</span></h1>
+        <h1 class="headline">Estas listo para<br><span class="headline__accent">alcanzar tu máximo potencial.. ?</span></h1>
 
         <p class="subtitle" id="subtitleTypewriter" aria-live="polite">No hace falta suerte. Hace falta <strong>idea, estructura y cabeza</strong>.<br>Con eso, se logra lo que sea.</p>
 
@@ -622,14 +620,14 @@
         headlineStart:    1600,
         cursorAppear:     5000,
         typewriterStart:  5600,
-        progressStart:    8600,
-        textsDone:       11200,
+        progressStart:    9800,   // = --t-f-progress
+        textsDone:       12400,   // = --t-done
         progressDuration: 6000,
         progressTarget:    78,
         charDelay:          22,
         punctDelay:        140,
         dashDelay:         100,
-        cursorFadeOut:     900
+        cursorFadeOut:     500    // 👈 reducido: el cursor se va antes
       });
 
       const FLASH = Object.freeze({
@@ -682,7 +680,6 @@
       const rand   = (a, b) => a + Math.random() * (b - a);
       const coin   = (p = 0.5) => Math.random() < p;
       const pickSide = () => (coin() ? 'left' : 'right');
-      const clamp  = (v, a, b) => v < a ? a : v > b ? b : v;
 
       function sampleBuckets(buckets) {
         const roll = Math.random();
@@ -848,12 +845,9 @@
           }
 
           if (i >= charSpans.length) {
-            // 👇 Al terminar de tipear: quitamos .is-active
-            //    La animación se detiene y la opacidad hace fade-out
-            //    por la transition de .typewriter-cursor
+            // Al terminar: fade-out del cursor y removerlo del DOM
             later(() => {
               cursor.classList.remove('is-active');
-              // Después del fade, lo removemos del DOM
               later(() => {
                 if (cursor.isConnected) cursor.remove();
               }, 400);
