@@ -3,91 +3,316 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Coming Soon — Selector de versiones</title>
+<title>Próximamente — Ezequiel</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400&family=Fraunces:ital,opsz,wght@0,9..144,300;1,9..144,300&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Fraunces:ital,opsz,wght@0,9..144,300;1,9..144,500&display=swap" rel="stylesheet">
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
+  *,
+  *::before,
+  *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
 
-  html, body {
+  :root {
+    --accent: #ff6b4a;
+    --accent-soft: #ffb89a;
+    --bg-dark: #0a0807;
+    --text-primary: #fff;
+    --text-muted: rgba(255, 245, 235, 0.7);
+    --text-faint: rgba(255, 245, 235, 0.4);
+  }
+
+  html,
+  body {
     height: 100%;
     overflow: hidden;
-    background: #0a0a0a;
-    color: #fff;
+    background: var(--bg-dark);
+    color: var(--text-primary);
     font-family: 'Inter', sans-serif;
     -webkit-font-smoothing: antialiased;
   }
 
-  /* ============================================================
-     CONTENEDOR DE CADA VERSIÓN
-     ============================================================ */
-  .version {
+  .stage-root {
     position: fixed;
     inset: 0;
-    display: none;
     isolation: isolate;
   }
-  .version.active { display: block; }
 
-  /* ============ VIDEO DE FONDO (base) ============ */
-  .bg-video {
+  /* ------------------------------------------------------------------
+     Video stage
+     ------------------------------------------------------------------ */
+  .mix-stage {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    background: var(--bg-dark);
+    z-index: 1;
+    contain: strict;
+  }
+
+  .mix-layer {
     position: absolute;
     inset: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
-    object-position: center center;
-    z-index: 1;
-    filter: contrast(1.05) brightness(0.8);
-    animation: videoFadeIn 1.8s ease forwards;
+    object-position: center;
+    opacity: 0;
+    filter: contrast(1.05) brightness(0.95) saturate(1.1);
+    transform-origin: center;
+    backface-visibility: hidden;
+    transition:
+      opacity 1.4s ease-in-out,
+      transform 1.8s ease-in-out,
+      object-position 1.8s ease-in-out;
   }
-  @keyframes videoFadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-  /* Capa desenfocada (oculta en móvil) */
-  .bg-video-blur { display: none; }
+  .mix-layer.is-visible {
+    opacity: 1;
+  }
 
-  /* En pantallas anchas: video principal contenido + fondo blur ampliado */
+  @media (max-width: 899px) {
+    .mix-layer[data-mix-index="0"] { transform: scale(1.35) translateY(12%); }
+    .mix-layer[data-mix-index="1"] { transform: scale(1.35) translateY(0%); }
+    .mix-layer[data-mix-index="2"] { transform: scale(1.35) translateY(-12%); }
+  }
+
   @media (min-width: 900px) {
-    .version[data-version="afro-blur"] .bg-video,
-    .version[data-version="chair"] .bg-video {
-      object-fit: contain;
-      object-position: center center;
-    }
-    .version[data-version="afro-blur"] .bg-video-blur,
-    .version[data-version="chair"] .bg-video-blur {
-      display: block;
-      position: absolute;
-      inset: -10%;
-      width: 120%;
-      height: 120%;
-      object-fit: cover;
-      object-position: center center;
-      z-index: 0;
-      filter: blur(48px) saturate(1.4) brightness(0.55) contrast(1.1);
-      transform: scale(1.15);
-      opacity: 0.9;
-    }
+    .mix-layer[data-mix-index="0"] { object-position: center 20%; }
+    .mix-layer[data-mix-index="1"] { object-position: center 50%; }
+    .mix-layer[data-mix-index="2"] { object-position: center 80%; }
   }
 
-  .bg-overlay {
+  /* ------------------------------------------------------------------
+     Overlays
+     ------------------------------------------------------------------ */
+  .overlay {
     position: absolute;
     inset: 0;
-    z-index: 2;
-    background: linear-gradient(180deg, rgba(10,10,10,0.35) 0%, rgba(10,10,10,0.25) 45%, rgba(10,10,10,0.85) 100%);
-  }
-
-  .grain {
-    position: absolute;
-    inset: 0;
-    z-index: 3;
     pointer-events: none;
-    opacity: 0.05;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' /%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    contain: strict;
   }
 
-  /* ============ CONTENIDO ============ */
-  main {
+  .overlay--gradient {
+    z-index: 2;
+    background: linear-gradient(
+      180deg,
+      rgba(10, 8, 7, 0.15) 0%,
+      rgba(10, 8, 7, 0.05) 40%,
+      rgba(10, 8, 7, 0.85) 100%
+    );
+  }
+
+  .overlay--warm {
+    z-index: 2;
+    mix-blend-mode: soft-light;
+    background: linear-gradient(
+      135deg,
+      rgba(255, 107, 74, 0.18) 0%,
+      rgba(0, 0, 0, 0) 100%
+    );
+  }
+
+  .overlay--grain {
+    z-index: 3;
+    opacity: 0.06;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  /* ------------------------------------------------------------------
+     Paparazzi flashes
+     ------------------------------------------------------------------ */
+  .paparazzi {
+    position: absolute;
+    inset: 0;
+    z-index: 8;
+    pointer-events: none;
+    overflow: hidden;
+    contain: layout style paint;
+  }
+
+  .flash {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+    contain: layout style paint;
+  }
+
+  .flash--cone,
+  .flash--halo,
+  .flash--streak,
+  .flash--floor {
+    mix-blend-mode: screen;
+  }
+
+  /* Cone ---------------------------------------------------------- */
+  .flash--cone {
+    top: 0;
+    height: 100%;
+    width: 130%;
+    max-width: 1600px;
+    animation: flash-cone 140ms cubic-bezier(0.02, 0.98, 0.1, 1) forwards;
+  }
+
+  .flash--cone.from-left {
+    left: 0;
+    transform-origin: left var(--y, 50%);
+    background: radial-gradient(
+      ellipse 45% 55% at 0% var(--y, 50%),
+      rgba(255, 255, 255, 1) 0%,
+      rgba(255, 250, 240, 0.95) 3%,
+      rgba(255, 235, 215, 0.7) 10%,
+      rgba(255, 210, 180, 0.3) 25%,
+      rgba(255, 190, 160, 0.08) 50%,
+      transparent 72%
+    );
+  }
+
+  .flash--cone.from-right {
+    right: 0;
+    transform-origin: right var(--y, 50%);
+    background: radial-gradient(
+      ellipse 45% 55% at 100% var(--y, 50%),
+      rgba(255, 255, 255, 1) 0%,
+      rgba(255, 250, 240, 0.95) 3%,
+      rgba(255, 235, 215, 0.7) 10%,
+      rgba(255, 210, 180, 0.3) 25%,
+      rgba(255, 190, 160, 0.08) 50%,
+      transparent 72%
+    );
+  }
+
+  /* Core ---------------------------------------------------------- */
+  .flash--core {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #fff;
+    transform: translateY(-50%);
+    animation: flash-core 120ms cubic-bezier(0.02, 0.98, 0.1, 1) forwards;
+    box-shadow:
+      0 0 6px 2px #fff,
+      0 0 18px 6px rgba(255, 240, 220, 1),
+      0 0 60px 20px rgba(255, 210, 170, 0.8),
+      0 0 160px 50px rgba(255, 180, 130, 0.4);
+  }
+
+  /* Halo ---------------------------------------------------------- */
+  .flash--halo {
+    top: 0;
+    height: 100%;
+    width: 55%;
+    max-width: 700px;
+    filter: blur(18px);
+    animation: flash-halo 200ms cubic-bezier(0.02, 0.98, 0.1, 1) forwards;
+  }
+
+  .flash--halo.from-left  { left: 0; }
+  .flash--halo.from-right { right: 0; }
+
+  /* Streak -------------------------------------------------------- */
+  .flash--streak {
+    height: 2px;
+    width: 300px;
+    transform-origin: left center;
+    animation: flash-streak 160ms cubic-bezier(0.02, 0.98, 0.1, 1) forwards;
+  }
+
+  .flash--streak::before,
+  .flash--streak::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    transform: translateY(-50%);
+  }
+
+  .flash--streak::before {
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(90deg, rgba(255,248,240,1) 0%, rgba(255,240,225,0.5) 50%, transparent 100%);
+  }
+
+  .flash--streak::after {
+    width: 100%;
+    height: 70%;
+    background: linear-gradient(90deg, rgba(255,220,190,0.6) 0%, rgba(255,190,150,0.2) 35%, transparent 100%);
+    filter: blur(1.5px);
+  }
+
+  .flash--streak.from-right {
+    transform-origin: right center;
+  }
+
+  .flash--streak.from-right::before {
+    left: auto;
+    right: 0;
+    background: linear-gradient(270deg, rgba(255,248,240,1) 0%, rgba(255,240,225,0.5) 50%, transparent 100%);
+  }
+
+  .flash--streak.from-right::after {
+    left: auto;
+    right: 0;
+    background: linear-gradient(270deg, rgba(255,220,190,0.6) 0%, rgba(255,190,150,0.2) 35%, transparent 100%);
+  }
+
+  /* Floor --------------------------------------------------------- */
+  .flash--floor {
+    bottom: 0;
+    height: 35%;
+    width: 60%;
+    max-width: 800px;
+    filter: blur(14px);
+    animation: flash-floor 220ms cubic-bezier(0.02, 0.98, 0.1, 1) forwards;
+  }
+
+  .flash--floor.from-left  { left: 0; }
+  .flash--floor.from-right { right: 0; }
+
+  /* Keyframes ----------------------------------------------------- */
+  @keyframes flash-cone {
+    0%   { opacity: 0; transform: scaleX(0.3) scaleY(0.5); }
+    2%   { opacity: 1; transform: scaleX(1) scaleY(1); }
+    15%  { opacity: 0.9; }
+    40%  { opacity: 0.35; }
+    100% { opacity: 0; transform: scaleX(1.1) scaleY(1.05); }
+  }
+
+  @keyframes flash-core {
+    0%   { opacity: 0; transform: translateY(-50%) scale(0.15); }
+    3%   { opacity: 1; transform: translateY(-50%) scale(1.4); }
+    20%  { opacity: 1; transform: translateY(-50%) scale(1); }
+    100% { opacity: 0; transform: translateY(-50%) scale(0.8); }
+  }
+
+  @keyframes flash-halo {
+    0%   { opacity: 0; transform: scale(0.6); }
+    5%   { opacity: 1; transform: scale(1); }
+    30%  { opacity: 0.6; }
+    100% { opacity: 0; transform: scale(1.1); }
+  }
+
+  @keyframes flash-streak {
+    0%   { opacity: 0; transform: scaleX(0.1); }
+    4%   { opacity: 1; transform: scaleX(1); }
+    25%  { opacity: 0.7; }
+    100% { opacity: 0; transform: scaleX(1.15); }
+  }
+
+  @keyframes flash-floor {
+    0%   { opacity: 0; transform: scaleY(0.2); }
+    6%   { opacity: 0.7; transform: scaleY(1); }
+    35%  { opacity: 0.3; }
+    100% { opacity: 0; transform: scaleY(1.1); }
+  }
+
+  /* ------------------------------------------------------------------
+     Content — cinematic reveal
+     ------------------------------------------------------------------ */
+  .content-stage {
     position: relative;
     z-index: 10;
     height: 100vh;
@@ -97,575 +322,648 @@
     justify-content: flex-end;
     padding: 56px;
   }
-  .content { max-width: 900px; }
+
+  .content {
+    max-width: 820px;
+  }
 
   .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
     font-size: 0.7rem;
-    font-weight: 300;
-    letter-spacing: 0.35em;
+    font-weight: 400;
+    letter-spacing: 0.22em;
     text-transform: uppercase;
-    color: rgba(255, 255, 255, 0.6);
-    margin-bottom: 40px;
-    animation: fadeUp 1.4s cubic-bezier(0.16, 1, 0.3, 1) 0.3s both;
+    color: var(--accent-soft);
+    margin-bottom: 36px;
+    animation: reveal-soft 3.2s cubic-bezier(0.19, 1, 0.22, 1) 0.3s both;
   }
 
-  h1 {
+  .eyebrow__dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 10px var(--accent);
+    animation: dot-pulse 2s ease-in-out infinite;
+  }
+
+  .headline {
     font-family: 'Fraunces', serif;
     font-weight: 300;
-    font-size: clamp(3rem, 7.5vw, 7rem);
-    line-height: 1;
-    letter-spacing: -0.025em;
-    color: #fff;
-    margin-bottom: 56px;
-    animation: fadeUp 1.6s cubic-bezier(0.16, 1, 0.3, 1) 0.45s both;
+    font-size: clamp(2.5rem, 6vw, 5.5rem);
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    color: var(--text-primary);
+    margin-bottom: 28px;
+    animation: reveal-curtain 4.2s cubic-bezier(0.16, 1, 0.3, 1) 0.9s both;
   }
-  h1 em { font-style: italic; color: rgba(255, 255, 255, 0.5); }
 
-  /* ============ FOOTER ============ */
+  .headline__accent {
+    font-style: italic;
+    font-weight: 500;
+    color: var(--accent-soft);
+  }
+
+  .subtitle {
+    font-size: clamp(0.95rem, 1.5vw, 1.1rem);
+    font-weight: 300;
+    line-height: 1.7;
+    color: var(--text-muted);
+    max-width: 540px;
+    margin-bottom: 44px;
+    animation: reveal-soft 3.6s cubic-bezier(0.19, 1, 0.22, 1) 1.8s both;
+  }
+
+  .subtitle strong {
+    color: var(--text-primary);
+    font-weight: 500;
+  }
+
   .footer {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: 20px;
-    font-size: 0.68rem;
-    font-weight: 300;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: rgba(255, 255, 255, 0.45);
-    animation: fadeUp 1.6s cubic-bezier(0.16, 1, 0.3, 1) 0.7s both;
+    gap: 16px;
+    animation: reveal-soft 3.6s cubic-bezier(0.19, 1, 0.22, 1) 2.6s both;
   }
 
   .progress {
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 14px;
+    font-size: 0.65rem;
+    font-weight: 400;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(255, 245, 235, 0.5);
   }
 
-  .progress-track {
+  .progress__track {
+    position: relative;
     width: 100px;
     height: 1px;
-    background: rgba(255, 255, 255, 0.18);
-    position: relative;
+    background: rgba(255, 255, 255, 0.15);
     overflow: hidden;
   }
-  .progress-fill {
+
+  .progress__fill {
     position: absolute;
     inset: 0;
     width: 0%;
-    background: rgba(255, 255, 255, 0.9);
-    animation: fill 3.5s cubic-bezier(0.65, 0, 0.35, 1) 1.2s forwards;
-  }
-  @keyframes fill { to { width: 72%; } }
-
-  .progress-number {
-    min-width: 28px;
-    display: inline-block;
+    background: linear-gradient(90deg, var(--accent-soft), var(--accent));
+    animation: progress-fill 6s cubic-bezier(0.65, 0, 0.35, 1) 2.6s forwards;
   }
 
-  /* ============ CRÉDITO ============ */
-  .dev-credit {
+  .progress__value {
+    min-width: 34px;
     display: inline-block;
-    color: rgba(255, 255, 255, 0.35);
+    color: var(--accent-soft);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .credit {
+    font-size: 0.62rem;
+    font-weight: 400;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--text-faint);
     text-decoration: none;
-    transition: color 0.35s ease;
-    letter-spacing: 0.18em;
-    font-size: 0.58rem;
-    font-weight: 300;
-    text-transform: uppercase;
-    animation: fadeUp 1.6s cubic-bezier(0.16, 1, 0.3, 1) 0.85s both;
-  }
-  .dev-credit:hover { color: rgba(255, 255, 255, 0.8); }
-
-  /* ============ ANIMACIONES ============ */
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(24px); }
-    to   { opacity: 1; transform: translateY(0); }
+    transition: color 0.3s ease;
   }
 
-  /* ============================================================
-     VERSIÓN MIX — mismo video, encuadres distintos con crossfade
-     ============================================================ */
-
-  /* Contenedor que recorta el video: nunca deja ver franjas */
-  .mix-stage {
-    position: absolute;
-    inset: 0;
-    overflow: hidden;
-    background: #0a0a0a;
-    z-index: 1;
+  .credit:hover {
+    color: var(--accent-soft);
   }
 
-  .mix-layer {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: center center;
-    z-index: 1;
-    opacity: 0;
-    transition: opacity 1.2s ease-in-out,
-                transform 1.6s ease-in-out,
-                object-position 1.6s ease-in-out;
-    filter: contrast(1.05) brightness(0.8);
-    transform-origin: center center;
-    will-change: transform, opacity;
-  }
-  .mix-layer.visible { opacity: 1; }
-
-  /* ---- MOBILE / pantallas angostas: zoom + paneo vertical ---- */
-  @media (max-width: 899px) {
-    .mix-layer[data-mix-index="0"] { transform: scale(1.35) translateY(12%);  } /* zona inferior */
-    .mix-layer[data-mix-index="1"] { transform: scale(1.35) translateY(0%);   } /* zona central  */
-    .mix-layer[data-mix-index="2"] { transform: scale(1.35) translateY(-12%); } /* zona superior */
+  @keyframes reveal-soft {
+    0% {
+      opacity: 0;
+      transform: translateY(36px);
+      filter: blur(6px);
+    }
+    40% {
+      opacity: 1;
+      filter: blur(0);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+      filter: blur(0);
+    }
   }
 
-  /* ---- DESKTOP / pantallas anchas: solo object-position, sin zoom ---- */
-  @media (min-width: 900px) {
-    .mix-layer[data-mix-index="0"] { object-position: center 20%; } /* zona alta  */
-    .mix-layer[data-mix-index="1"] { object-position: center 50%; } /* zona media */
-    .mix-layer[data-mix-index="2"] { object-position: center 80%; } /* zona baja  */
+  @keyframes reveal-curtain {
+    0% {
+      opacity: 0;
+      transform: translateY(48px);
+      clip-path: inset(0 0 100% 0);
+    }
+    35% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+      clip-path: inset(0 0 -10% 0);
+    }
   }
 
-  /* ============================================================
-     SELECTOR DE VERSIONES
-     ============================================================ */
-  .selector {
-    position: fixed;
-    bottom: 24px;
-    right: 24px;
-    z-index: 999;
-    background: rgba(15, 15, 20, 0.85);
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    border-radius: 12px;
-    padding: 14px 16px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    min-width: 230px;
-    box-shadow: 0 12px 40px rgba(0,0,0,0.5);
-    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
-  }
-  .selector.hidden {
-    transform: translateY(calc(100% + 40px));
-    opacity: 0;
-    pointer-events: none;
+  @keyframes dot-pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50%      { opacity: 0.4; transform: scale(0.8); }
   }
 
-  .selector-title {
-    font-size: 0.6rem;
-    letter-spacing: 0.25em;
-    text-transform: uppercase;
-    color: rgba(255,255,255,0.5);
-    margin-bottom: 2px;
+  @keyframes progress-fill {
+    to { width: 78%; }
   }
 
-  .selector button {
-    background: transparent;
-    border: 1px solid rgba(255,255,255,0.15);
-    color: rgba(255,255,255,0.8);
-    font-family: 'Inter', sans-serif;
-    font-size: 0.7rem;
-    font-weight: 300;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    padding: 8px 12px;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: all 0.25s ease;
-    text-align: left;
-  }
-  .selector button:hover {
-    background: rgba(255,255,255,0.08);
-    color: #fff;
-  }
-  .selector button.active {
-    background: #2563eb;
-    border-color: #2563eb;
-    color: #fff;
-  }
-
-  .toggle-selector {
-    position: fixed;
-    bottom: 24px;
-    right: 24px;
-    z-index: 1000;
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    background: rgba(15, 15, 20, 0.9);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    color: #fff;
-    font-size: 1.1rem;
-    cursor: pointer;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
-    transition: background 0.3s ease, transform 0.3s ease;
-  }
-  .toggle-selector:hover { background: #2563eb; transform: scale(1.05); }
-  .toggle-selector.visible { display: flex; }
-
-  /* ============ RESPONSIVE ============ */
   @media (max-width: 768px) {
-    main { padding: 28px 24px; }
-    h1 { margin-bottom: 40px; letter-spacing: -0.02em; }
-    .eyebrow { margin-bottom: 28px; }
-    .dev-credit { font-size: 0.52rem; letter-spacing: 0.14em; }
-    .selector { bottom: 16px; right: 16px; min-width: 190px; padding: 12px; }
-    .toggle-selector { bottom: 16px; right: 16px; }
+    .content-stage { padding: 32px 24px; }
+    .headline { margin-bottom: 22px; }
+    .subtitle { margin-bottom: 32px; }
+    .eyebrow { margin-bottom: 26px; font-size: 0.64rem; }
+    .credit { font-size: 0.56rem; }
+    .flash--streak { width: 180px; height: 1.5px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .paparazzi { display: none; }
+    .mix-layer { transition: opacity 0.6s linear; }
+    .eyebrow,
+    .headline,
+    .subtitle,
+    .footer {
+      animation-duration: 0.6s;
+      animation-delay: 0s;
+    }
   }
 </style>
 </head>
 <body>
 
-  <!-- ============================================================
-       VERSIÓN 1: Afro (blur desktop)
-       ============================================================ -->
-  <div class="version active" data-version="afro-blur">
-    <video class="bg-video-blur" muted loop playsinline preload="none">
-      <source data-src="https://videos.pexels.com/video-files/9370435/9370435-uhd_2160_3840_24fps.mp4" type="video/mp4">
-    </video>
-    <video class="bg-video" muted loop playsinline preload="none">
-      <source data-src="https://videos.pexels.com/video-files/9370435/9370435-uhd_2160_3840_24fps.mp4" type="video/mp4">
-    </video>
-    <div class="bg-overlay"></div>
-    <div class="grain"></div>
-    <main>
-      <div class="content">
-        <div class="eyebrow">Próximamente</div>
-        <h1>Preparate.<br><em>Esto recién arranca.</em></h1>
-        <div class="footer">
-          <div class="progress">
-            <span>Progreso</span>
-            <div class="progress-track"><div class="progress-fill"></div></div>
-            <span class="progress-number">0%</span>
-          </div>
-          <a href="https://ezgilabert.github.io/ezequiel-dev/" target="_blank" rel="noopener noreferrer" class="dev-credit">by Ezequiel García Gilabert</a>
-        </div>
-      </div>
-    </main>
-  </div>
+  <div class="stage-root">
 
-  <!-- ============================================================
-       VERSIÓN 2: Afro V2 (cover, object 25%)
-       ============================================================ -->
-  <div class="version" data-version="afro-v2">
-    <video class="bg-video" muted loop playsinline preload="none" style="object-fit: cover; object-position: center 25%;">
-      <source data-src="https://videos.pexels.com/video-files/9370435/9370435-uhd_2160_3840_24fps.mp4" type="video/mp4">
-    </video>
-    <div class="bg-overlay"></div>
-    <div class="grain"></div>
-    <main>
-      <div class="content">
-        <div class="eyebrow">Próximamente</div>
-        <h1>Preparate.<br><em>Esto recién arranca.</em></h1>
-        <div class="footer">
-          <div class="progress">
-            <span>Progreso</span>
-            <div class="progress-track"><div class="progress-fill"></div></div>
-            <span class="progress-number">0%</span>
-          </div>
-          <a href="https://ezgilabert.github.io/ezequiel-dev/" target="_blank" rel="noopener noreferrer" class="dev-credit">by Ezequiel García Gilabert</a>
-        </div>
-      </div>
-    </main>
-  </div>
-
-  <!-- ============================================================
-       VERSIÓN 3: Afro V3 (cover, center)
-       ============================================================ -->
-  <div class="version" data-version="afro-v3">
-    <video class="bg-video" muted loop playsinline preload="none" style="object-fit: cover; object-position: center center;">
-      <source data-src="https://videos.pexels.com/video-files/9370435/9370435-uhd_2160_3840_24fps.mp4" type="video/mp4">
-    </video>
-    <div class="bg-overlay"></div>
-    <div class="grain"></div>
-    <main>
-      <div class="content">
-        <div class="eyebrow">Próximamente</div>
-        <h1>Preparate.<br><em>Esto recién arranca.</em></h1>
-        <div class="footer">
-          <div class="progress">
-            <span>Progreso</span>
-            <div class="progress-track"><div class="progress-fill"></div></div>
-            <span class="progress-number">0%</span>
-          </div>
-          <a href="https://ezgilabert.github.io/ezequiel-dev/" target="_blank" rel="noopener noreferrer" class="dev-credit">by Ezequiel García Gilabert</a>
-        </div>
-      </div>
-    </main>
-  </div>
-
-  <!-- ============================================================
-       VERSIÓN 4: Chair (businessman laptop)
-       ============================================================ -->
-  <div class="version" data-version="chair">
-    <video class="bg-video-blur" muted loop playsinline preload="none">
-      <source data-src="https://videos.pexels.com/video-files/8061755/8061755-uhd_2160_3840_25fps.mp4" type="video/mp4">
-    </video>
-    <video class="bg-video" muted loop playsinline preload="none">
-      <source data-src="https://videos.pexels.com/video-files/8061755/8061755-uhd_2160_3840_25fps.mp4" type="video/mp4">
-    </video>
-    <div class="bg-overlay"></div>
-    <div class="grain"></div>
-    <main>
-      <div class="content">
-        <div class="eyebrow">Próximamente</div>
-        <h1>Preparate.<br><em>Esto recién arranca.</em></h1>
-        <div class="footer">
-          <div class="progress">
-            <span>Progreso</span>
-            <div class="progress-track"><div class="progress-fill"></div></div>
-            <span class="progress-number">0%</span>
-          </div>
-          <a href="https://ezgilabert.github.io/ezequiel-dev/" target="_blank" rel="noopener noreferrer" class="dev-credit">by Ezequiel García Gilabert</a>
-        </div>
-      </div>
-    </main>
-  </div>
-
-  <!-- ============================================================
-       VERSIÓN 5: Kid (hombre profesional HD)
-       ============================================================ -->
-  <div class="version" data-version="kid">
-    <video class="bg-video" muted loop playsinline preload="none" style="object-fit: cover; object-position: center center; filter: contrast(1.05) brightness(0.75);">
-      <source data-src="https://videos.pexels.com/video-files/3209828/3209828-hd_1920_1080_25fps.mp4" type="video/mp4">
-    </video>
-    <div class="bg-overlay"></div>
-    <div class="grain"></div>
-    <main>
-      <div class="content">
-        <div class="eyebrow">Próximamente</div>
-        <h1>Preparate.<br><em>Esto recién arranca.</em></h1>
-        <div class="footer">
-          <div class="progress">
-            <span>Progreso</span>
-            <div class="progress-track"><div class="progress-fill"></div></div>
-            <span class="progress-number">0%</span>
-          </div>
-          <a href="https://ezgilabert.github.io/ezequiel-dev/" target="_blank" rel="noopener noreferrer" class="dev-credit">by Ezequiel García Gilabert</a>
-        </div>
-      </div>
-    </main>
-  </div>
-
-  <!-- ============================================================
-       VERSIÓN 6: Adult (realtor clipboard)
-       ============================================================ -->
-  <div class="version" data-version="adult">
-    <video class="bg-video" muted loop playsinline preload="none" style="object-fit: cover; object-position: center center;">
-      <source data-src="https://videos.pexels.com/video-files/7647327/7647327-uhd_2160_3840_24fps.mp4" type="video/mp4">
-    </video>
-    <div class="bg-overlay"></div>
-    <div class="grain"></div>
-    <main>
-      <div class="content">
-        <div class="eyebrow">Próximamente</div>
-        <h1>Preparate.<br><em>Esto recién arranca.</em></h1>
-        <div class="footer">
-          <div class="progress">
-            <span>Progreso</span>
-            <div class="progress-track"><div class="progress-fill"></div></div>
-            <span class="progress-number">0%</span>
-          </div>
-          <a href="https://ezgilabert.github.io/ezequiel-dev/" target="_blank" rel="noopener noreferrer" class="dev-credit">by Ezequiel García Gilabert</a>
-        </div>
-      </div>
-    </main>
-  </div>
-
-  <!-- ============================================================
-       VERSIÓN 7: MIX — mismo video, 3 encuadres distintos cada 3s
-       ============================================================ -->
-  <div class="version" data-version="mix">
-    <div class="mix-stage">
-      <!-- Capa 0 -->
-      <video class="mix-layer" muted loop playsinline preload="none" data-mix-index="0">
-        <source data-src="https://videos.pexels.com/video-files/9370435/9370435-uhd_2160_3840_24fps.mp4" type="video/mp4">
+    <div class="mix-stage" id="mixStage">
+      <video class="mix-layer" muted loop playsinline preload="auto" data-mix-index="0">
+        <source src="https://videos.pexels.com/video-files/9370435/9370435-hd_1080_1920_24fps.mp4" type="video/mp4">
+        <source src="https://videos.pexels.com/video-files/9370435/9370435-uhd_2160_3840_24fps.mp4" type="video/mp4">
       </video>
-      <!-- Capa 1 -->
-      <video class="mix-layer" muted loop playsinline preload="none" data-mix-index="1">
-        <source data-src="https://videos.pexels.com/video-files/9370435/9370435-uhd_2160_3840_24fps.mp4" type="video/mp4">
+      <video class="mix-layer" muted loop playsinline preload="auto" data-mix-index="1">
+        <source src="https://videos.pexels.com/video-files/9370435/9370435-hd_1080_1920_24fps.mp4" type="video/mp4">
+        <source src="https://videos.pexels.com/video-files/9370435/9370435-uhd_2160_3840_24fps.mp4" type="video/mp4">
       </video>
-      <!-- Capa 2 -->
-      <video class="mix-layer" muted loop playsinline preload="none" data-mix-index="2">
-        <source data-src="https://videos.pexels.com/video-files/9370435/9370435-uhd_2160_3840_24fps.mp4" type="video/mp4">
+      <video class="mix-layer" muted loop playsinline preload="auto" data-mix-index="2">
+        <source src="https://videos.pexels.com/video-files/9370435/9370435-hd_1080_1920_24fps.mp4" type="video/mp4">
+        <source src="https://videos.pexels.com/video-files/9370435/9370435-uhd_2160_3840_24fps.mp4" type="video/mp4">
       </video>
     </div>
-    <div class="bg-overlay"></div>
-    <div class="grain"></div>
-    <main>
+
+    <div class="overlay overlay--gradient"></div>
+    <div class="overlay overlay--warm"></div>
+    <div class="overlay overlay--grain"></div>
+
+    <div class="paparazzi" id="paparazzi"></div>
+
+    <main class="content-stage">
       <div class="content">
-        <div class="eyebrow">Próximamente</div>
-        <h1>Preparate.<br><em>Esto recién arranca.</em></h1>
+
+        <div class="eyebrow">
+          <span class="eyebrow__dot"></span>
+          <span>Próximamente</span>
+        </div>
+
+        <h1 class="headline">
+          Pronto vas a poder<br>
+          <span class="headline__accent">alcanzar tu máximo potencial.</span>
+        </h1>
+
+        <p class="subtitle">
+          No hace falta suerte. Hace falta <strong>idea, estructura y cabeza</strong>.<br>
+          Con eso, se logra lo que sea.
+        </p>
+
         <div class="footer">
           <div class="progress">
-            <span>Progreso</span>
-            <div class="progress-track"><div class="progress-fill"></div></div>
-            <span class="progress-number">0%</span>
+            <span>Avanzando</span>
+            <div class="progress__track">
+              <div class="progress__fill"></div>
+            </div>
+            <span class="progress__value">0%</span>
           </div>
-          <a href="https://ezgilabert.github.io/ezequiel-dev/" target="_blank" rel="noopener noreferrer" class="dev-credit">by Ezequiel García Gilabert</a>
+          <a class="credit"
+             href="https://ezgilabert.github.io/ezequiel-dev/"
+             target="_blank"
+             rel="noopener noreferrer">
+            Ezequiel García Gilabert
+          </a>
         </div>
+
       </div>
     </main>
-  </div>
 
-  <!-- ============================================================
-       SELECTOR DE VERSIONES
-       ============================================================ -->
-  <div class="selector" id="selector">
-    <div class="selector-title">Elegir versión</div>
-    <button data-target="afro-blur" class="active">Afro (blur desktop)</button>
-    <button data-target="afro-v2">Afro V2 (object 25%)</button>
-    <button data-target="afro-v3">Afro V3 (sin poster)</button>
-    <button data-target="chair">Chair (laptop)</button>
-    <button data-target="kid">Kid (HD 1080)</button>
-    <button data-target="adult">Adult (clipboard)</button>
-    <button data-target="mix">Mix (rotación 3s)</button>
-    <button id="hideSelector" style="margin-top:6px; border-color: rgba(255,255,255,0.3); color:#fff;">Ocultar selector ✕</button>
   </div>
-
-  <button class="toggle-selector" id="toggleSelector" title="Mostrar selector">☰</button>
 
   <script>
-    const buttons = document.querySelectorAll('.selector button[data-target]');
-    const versions = document.querySelectorAll('.version');
-    const selector = document.getElementById('selector');
-    const toggleBtn = document.getElementById('toggleSelector');
-    const hideBtn = document.getElementById('hideSelector');
+    (() => {
+      'use strict';
 
-    function animateProgress(versionEl) {
-      const fill = versionEl.querySelector('.progress-fill');
-      const numEl = versionEl.querySelector('.progress-number');
-      if (!fill || !numEl) return;
+      // ----------------------------------------------------------------
+      // Timing de la barra de progreso
+      // ----------------------------------------------------------------
+      const PROGRESS = Object.freeze({
+        startDelay: 2600,   // ms hasta que arranca la barra
+        duration:   6000,   // ms que tarda en llegar al target
+        target:     78      // % final
+      });
 
-      fill.style.animation = 'none';
-      void fill.offsetWidth;
-      fill.style.animation = '';
+      // Estado global leído por el sistema de paparazzi
+      window.__progress = 0; // 0..1 (progreso normalizado 0 -> target)
 
-      const duration = 3500;
-      const delay = 1200;
-      const target = 72;
-      const start = performance.now() + delay;
+      const CONFIG = Object.freeze({
+        layerRotationMs: 3200,
 
-      if (numEl._raf) cancelAnimationFrame(numEl._raf);
+        // Los flashes arrancan justo cuando empieza la barra
+        startDelay: [PROGRESS.startDelay, PROGRESS.startDelay + 400],
 
-      function tick(now) {
-        const elapsed = now - start;
-        if (elapsed < 0) {
-          numEl.textContent = '0%';
-          numEl._raf = requestAnimationFrame(tick);
-          return;
+        gaps: {
+          short:  { p: 0.55, min: 450,  max: 1200 },
+          medium: { p: 0.85, min: 1200, max: 2600 },
+          long:   { p: 0.97, min: 2600, max: 6000 },
+          rare:   { min: 6000, max: 10000 }
+        },
+
+        intraGaps: {
+          tight:  { p: 0.40, min: 40,  max: 90  },
+          normal: { p: 0.80, min: 90,  max: 190 },
+          slow:   { min: 190, max: 400 }
+        },
+
+        flashY: { min: 12, range: 76, skew: 1.4 },
+
+        // Probabilidades base (se modulan con el progreso)
+        events: {
+          chaotic: 0.20,
+          crossed: 0.42,
+          double:  0.60,
+          burst:   0.82
+        },
+
+        echoChance: 0.45,
+        echoDelay: [150, 700],
+
+        bursts: {
+          sameSide: { min: 2, extra: 3, intensity: [0.65, 1.15], falloff: [0.45, 0.85] },
+          crossed:  { min: 2, extra: 4, intensity: [0.55, 1.05] },
+          chaotic:  { min: 2, extra: 4 },
+          double:   { delay: [50, 140], intensity1: [0.85, 1.15], intensity2: [0.45, 0.80] },
+          single:   { intensity: [0.60, 1.10] }
+        },
+
+        durations: {
+          cone:   [110, 190],
+          core:   [90,  150],
+          halo:   [170, 250],
+          streak: [130, 200],
+          floor:  [190, 270]
+        },
+
+        cleanup: {
+          cone:   350,
+          core:   300,
+          halo:   400,
+          streak: 400,
+          floor:  450
+        },
+
+        maxConcurrentFlashes: 16
+      });
+
+      // ----------------------------------------------------------------
+      // Helpers
+      // ----------------------------------------------------------------
+      const rand = (min, max) => min + Math.random() * (max - min);
+      const coin = (p = 0.5) => Math.random() < p;
+      const pickSide = () => (coin() ? 'left' : 'right');
+      const skew = (power) => Math.pow(Math.random(), power);
+      const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+
+      // Progreso actual normalizado 0..1
+      const progress = () => clamp(window.__progress || 0, 0, 1);
+
+      function sampleDistribution(dist) {
+        const roll = Math.random();
+        for (const bucket of Object.values(dist)) {
+          if (bucket.p === undefined || roll < bucket.p) {
+            return rand(bucket.min, bucket.max);
+          }
         }
-        const t = Math.min(elapsed / duration, 1);
-        const eased = cubicBezier(t, 0.65, 0, 0.35, 1);
-        numEl.textContent = Math.round(eased * target) + '%';
-        if (t < 1) numEl._raf = requestAnimationFrame(tick);
+        return rand(0, 1000);
       }
-      numEl._raf = requestAnimationFrame(tick);
-    }
 
-    function cubicBezier(t, p1x, p1y, p2x, p2y) {
-      function bezier(x1, x2, t) {
-        return 3 * (1 - t) * (1 - t) * t * x1 + 3 * (1 - t) * t * t * x2 + t * t * t;
+      // Los gaps se acortan conforme sube el progreso
+      function sampleGapScaled(dist) {
+        const base = sampleDistribution(dist);
+        const p = progress();
+        // De 1.4x (inicio) a 0.45x (final) -> más seguido al final
+        const factor = 1.4 - p * 0.95;
+        return base * factor;
       }
-      let low = 0, high = 1, mid;
-      for (let i = 0; i < 20; i++) {
-        mid = (low + high) / 2;
-        const x = bezier(p1x, p2x, mid);
-        if (x < t) low = mid; else high = mid;
+
+      function sampleIntraGapScaled() {
+        const base = sampleDistribution(CONFIG.intraGaps);
+        const p = progress();
+        const factor = 1.3 - p * 0.85;
+        return base * factor;
       }
-      return bezier(p1y, p2y, mid);
-    }
 
-    function activateVersion(versionEl) {
-      versionEl.querySelectorAll('video').forEach(video => {
-        video.querySelectorAll('source[data-src]').forEach(source => {
-          if (!source.hasAttribute('src')) source.src = source.dataset.src;
-        });
-        video.load();
-        video.play().catch(() => {});
-      });
-    }
-
-    function deactivateVersion(versionEl) {
-      versionEl.querySelectorAll('video').forEach(video => {
-        video.pause();
-        video.querySelectorAll('source[data-src]').forEach(source => source.removeAttribute('src'));
-        video.load();
-      });
-    }
-
-    let mixInterval = null;
-    let mixCurrentIndex = 0;
-
-    function startMixRotation() {
-      stopMixRotation();
-      const mixEl = document.querySelector('.version[data-version="mix"]');
-      if (!mixEl) return;
-
-      const layers = mixEl.querySelectorAll('.mix-layer');
-
-      mixCurrentIndex = 0;
-      layers.forEach((l, i) => l.classList.toggle('visible', i === 0));
-
-      mixInterval = setInterval(() => {
-        mixCurrentIndex = (mixCurrentIndex + 1) % layers.length;
-        layers.forEach((l, i) => l.classList.toggle('visible', i === mixCurrentIndex));
-      }, 3000);
-    }
-
-    function stopMixRotation() {
-      if (mixInterval) {
-        clearInterval(mixInterval);
-        mixInterval = null;
+      // Intensidad del flash en función del progreso
+      // Al inicio suave (0.35) y al final fuerte (1.3)
+      function currentIntensity(baseMin = 0.35, baseMax = 1.3) {
+        const p = progress();
+        const t = 0.35 + p * 0.95; // 0.35 -> 1.30
+        return t;
       }
-    }
 
-    versions.forEach(v => animateProgress(v));
-    activateVersion(document.querySelector('.version.active'));
+      function cubicBezier(t, p1x, p1y, p2x, p2y) {
+        const bez = (a, b, u) =>
+          3 * (1 - u) ** 2 * u * a + 3 * (1 - u) * u ** 2 * b + u ** 3;
+        let lo = 0;
+        let hi = 1;
+        let mid = 0.5;
+        for (let i = 0; i < 20; i++) {
+          mid = (lo + hi) / 2;
+          if (bez(p1x, p2x, mid) < t) lo = mid;
+          else hi = mid;
+        }
+        return bez(p1y, p2y, mid);
+      }
 
-    buttons.forEach(btn => {
-      btn.addEventListener('click', () => {
-        const target = btn.dataset.target;
+      // ----------------------------------------------------------------
+      // Progress counter — actualiza window.__progress en tiempo real
+      // ----------------------------------------------------------------
+      function animateCounter(el) {
+        const DURATION = PROGRESS.duration;
+        const DELAY = PROGRESS.startDelay;
+        const TARGET = PROGRESS.target;
+        const start = performance.now() + DELAY;
 
-        buttons.forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
+        function tick(now) {
+          const elapsed = now - start;
+          if (elapsed < 0) {
+            el.textContent = '0%';
+            window.__progress = 0;
+            requestAnimationFrame(tick);
+            return;
+          }
+          const t = Math.min(elapsed / DURATION, 1);
+          const eased = cubicBezier(t, 0.65, 0, 0.35, 1);
+          const value = eased * TARGET;
 
-        versions.forEach(v => {
-          if (v.dataset.version === target) {
-            v.classList.add('active');
-            activateVersion(v);
-            animateProgress(v);
+          el.textContent = Math.round(value) + '%';
+          window.__progress = t; // progreso temporal 0..1
 
-            if (target === 'mix') {
-              startMixRotation();
-            } else {
-              stopMixRotation();
-            }
+          if (t < 1) requestAnimationFrame(tick);
+        }
+
+        requestAnimationFrame(tick);
+      }
+
+      // ----------------------------------------------------------------
+      // Layer rotation — only the visible video plays
+      // ----------------------------------------------------------------
+      function initLayerRotation() {
+        const layers = Array.from(document.querySelectorAll('.mix-layer'));
+        let current = 0;
+
+        const play = (video) => {
+          const p = video.play();
+          if (p && p.catch) p.catch(() => {});
+        };
+
+        const show = (index) => {
+          layers.forEach((layer, i) => {
+            const active = i === index;
+            layer.classList.toggle('is-visible', active);
+            if (active) play(layer);
+            else layer.pause();
+          });
+        };
+
+        show(0);
+
+        document.addEventListener('visibilitychange', () => {
+          if (document.hidden) {
+            layers.forEach((l) => l.pause());
           } else {
-            deactivateVersion(v);
-            v.classList.remove('active');
-            if (v.dataset.version === 'mix') stopMixRotation();
+            play(layers[current]);
           }
         });
+
+        setInterval(() => {
+          current = (current + 1) % layers.length;
+          show(current);
+        }, CONFIG.layerRotationMs);
+      }
+
+      // ----------------------------------------------------------------
+      // Paparazzi — intensidad y frecuencia ligadas al progreso
+      // ----------------------------------------------------------------
+      function initPaparazzi() {
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+        const root = document.getElementById('paparazzi');
+        let liveFlashes = 0;
+
+        function spawn(className, cleanupMs, configure) {
+          if (liveFlashes >= CONFIG.maxConcurrentFlashes) return null;
+
+          const el = document.createElement('div');
+          el.className = className;
+          if (configure) configure(el);
+          root.appendChild(el);
+          liveFlashes++;
+
+          setTimeout(() => {
+            el.remove();
+            liveFlashes--;
+          }, cleanupMs);
+
+          return el;
+        }
+
+        function fireFlash(side, intensity = 1) {
+          const p = progress();
+          // La intensidad se multiplica por el progreso
+          const finalIntensity = intensity * (0.5 + p * 0.9);
+
+          const { min, range, skew: ySkew } = CONFIG.flashY;
+          const y = min + skew(ySkew) * range;
+
+          spawn(`flash flash--cone from-${side}`, CONFIG.cleanup.cone, (el) => {
+            el.style.setProperty('--y', y + '%');
+            el.style.animationDuration = rand(...CONFIG.durations.cone) + 'ms';
+            el.style.filter = `brightness(${0.7 + finalIntensity * 0.5})`;
+          });
+
+          spawn('flash flash--core', CONFIG.cleanup.core, (el) => {
+            el.style.top = y + '%';
+            el.style[side === 'left' ? 'left' : 'right'] = '-2px';
+            el.style.animationDuration = rand(...CONFIG.durations.core) + 'ms';
+            el.style.transform = `translateY(-50%) scale(${0.7 + finalIntensity * 0.6})`;
+          });
+
+          spawn(`flash flash--halo from-${side}`, CONFIG.cleanup.halo, (el) => {
+            el.style.animationDuration = rand(...CONFIG.durations.halo) + 'ms';
+            const pos = side === 'left' ? '0%' : '100%';
+            el.style.background =
+              `radial-gradient(ellipse 70% 80% at ${pos} ${y}%,` +
+              ` rgba(255,245,230,${0.55 * finalIntensity}) 0%,` +
+              ` rgba(255,225,200,${0.2 * finalIntensity}) 35%, transparent 70%)`;
+          });
+
+          const streaks = coin() ? 1 : (coin(0.7) ? 2 : 0);
+          for (let i = 0; i < streaks; i++) {
+            setTimeout(() => {
+              spawn(`flash flash--streak from-${side}`, CONFIG.cleanup.streak, (el) => {
+                el.style.top = (y + rand(-4, 4)) + '%';
+                el.style[side === 'left' ? 'left' : 'right'] = '0px';
+                el.style.width = rand(180, 400) + 'px';
+                el.style.animationDuration = rand(...CONFIG.durations.streak) + 'ms';
+              });
+            }, i * rand(20, 60));
+          }
+
+          spawn(`flash flash--floor from-${side}`, CONFIG.cleanup.floor, (el) => {
+            el.style.animationDuration = rand(...CONFIG.durations.floor) + 'ms';
+            const pos = side === 'left' ? '0%' : '100%';
+            el.style.background =
+              `radial-gradient(ellipse 70% 60% at ${pos} 100%,` +
+              ` rgba(255,235,200,${0.5 * finalIntensity}) 0%,` +
+              ` rgba(255,210,170,${0.15 * finalIntensity}) 40%, transparent 75%)`;
+          });
+        }
+
+        function scheduleBurst(count, sideAt, intensityAt) {
+          let elapsed = 0;
+          for (let i = 0; i < count; i++) {
+            elapsed += sampleIntraGapScaled();
+            const side = sideAt(i);
+            const intensity = intensityAt(i);
+            const delay = elapsed;
+            setTimeout(() => fireFlash(side, intensity), delay);
+          }
+        }
+
+        function burstSameSide() {
+          const cfg = CONFIG.bursts.sameSide;
+          const side = pickSide();
+          const count = cfg.min + Math.floor(Math.random() * cfg.extra);
+          const base = rand(...cfg.intensity);
+
+          scheduleBurst(
+            count,
+            () => side,
+            (i) => (i === 0 ? base : base * rand(...cfg.falloff))
+          );
+        }
+
+        function burstCrossed() {
+          const cfg = CONFIG.bursts.crossed;
+          const sequence = coin()
+            ? ['left', 'right', 'left', 'right', 'left']
+            : ['right', 'left', 'right', 'left', 'right'];
+          const count = cfg.min + Math.floor(Math.random() * cfg.extra);
+
+          scheduleBurst(
+            count,
+            (i) => sequence[i % sequence.length],
+            () => rand(...cfg.intensity)
+          );
+        }
+
+        function doublePop(side = pickSide()) {
+          const cfg = CONFIG.bursts.double;
+          setTimeout(() => fireFlash(side, rand(...cfg.intensity1)), 0);
+          setTimeout(() => fireFlash(side, rand(...cfg.intensity2)), rand(...cfg.delay));
+        }
+
+        function singleFlash() {
+          fireFlash(pickSide(), rand(...CONFIG.bursts.single.intensity));
+        }
+
+        function chaoticCluster() {
+          const cfg = CONFIG.bursts.chaotic;
+          const size = cfg.min + Math.floor(Math.random() * cfg.extra);
+          let elapsed = 0;
+
+          for (let i = 0; i < size; i++) {
+            elapsed += sampleIntraGapScaled() + rand(0, 80);
+            const delay = elapsed;
+
+            setTimeout(() => {
+              const roll = Math.random();
+              if (roll < 0.35) doublePop();
+              else if (roll < 0.70) singleFlash();
+              else fireFlash(pickSide(), rand(0.7, 1.1));
+            }, delay);
+          }
+        }
+
+        // Selección de evento con probabilidades moduladas por el progreso
+        function pickEvent() {
+          const p = progress();
+          // Al inicio favorece flashes simples; al final, clusters complejos
+          const bias = p * 0.35;
+
+          const ev = {
+            chaotic: CONFIG.events.chaotic + bias,
+            crossed: CONFIG.events.crossed + bias * 0.6,
+            double:  CONFIG.events.double  + bias * 0.4,
+            burst:   CONFIG.events.burst   + bias * 0.2
+          };
+
+          // Normalizamos para que nunca pase de 1
+          const total = ev.burst;
+          const scale = total > 1 ? 1 / total : 1;
+
+          const roll = Math.random();
+          if (roll < ev.chaotic * scale) chaoticCluster();
+          else if (roll < ev.crossed * scale) burstCrossed();
+          else if (roll < ev.double * scale) doublePop();
+          else if (roll < ev.burst * scale) burstSameSide();
+          else singleFlash();
+        }
+
+        function scheduleNext() {
+          const gap = sampleGapScaled(CONFIG.gaps);
+          setTimeout(() => {
+            pickEvent();
+
+            if (coin(CONFIG.echoChance * (0.5 + progress()))) {
+              setTimeout(singleFlash, rand(...CONFIG.echoDelay));
+            }
+
+            scheduleNext();
+          }, gap);
+        }
+
+        setTimeout(() => {
+          doublePop();
+          scheduleNext();
+        }, rand(...CONFIG.startDelay));
+      }
+
+      // ----------------------------------------------------------------
+      // Boot
+      // ----------------------------------------------------------------
+      document.addEventListener('DOMContentLoaded', () => {
+        initLayerRotation();
+        animateCounter(document.querySelector('.progress__value'));
+        initPaparazzi();
       });
-    });
-
-    hideBtn.addEventListener('click', () => {
-      selector.classList.add('hidden');
-      toggleBtn.classList.add('visible');
-    });
-
-    toggleBtn.addEventListener('click', () => {
-      selector.classList.remove('hidden');
-      toggleBtn.classList.remove('visible');
-    });
+    })();
   </script>
 
 </body>
