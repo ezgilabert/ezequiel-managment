@@ -6,17 +6,18 @@
 <meta name="color-scheme" content="dark">
 <meta name="theme-color" content="#0a0807">
 <title>Próximamente...</title>
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Fraunces:ital,opsz,wght@0,9..144,300;1,9..144,500&display=swap" rel="stylesheet">
+
+<!-- Precarga del video mobile -->
+<link rel="preload" as="video" type="video/mp4"
+      media="(max-width: 899px)"
+      href="https://videos.pexels.com/video-files/9370435/9370435-hd_1080_1920_24fps.mp4">
+
 <style>
-  *,
-  *::before,
-  *::after {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-  }
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
   :root {
     --accent: #ff6b4a;
@@ -39,8 +40,7 @@
     --ease-soft: cubic-bezier(0.16, 1, 0.3, 1);
   }
 
-  html,
-  body {
+  html, body {
     height: 100%;
     overflow: hidden;
     background: var(--bg-dark);
@@ -50,17 +50,13 @@
     text-rendering: optimizeLegibility;
   }
 
-  .stage-root {
-    position: fixed;
-    inset: 0;
-    isolation: isolate;
-  }
+  .stage-root { position: fixed; inset: 0; isolation: isolate; }
 
   .mix-stage {
     position: absolute;
     inset: 0;
     overflow: hidden;
-    background: var(--bg-dark);
+    background: #1a1412;
     z-index: 1;
     contain: layout paint;
   }
@@ -81,22 +77,25 @@
       opacity 1.4s ease-in-out,
       transform 1.8s ease-in-out,
       object-position 1.8s ease-in-out;
+    background-size: cover;
+    background-position: center;
+    background-color: #1a1412;
   }
 
-  .mix-layer.is-visible {
+  .mix-layer.is-visible { opacity: 1; }
+
+  /* La capa 0 arranca visible YA, sin fade */
+  .mix-layer[data-mix-index="0"] {
     opacity: 1;
+    transition: opacity 0.3s ease-in-out;
   }
 
-  /* FIX: bajamos el scale en mobile para no ahogar la GPU */
   @media (max-width: 899px) {
     .mix-layer[data-mix-index="0"] { transform: scale(1.18) translateY(6%); }
     .mix-layer[data-mix-index="1"] { transform: scale(1.18) translateY(0%); }
     .mix-layer[data-mix-index="2"] { transform: scale(1.18) translateY(-6%); }
 
-    /* FIX: en mobile ocultamos capas 1 y 2 del render por completo */
-    .mix-layer:not([data-mix-index="0"]) {
-      display: none;
-    }
+    .mix-layer:not([data-mix-index="0"]) { display: none; }
   }
 
   @media (min-width: 900px) {
@@ -105,12 +104,7 @@
     .mix-layer[data-mix-index="2"] { object-position: center 80%; }
   }
 
-  .overlay {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    contain: layout paint;
-  }
+  .overlay { position: absolute; inset: 0; pointer-events: none; contain: layout paint; }
 
   .overlay--gradient {
     z-index: 2;
@@ -125,11 +119,7 @@
   .overlay--warm {
     z-index: 2;
     mix-blend-mode: soft-light;
-    background: linear-gradient(
-      135deg,
-      rgba(255, 107, 74, 0.18) 0%,
-      rgba(0, 0, 0, 0) 100%
-    );
+    background: linear-gradient(135deg, rgba(255, 107, 74, 0.18) 0%, rgba(0, 0, 0, 0) 100%);
   }
 
   .overlay--grain {
@@ -147,60 +137,18 @@
     contain: layout style paint;
   }
 
-  .flash {
-    position: absolute;
-    opacity: 0;
-    pointer-events: none;
-    contain: layout style paint;
-  }
-
-  .flash--cone,
-  .flash--halo,
-  .flash--streak,
-  .flash--floor {
-    mix-blend-mode: screen;
-  }
+  .flash { position: absolute; opacity: 0; pointer-events: none; contain: layout style paint; }
+  .flash--cone, .flash--halo, .flash--streak, .flash--floor { mix-blend-mode: screen; }
 
   .flash--cone {
-    top: 0;
-    height: 100%;
-    width: 130%;
-    max-width: 1600px;
+    top: 0; height: 100%; width: 130%; max-width: 1600px;
     animation: flash-cone 140ms cubic-bezier(0.02, 0.98, 0.1, 1) forwards;
   }
-
-  .flash--cone.from-left {
-    left: 0;
-    transform-origin: left var(--y, 50%);
-    background: radial-gradient(
-      ellipse 45% 55% at 0% var(--y, 50%),
-      rgba(255, 255, 255, 1) 0%,
-      rgba(255, 250, 240, 0.95) 3%,
-      rgba(255, 235, 215, 0.7) 10%,
-      rgba(255, 210, 180, 0.3) 25%,
-      rgba(255, 190, 160, 0.08) 50%,
-      transparent 72%
-    );
-  }
-
-  .flash--cone.from-right {
-    right: 0;
-    transform-origin: right var(--y, 50%);
-    background: radial-gradient(
-      ellipse 45% 55% at 100% var(--y, 50%),
-      rgba(255, 255, 255, 1) 0%,
-      rgba(255, 250, 240, 0.95) 3%,
-      rgba(255, 235, 215, 0.7) 10%,
-      rgba(255, 210, 180, 0.3) 25%,
-      rgba(255, 190, 160, 0.08) 50%,
-      transparent 72%
-    );
-  }
+  .flash--cone.from-left  { left: 0;  transform-origin: left var(--y, 50%);  background: radial-gradient(ellipse 45% 55% at 0% var(--y,50%), rgba(255,255,255,1) 0%, rgba(255,250,240,0.95) 3%, rgba(255,235,215,0.7) 10%, rgba(255,210,180,0.3) 25%, rgba(255,190,160,0.08) 50%, transparent 72%); }
+  .flash--cone.from-right { right: 0; transform-origin: right var(--y, 50%); background: radial-gradient(ellipse 45% 55% at 100% var(--y,50%), rgba(255,255,255,1) 0%, rgba(255,250,240,0.95) 3%, rgba(255,235,215,0.7) 10%, rgba(255,210,180,0.3) 25%, rgba(255,190,160,0.08) 50%, transparent 72%); }
 
   .flash--core {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
+    width: 8px; height: 8px; border-radius: 50%;
     background: #fff;
     transform: translateY(-50%);
     animation: flash-core 120ms cubic-bezier(0.02, 0.98, 0.1, 1) forwards;
@@ -211,114 +159,32 @@
       0 0 160px 50px rgba(255, 180, 130, 0.4);
   }
 
-  .flash--halo {
-    top: 0;
-    height: 100%;
-    width: 55%;
-    max-width: 700px;
-    filter: blur(18px);
-    animation: flash-halo 200ms cubic-bezier(0.02, 0.98, 0.1, 1) forwards;
-  }
-
-  .flash--halo.from-left  { left: 0; }
-  .flash--halo.from-right { right: 0; }
+  .flash--halo { top: 0; height: 100%; width: 55%; max-width: 700px; filter: blur(18px); animation: flash-halo 200ms cubic-bezier(0.02, 0.98, 0.1, 1) forwards; }
+  .flash--halo.from-left { left: 0; } .flash--halo.from-right { right: 0; }
 
   .flash--streak {
-    height: 2px;
-    width: 300px;
+    height: 2px; width: 300px;
     transform-origin: left center;
     animation: flash-streak 160ms cubic-bezier(0.02, 0.98, 0.1, 1) forwards;
   }
-
-  .flash--streak::before,
-  .flash--streak::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 0;
-    transform: translateY(-50%);
+  .flash--streak::before, .flash--streak::after {
+    content: ''; position: absolute; top: 50%; left: 0; transform: translateY(-50%);
   }
+  .flash--streak::before { width: 50%; height: 100%; background: linear-gradient(90deg, rgba(255,248,240,1) 0%, rgba(255,240,225,0.5) 50%, transparent 100%); }
+  .flash--streak::after  { width: 100%; height: 70%; background: linear-gradient(90deg, rgba(255,220,190,0.6) 0%, rgba(255,190,150,0.2) 35%, transparent 100%); filter: blur(1.5px); }
+  .flash--streak.from-right { transform-origin: right center; }
+  .flash--streak.from-right::before { left: auto; right: 0; background: linear-gradient(270deg, rgba(255,248,240,1) 0%, rgba(255,240,225,0.5) 50%, transparent 100%); }
+  .flash--streak.from-right::after  { left: auto; right: 0; background: linear-gradient(270deg, rgba(255,220,190,0.6) 0%, rgba(255,190,150,0.2) 35%, transparent 100%); }
 
-  .flash--streak::before {
-    width: 50%;
-    height: 100%;
-    background: linear-gradient(90deg, rgba(255,248,240,1) 0%, rgba(255,240,225,0.5) 50%, transparent 100%);
-  }
+  .flash--floor { bottom: 0; height: 35%; width: 60%; max-width: 800px; filter: blur(14px); animation: flash-floor 220ms cubic-bezier(0.02, 0.98, 0.1, 1) forwards; }
+  .flash--floor.from-left { left: 0; } .flash--floor.from-right { right: 0; }
 
-  .flash--streak::after {
-    width: 100%;
-    height: 70%;
-    background: linear-gradient(90deg, rgba(255,220,190,0.6) 0%, rgba(255,190,150,0.2) 35%, transparent 100%);
-    filter: blur(1.5px);
-  }
+  @keyframes flash-cone  { 0%{opacity:0;transform:scaleX(.3) scaleY(.5);} 2%{opacity:1;transform:scaleX(1) scaleY(1);} 15%{opacity:.9;} 40%{opacity:.35;} 100%{opacity:0;transform:scaleX(1.1) scaleY(1.05);} }
+  @keyframes flash-core  { 0%{opacity:0;transform:translateY(-50%) scale(.15);} 3%{opacity:1;transform:translateY(-50%) scale(1.4);} 20%{opacity:1;transform:translateY(-50%) scale(1);} 100%{opacity:0;transform:translateY(-50%) scale(.8);} }
+  @keyframes flash-halo  { 0%{opacity:0;transform:scale(.6);} 5%{opacity:1;transform:scale(1);} 30%{opacity:.6;} 100%{opacity:0;transform:scale(1.1);} }
+  @keyframes flash-streak{ 0%{opacity:0;transform:scaleX(.1);} 4%{opacity:1;transform:scaleX(1);} 25%{opacity:.7;} 100%{opacity:0;transform:scaleX(1.15);} }
+  @keyframes flash-floor { 0%{opacity:0;transform:scaleY(.2);} 6%{opacity:.7;transform:scaleY(1);} 35%{opacity:.3;} 100%{opacity:0;transform:scaleY(1.1);} }
 
-  .flash--streak.from-right {
-    transform-origin: right center;
-  }
-
-  .flash--streak.from-right::before {
-    left: auto;
-    right: 0;
-    background: linear-gradient(270deg, rgba(255,248,240,1) 0%, rgba(255,240,225,0.5) 50%, transparent 100%);
-  }
-
-  .flash--streak.from-right::after {
-    left: auto;
-    right: 0;
-    background: linear-gradient(270deg, rgba(255,220,190,0.6) 0%, rgba(255,190,150,0.2) 35%, transparent 100%);
-  }
-
-  .flash--floor {
-    bottom: 0;
-    height: 35%;
-    width: 60%;
-    max-width: 800px;
-    filter: blur(14px);
-    animation: flash-floor 220ms cubic-bezier(0.02, 0.98, 0.1, 1) forwards;
-  }
-
-  .flash--floor.from-left  { left: 0; }
-  .flash--floor.from-right { right: 0; }
-
-  @keyframes flash-cone {
-    0%   { opacity: 0; transform: scaleX(0.3) scaleY(0.5); }
-    2%   { opacity: 1; transform: scaleX(1) scaleY(1); }
-    15%  { opacity: 0.9; }
-    40%  { opacity: 0.35; }
-    100% { opacity: 0; transform: scaleX(1.1) scaleY(1.05); }
-  }
-
-  @keyframes flash-core {
-    0%   { opacity: 0; transform: translateY(-50%) scale(0.15); }
-    3%   { opacity: 1; transform: translateY(-50%) scale(1.4); }
-    20%  { opacity: 1; transform: translateY(-50%) scale(1); }
-    100% { opacity: 0; transform: translateY(-50%) scale(0.8); }
-  }
-
-  @keyframes flash-halo {
-    0%   { opacity: 0; transform: scale(0.6); }
-    5%   { opacity: 1; transform: scale(1); }
-    30%  { opacity: 0.6; }
-    100% { opacity: 0; transform: scale(1.1); }
-  }
-
-  @keyframes flash-streak {
-    0%   { opacity: 0; transform: scaleX(0.1); }
-    4%   { opacity: 1; transform: scaleX(1); }
-    25%  { opacity: 0.7; }
-    100% { opacity: 0; transform: scaleX(1.15); }
-  }
-
-  @keyframes flash-floor {
-    0%   { opacity: 0; transform: scaleY(0.2); }
-    6%   { opacity: 0.7; transform: scaleY(1); }
-    35%  { opacity: 0.3; }
-    100% { opacity: 0; transform: scaleY(1.1); }
-  }
-
-  /* ==================================================================
-     CONTENT STAGE
-     ================================================================== */
   .content-stage {
     position: relative;
     z-index: 10;
@@ -331,15 +197,11 @@
     padding: 56px;
   }
 
-  .content {
-    max-width: 820px;
-    width: 100%;
-    min-width: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    text-align: left;
-  }
+  .content { max-width: 820px; width: 100%; min-width: 0; display: flex; flex-direction: column; align-items: flex-start; text-align: left; }
+
+  /* El contenido arranca invisible hasta que el JS lo revele */
+  .content-stage .content > * { opacity: 0; }
+  .content-stage.is-ready .content > * { opacity: 1; }
 
   .headline {
     font-family: 'Fraunces', Georgia, serif;
@@ -353,191 +215,85 @@
     animation: reveal-curtain var(--d-curtain) var(--ease-soft) var(--t-headline) both;
   }
 
-  .headline__accent {
-    font-style: italic;
-    font-weight: 500;
-    color: var(--accent-soft);
-  }
+  .headline__accent { font-style: italic; font-weight: 500; color: var(--accent-soft); }
 
-  /* ==================================================================
-     SUBTITLE — palabras atómicas
-     ================================================================== */
   .subtitle {
     display: block;
     font-size: clamp(0.95rem, 1.5vw, 1.1rem);
     font-weight: 300;
     line-height: 1.7;
     color: var(--text-muted);
-    max-width: 540px;
-    width: 100%;
-    min-width: 0;
+    max-width: 540px; width: 100%; min-width: 0;
     margin-bottom: 44px;
     white-space: normal;
     animation: reveal-soft var(--d-reveal) var(--ease-out) var(--t-subtitle) both;
   }
-
-  .subtitle strong {
-    color: var(--text-primary);
-    font-weight: 500;
-  }
-
-  .subtitle .word {
-    display: inline-block;
-    white-space: nowrap;
-  }
-
-  .subtitle .space {
-    display: inline-block;
-    white-space: pre;
-  }
-
-  .subtitle .typewriter-char {
-    opacity: 0;
-    transition: opacity 0.12s ease;
-  }
-
-  .subtitle .typewriter-char.is-typed {
-    opacity: 1;
-  }
-
+  .subtitle strong { color: var(--text-primary); font-weight: 500; }
+  .subtitle .word  { display: inline-block; white-space: nowrap; }
+  .subtitle .space { display: inline-block; white-space: pre; }
+  .subtitle .typewriter-char { opacity: 0; transition: opacity 0.12s ease; }
+  .subtitle .typewriter-char.is-typed { opacity: 1; }
   .subtitle .typewriter-cursor {
-    display: inline-block;
-    width: 1px;
-    height: 1em;
-    margin-left: 2px;
-    vertical-align: -0.15em;
-    background: var(--accent-soft);
-    box-shadow: 0 0 8px var(--accent-soft);
-    opacity: 0;
-    transition: opacity 0.35s ease;
+    display: inline-block; width: 1px; height: 1em; margin-left: 2px; vertical-align: -0.15em;
+    background: var(--accent-soft); box-shadow: 0 0 8px var(--accent-soft);
+    opacity: 0; transition: opacity 0.35s ease;
   }
+  .subtitle .typewriter-cursor.is-active { opacity: 1; animation: cursor-blink 0.9s steps(1) infinite; }
+  @keyframes cursor-blink { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; } }
 
-  .subtitle .typewriter-cursor.is-active {
-    opacity: 1;
-    animation: cursor-blink 0.9s steps(1) infinite;
-  }
-
-  @keyframes cursor-blink {
-    0%, 49%   { opacity: 1; }
-    50%, 100% { opacity: 0; }
-  }
-
-  .footer {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 16px;
-  }
+  .footer { display: flex; flex-direction: column; align-items: flex-start; gap: 16px; }
 
   .eyebrow {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 0.7rem;
-    font-weight: 400;
-    letter-spacing: 0.22em;
-    text-transform: uppercase;
-    color: var(--accent-soft);
-    margin-bottom: 8px;
+    display: inline-flex; align-items: center; gap: 10px;
+    font-size: 0.7rem; font-weight: 400;
+    letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--accent-soft); margin-bottom: 8px;
     animation: reveal-soft var(--d-reveal) var(--ease-out) var(--t-f-eyebrow) both;
   }
-
   .eyebrow__dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: var(--accent);
-    box-shadow: 0 0 10px var(--accent);
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--accent); box-shadow: 0 0 10px var(--accent);
     animation: dot-pulse 2s ease-in-out infinite;
   }
 
   .progress {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    font-size: 0.65rem;
-    font-weight: 400;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
+    display: flex; align-items: center; gap: 14px;
+    font-size: 0.65rem; font-weight: 400;
+    letter-spacing: 0.2em; text-transform: uppercase;
     color: rgba(255, 245, 235, 0.5);
     animation: reveal-soft var(--d-reveal) var(--ease-out) var(--t-f-progress) both;
   }
-
-  .progress__track {
-    position: relative;
-    width: 100px;
-    height: 1px;
-    background: rgba(255, 255, 255, 0.15);
-    overflow: hidden;
-  }
-
-  .progress__fill {
-    position: absolute;
-    inset: 0;
-    width: 0%;
-    background: linear-gradient(90deg, var(--accent-soft), var(--accent));
-    animation: progress-fill 6s cubic-bezier(0.65, 0, 0.35, 1) var(--t-f-progress) forwards;
-  }
-
-  .progress__value {
-    min-width: 34px;
-    display: inline-block;
-    color: var(--accent-soft);
-    font-variant-numeric: tabular-nums;
-  }
+  .progress__track { position: relative; width: 100px; height: 1px; background: rgba(255,255,255,0.15); overflow: hidden; }
+  .progress__fill  { position: absolute; inset: 0; width: 0%; background: linear-gradient(90deg, var(--accent-soft), var(--accent)); animation: progress-fill 6s cubic-bezier(0.65,0,0.35,1) var(--t-f-progress) forwards; }
+  .progress__value { min-width: 34px; display: inline-block; color: var(--accent-soft); font-variant-numeric: tabular-nums; }
 
   .credit {
-    font-size: 0.62rem;
-    font-weight: 400;
-    letter-spacing: 0.22em;
-    text-transform: uppercase;
-    color: var(--text-faint);
-    text-decoration: none;
+    font-size: 0.62rem; font-weight: 400;
+    letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--text-faint); text-decoration: none;
     transition: color 0.3s ease;
     animation: reveal-soft var(--d-reveal) var(--ease-out) var(--t-f-credit) both;
   }
-
-  .credit:hover,
-  .credit:focus-visible {
-    color: var(--accent-soft);
-    outline: none;
-  }
+  .credit:hover, .credit:focus-visible { color: var(--accent-soft); outline: none; }
 
   @keyframes reveal-soft {
     0%   { opacity: 0; transform: translateY(36px); filter: blur(6px); }
     40%  { opacity: 1; filter: blur(0); }
     100% { opacity: 1; transform: translateY(0);   filter: blur(0); }
   }
-
   @keyframes reveal-curtain {
     0%   { opacity: 0; transform: translateY(48px); clip-path: inset(0 0 100% 0); }
     35%  { opacity: 1; }
     100% { opacity: 1; transform: translateY(0);    clip-path: inset(0 0 -10% 0); }
   }
-
-  @keyframes dot-pulse {
-    0%, 100% { opacity: 1;   transform: scale(1); }
-    50%      { opacity: 0.4; transform: scale(0.8); }
-  }
-
-  @keyframes progress-fill {
-    to { width: 78%; }
-  }
+  @keyframes dot-pulse { 0%,100% { opacity:1; transform: scale(1);} 50% { opacity:.4; transform: scale(.8);} }
+  @keyframes progress-fill { to { width: 78%; } }
 
   @media (max-width: 768px) {
-    .content-stage {
-      padding: 32px 20px;
-      align-items: stretch;
-    }
-    .content {
-      max-width: 100%;
-      align-items: stretch;
-    }
+    .content-stage { padding: 32px 20px; align-items: stretch; }
+    .content { max-width: 100%; align-items: stretch; }
     .headline { margin-bottom: 22px; }
-    .subtitle {
-      max-width: 100%;
-      margin-bottom: 32px;
-    }
+    .subtitle { max-width: 100%; margin-bottom: 32px; }
     .eyebrow  { font-size: 0.64rem; }
     .credit   { font-size: 0.56rem; }
     .flash--streak { width: 180px; height: 1.5px; }
@@ -551,22 +307,10 @@
   @media (prefers-reduced-motion: reduce) {
     .paparazzi { display: none; }
     .mix-layer { transition: opacity 0.6s linear; }
-    .eyebrow__dot,
-    .subtitle .typewriter-cursor { animation: none; }
-
-    .headline,
-    .subtitle,
-    .eyebrow,
-    .progress,
-    .credit,
-    .subtitle .typewriter-char {
-      animation-duration: 0.01ms;
-      animation-delay: 0s;
-      transition: none;
-      opacity: 1;
-      transform: none;
-      filter: none;
-      clip-path: none;
+    .eyebrow__dot, .subtitle .typewriter-cursor { animation: none; }
+    .headline, .subtitle, .eyebrow, .progress, .credit, .subtitle .typewriter-char {
+      animation-duration: 0.01ms; animation-delay: 0s;
+      transition: none; opacity: 1; transform: none; filter: none; clip-path: none;
     }
   }
 </style>
@@ -575,22 +319,29 @@
 
   <div class="stage-root">
 
-    <!-- FIX: los 3 videos ahora tienen sources separados por media query.
-         En mobile solo se sirve el HD, nunca el UHD.
-         FIX: preload="auto" en la capa 0 para arrancar rápido.
-         FIX: webkit-playsinline + disablepictureinpicture para iOS. -->
     <div class="mix-stage" id="mixStage" aria-hidden="true">
-      <video class="mix-layer" muted loop playsinline webkit-playsinline disablepictureinpicture preload="auto" data-mix-index="0">
+      <video class="mix-layer" muted loop playsinline webkit-playsinline
+             disablepictureinpicture preload="auto" fetchpriority="high"
+             poster="poster.jpg"
+             data-mix-index="0">
         <source src="https://videos.pexels.com/video-files/9370435/9370435-hd_1080_1920_24fps.mp4" type="video/mp4" media="(max-width: 899px)">
         <source src="https://videos.pexels.com/video-files/9370435/9370435-uhd_2160_3840_24fps.mp4" type="video/mp4" media="(min-width: 900px)">
         <source src="https://videos.pexels.com/video-files/9370435/9370435-hd_1080_1920_24fps.mp4" type="video/mp4">
       </video>
-      <video class="mix-layer" muted loop playsinline webkit-playsinline disablepictureinpicture preload="metadata" data-mix-index="1">
+
+      <video class="mix-layer" muted loop playsinline webkit-playsinline
+             disablepictureinpicture preload="metadata"
+             poster="poster.jpg"
+             data-mix-index="1">
         <source src="https://videos.pexels.com/video-files/9370435/9370435-hd_1080_1920_24fps.mp4" type="video/mp4" media="(max-width: 899px)">
         <source src="https://videos.pexels.com/video-files/9370435/9370435-uhd_2160_3840_24fps.mp4" type="video/mp4" media="(min-width: 900px)">
         <source src="https://videos.pexels.com/video-files/9370435/9370435-hd_1080_1920_24fps.mp4" type="video/mp4">
       </video>
-      <video class="mix-layer" muted loop playsinline webkit-playsinline disablepictureinpicture preload="metadata" data-mix-index="2">
+
+      <video class="mix-layer" muted loop playsinline webkit-playsinline
+             disablepictureinpicture preload="metadata"
+             poster="poster.jpg"
+             data-mix-index="2">
         <source src="https://videos.pexels.com/video-files/9370435/9370435-hd_1080_1920_24fps.mp4" type="video/mp4" media="(max-width: 899px)">
         <source src="https://videos.pexels.com/video-files/9370435/9370435-uhd_2160_3840_24fps.mp4" type="video/mp4" media="(min-width: 900px)">
         <source src="https://videos.pexels.com/video-files/9370435/9370435-hd_1080_1920_24fps.mp4" type="video/mp4">
@@ -603,7 +354,7 @@
 
     <div class="paparazzi" id="paparazzi" aria-hidden="true"></div>
 
-    <main class="content-stage">
+    <main class="content-stage" id="contentStage">
       <div class="content">
 
         <h1 class="headline">Estas listo para<br><span class="headline__accent">alcanzar tu máximo potencial.. ?</span></h1>
@@ -718,73 +469,45 @@
         const by = (u) => 3 * (1 - u) ** 2 * u * p1y + 3 * (1 - u) * u ** 2 * p2y + u ** 3;
         return (t) => {
           let lo = 0, hi = 1, mid = 0.5;
-          for (let i = 0; i < 20; i++) {
-            mid = (lo + hi) * 0.5;
-            if (bx(mid) < t) lo = mid; else hi = mid;
-          }
+          for (let i = 0; i < 20; i++) { mid = (lo + hi) * 0.5; if (bx(mid) < t) lo = mid; else hi = mid; }
           return by(mid);
         };
       }
-
       const easeProgress = makeBezier(0.65, 0, 0.35, 1);
 
-      const state = {
-        progress: 0,
-        reducedMotion: false,
-        canceled: false,
-        isMobile: false
-      };
+      const state = { progress: 0, reducedMotion: false, canceled: false, isMobile: false };
 
       const timers = new Set();
       function later(fn, ms) {
-        const id = setTimeout(() => {
-          timers.delete(id);
-          if (!state.canceled) fn();
-        }, ms);
+        const id = setTimeout(() => { timers.delete(id); if (!state.canceled) fn(); }, ms);
         timers.add(id);
         return id;
       }
 
       function initProgress(counterEl) {
         if (!counterEl) return;
-
         const start = performance.now() + TIMING.progressStart;
         const dur   = TIMING.progressDuration;
         const target = TIMING.progressTarget;
 
         function frame(now) {
           if (state.canceled) return;
-
           const elapsed = now - start;
-
-          if (elapsed < 0) {
-            counterEl.textContent = '0%';
-            state.progress = 0;
-            requestAnimationFrame(frame);
-            return;
-          }
-
+          if (elapsed < 0) { counterEl.textContent = '0%'; state.progress = 0; requestAnimationFrame(frame); return; }
           const t = Math.min(elapsed / dur, 1);
           const value = easeProgress(t) * target;
-
           counterEl.textContent = Math.round(value) + '%';
           state.progress = t;
-
           if (t < 1) requestAnimationFrame(frame);
         }
-
         requestAnimationFrame(frame);
       }
 
-      /* ==============================================================
-         TYPEWRITER con palabras atómicas
-         ============================================================== */
       function initTypewriter() {
         const el = document.getElementById('subtitleTypewriter');
         if (!el || state.reducedMotion) return;
 
         const originalHTML = el.innerHTML;
-
         const wrapper = document.createElement('span');
         wrapper.style.display = 'contents';
         wrapper.innerHTML = originalHTML;
@@ -793,27 +516,20 @@
         (function collect(node) {
           for (let i = 0; i < node.childNodes.length; i++) {
             const child = node.childNodes[i];
-            if (child.nodeType === Node.TEXT_NODE) {
-              textNodes.push(child);
-            } else if (child.nodeType === Node.ELEMENT_NODE) {
-              collect(child);
-            }
+            if (child.nodeType === Node.TEXT_NODE) textNodes.push(child);
+            else if (child.nodeType === Node.ELEMENT_NODE) collect(child);
           }
         })(wrapper);
 
         const charSpans = [];
-
         for (let n = 0; n < textNodes.length; n++) {
           const textNode = textNodes[n];
           const text = textNode.nodeValue;
           const frag = document.createDocumentFragment();
-
           const tokens = text.split(/(\s+)/);
-
           for (let t = 0; t < tokens.length; t++) {
             const token = tokens[t];
             if (token === '') continue;
-
             if (/^\s+$/.test(token)) {
               const spaceSpan = document.createElement('span');
               spaceSpan.className = 'space';
@@ -823,32 +539,26 @@
               const wordSpan = document.createElement('span');
               wordSpan.className = 'word';
               for (let c = 0; c < token.length; c++) {
-                const ch = token[c];
                 const charSpan = document.createElement('span');
                 charSpan.className = 'typewriter-char';
-                charSpan.textContent = ch;
+                charSpan.textContent = token[c];
                 wordSpan.appendChild(charSpan);
                 charSpans.push(charSpan);
               }
               frag.appendChild(wordSpan);
             }
           }
-
           textNode.parentNode.replaceChild(frag, textNode);
         }
 
         el.innerHTML = '';
-        while (wrapper.firstChild) {
-          el.appendChild(wrapper.firstChild);
-        }
+        while (wrapper.firstChild) el.appendChild(wrapper.firstChild);
 
         const cursor = document.createElement('span');
         cursor.className = 'typewriter-cursor';
         cursor.setAttribute('aria-hidden', 'true');
 
-        let i = 0;
-        let nextAt = 0;
-        let cursorReady = false;
+        let i = 0, nextAt = 0, cursorReady = false;
 
         later(() => {
           if (state.canceled) return;
@@ -860,79 +570,51 @@
 
         function typeFrame(now) {
           if (state.canceled) return;
-
-          if (!cursorReady) {
-            requestAnimationFrame(typeFrame);
-            return;
-          }
-
+          if (!cursorReady) { requestAnimationFrame(typeFrame); return; }
           if (!nextAt) nextAt = now;
-
-          if (now < nextAt) {
-            requestAnimationFrame(typeFrame);
-            return;
-          }
-
+          if (now < nextAt) { requestAnimationFrame(typeFrame); return; }
           if (i >= charSpans.length) {
             later(() => {
               cursor.classList.remove('is-active');
-              later(() => {
-                if (cursor.isConnected) cursor.remove();
-              }, 400);
+              later(() => { if (cursor.isConnected) cursor.remove(); }, 400);
             }, TIMING.cursorFadeOut);
             return;
           }
-
           const span = charSpans[i];
           span.classList.add('is-typed');
           const ch = span.textContent;
           i++;
-
           span.parentNode.insertBefore(cursor, span.nextSibling);
-
           let delay = TIMING.charDelay;
           if (ch === '.' || ch === ',' || ch === ';') delay = TIMING.punctDelay;
           else if (ch === '—') delay = TIMING.dashDelay;
-
           nextAt = now + delay;
           requestAnimationFrame(typeFrame);
         }
-
         later(() => requestAnimationFrame(typeFrame), TIMING.typewriterStart);
       }
 
-      // FIX: reescrita la función de rotación de capas.
-      // - En mobile solo 1 capa activa (nada de decodificar 3 videos).
-      // - play() fuerza muted por propiedad además del atributo.
-      // - No rotamos capas en mobile.
-      // - visibilitychange no rompe el estado.
       function initLayerRotation() {
         const allLayers = Array.from(document.querySelectorAll('.mix-layer'));
         if (!allLayers.length) return;
-
         const isMobile = state.isMobile;
-
-        // En mobile solo usamos la capa 0 (las otras están display:none por CSS)
         const layers = isMobile ? [allLayers[0]] : allLayers;
 
-        let current = 0;
-        let started = false;
-        let rotationTimer = null;
+        let current = 0, started = false;
 
         const play = (v) => {
-          // FIX: forzamos muted en la propiedad (crítico en iOS)
           v.muted = true;
           v.defaultMuted = true;
           v.setAttribute('muted', '');
           v.setAttribute('playsinline', '');
 
-          const p = v.play();
-          if (p && p.catch) {
-            p.catch((err) => {
-              // FIX: log para diagnosticar en el celu
-              console.warn('[video] play bloqueado:', err.name, err.message);
-            });
-          }
+          const doPlay = () => {
+            const p = v.play();
+            if (p && p.catch) p.catch(err => console.warn('[video] play bloqueado:', err.name, err.message));
+          };
+
+          if (v.readyState >= 3) doPlay();
+          else v.addEventListener('canplay', doPlay, { once: true });
         };
 
         const show = (index) => {
@@ -946,58 +628,40 @@
 
         show(0);
 
-        // FIX: reanudar sin re-pausar todo por scroll de barra de URL
         document.addEventListener('visibilitychange', () => {
-          if (document.hidden) {
-            layers.forEach((v) => v.pause());
-          } else {
-            play(layers[current]);
-          }
+          if (document.hidden) layers.forEach(v => v.pause());
+          else play(layers[current]);
         }, { passive: true });
 
-        // FIX: en mobile NO rotamos capas
         window.__startVideoRotation = () => {
           if (started || isMobile) return;
           started = true;
-          rotationTimer = setInterval(() => {
-            current = (current + 1) % layers.length;
-            show(current);
-          }, FLASH.layerRotationMs);
+          setInterval(() => { current = (current + 1) % layers.length; show(current); }, FLASH.layerRotationMs);
         };
 
-        // FIX: primer intento de play tras un toque del usuario (fallback
-        // por si el autoplay fue bloqueado por política del navegador).
         const unlock = () => {
           play(layers[current]);
           document.removeEventListener('touchstart', unlock, { passive: true });
           document.removeEventListener('click', unlock, { passive: true });
         };
-        document.addEventListener('touchstart', unlock, { passive: true, once: false });
-        document.addEventListener('click', unlock, { passive: true, once: false });
+        document.addEventListener('touchstart', unlock, { passive: true });
+        document.addEventListener('click', unlock, { passive: true });
       }
 
       function initPaparazzi() {
         if (state.reducedMotion) return;
-
         const root = document.getElementById('paparazzi');
         if (!root) return;
 
         let live = 0;
-
         function spawn(className, cleanupMs, configure) {
           if (live >= FLASH.maxConcurrent) return null;
-
           const el = document.createElement('div');
           el.className = className;
           if (configure) configure(el);
           root.appendChild(el);
           live++;
-
-          later(() => {
-            if (el.isConnected) el.remove();
-            live--;
-          }, cleanupMs);
-
+          later(() => { if (el.isConnected) el.remove(); live--; }, cleanupMs);
           return el;
         }
 
@@ -1051,21 +715,17 @@
         }
 
         function gapScaled(buckets) {
-          const base = sampleBuckets(buckets);
-          return base * (1.4 - state.progress * 0.95);
+          return sampleBuckets(buckets) * (1.4 - state.progress * 0.95);
         }
-
         function intraGapScaled() {
-          const base = sampleBuckets(FLASH.intraGapBuckets);
-          return base * (1.3 - state.progress * 0.85);
+          return sampleBuckets(FLASH.intraGapBuckets) * (1.3 - state.progress * 0.85);
         }
 
         function scheduleBurst(count, sideAt, intensityAt) {
           let elapsed = 0;
           for (let i = 0; i < count; i++) {
             elapsed += intraGapScaled();
-            const side = sideAt(i);
-            const intensity = intensityAt(i);
+            const side = sideAt(i), intensity = intensityAt(i);
             later(() => fireFlash(side, intensity), elapsed);
           }
         }
@@ -1080,9 +740,7 @@
 
         function burstCrossed() {
           const cfg = FLASH.bursts.crossed;
-          const seq = coin()
-            ? ['left', 'right', 'left', 'right', 'left']
-            : ['right', 'left', 'right', 'left', 'right'];
+          const seq = coin() ? ['left','right','left','right','left'] : ['right','left','right','left','right'];
           const count = cfg.min + Math.floor(Math.random() * cfg.extra);
           scheduleBurst(count, (i) => seq[i % seq.length], () => rand(...cfg.intensity));
         }
@@ -1093,9 +751,7 @@
           later(() => fireFlash(side, rand(...cfg.i2)), rand(...cfg.delay));
         }
 
-        function singleFlash() {
-          fireFlash(pickSide(), rand(...FLASH.bursts.single.intensity));
-        }
+        function singleFlash() { fireFlash(pickSide(), rand(...FLASH.bursts.single.intensity)); }
 
         function chaoticCluster() {
           const cfg = FLASH.bursts.chaotic;
@@ -1123,7 +779,6 @@
           const total = ev.burst;
           const scale = total > 1 ? 1 / total : 1;
           const roll = Math.random();
-
           if (roll < ev.chaotic * scale) chaoticCluster();
           else if (roll < ev.crossed * scale) burstCrossed();
           else if (roll < ev.double * scale) doublePop();
@@ -1143,28 +798,47 @@
           }, gap);
         }
 
-        later(() => {
-          doublePop();
-          scheduleNext();
-        }, rand(FLASH.startDelayMin, FLASH.startDelayMin + FLASH.startDelayRange));
+        later(() => { doublePop(); scheduleNext(); },
+              rand(FLASH.startDelayMin, FLASH.startDelayMin + FLASH.startDelayRange));
       }
 
-      function boot() {
-        state.reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        // FIX: detectamos mobile con matchMedia (mismo breakpoint que el CSS)
-        state.isMobile = window.matchMedia('(max-width: 899px)').matches;
-
-        initLayerRotation();
+      function bootContent() {
+        const contentStage = document.getElementById('contentStage');
+        if (contentStage) contentStage.classList.add('is-ready');
 
         const counterEl = document.querySelector('.progress__value');
         initProgress(counterEl);
-
         initTypewriter();
 
         later(() => {
           if (window.__startVideoRotation) window.__startVideoRotation();
           initPaparazzi();
         }, TIMING.textsDone);
+      }
+
+      function boot() {
+        state.reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        state.isMobile = window.matchMedia('(max-width: 899px)').matches;
+
+        initLayerRotation();
+
+        const firstVideo = document.querySelector('.mix-layer[data-mix-index="0"]');
+        let contentStarted = false;
+        const startContent = () => {
+          if (contentStarted || state.canceled) return;
+          contentStarted = true;
+          bootContent();
+        };
+
+        if (!firstVideo) {
+          startContent();
+        } else if (firstVideo.readyState >= 2) {
+          startContent();
+        } else {
+          firstVideo.addEventListener('loadeddata', startContent, { once: true });
+          firstVideo.addEventListener('canplay',    startContent, { once: true });
+          setTimeout(startContent, 3000);
+        }
       }
 
       window.addEventListener('pagehide', () => {
