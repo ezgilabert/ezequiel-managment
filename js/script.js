@@ -131,7 +131,33 @@
 
         const counterEl = document.querySelector('.progress__value');
         contentEffects.initProgress(counterEl);
-        contentEffects.initTypewriter();
+        contentEffects.initTypewriter(() => {
+          if (state.isMobile || state.reducedMotion) return;
+          const stage = document.querySelector('.stage-root');
+          if (!stage) return;
+
+          const cutInMs = 100;
+          const cutOutMs = 240;
+          const cameraHoldMs = 5000;
+          const shots = ['camera-middle', 'camera-bottom', ''];
+          let shotIndex = 0;
+          function cutToNextShot() {
+            stage.classList.remove('camera-cut-out');
+            stage.classList.add('camera-cut-in');
+            later(() => {
+              stage.classList.remove('camera-middle', 'camera-bottom');
+              if (shots[shotIndex]) stage.classList.add(shots[shotIndex]);
+              shotIndex = (shotIndex + 1) % shots.length;
+              stage.classList.remove('camera-cut-in');
+              stage.classList.add('camera-cut-out');
+              later(() => {
+                stage.classList.remove('camera-cut-out');
+                later(cutToNextShot, cameraHoldMs);
+              }, cutOutMs);
+            }, cutInMs);
+          }
+          cutToNextShot();
+        });
 
         later(() => paparazzi.start(), TIMING.textsDone);
       }

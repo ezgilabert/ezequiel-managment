@@ -31,7 +31,7 @@
       }, timing.progressStart);
     }
 
-    function initTypewriter() {
+    function initTypewriter(onComplete) {
       const element = document.getElementById('subtitleTypewriter');
       if (!element || state.reducedMotion) return;
 
@@ -106,6 +106,7 @@
           return;
         }
         if (index >= characterSpans.length) {
+          if (onComplete) onComplete();
           later(() => {
             cursor.classList.remove('is-active');
             later(() => { if (cursor.isConnected) cursor.remove(); }, 400);

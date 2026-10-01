@@ -48,20 +48,34 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
-    object-position: center;
+    object-position: center 0%;
     filter: contrast(1.05) brightness(0.95) saturate(1.1);
     transform-origin: center;
     backface-visibility: hidden;
-    animation: camera-drift 16s ease-in-out infinite alternate;
+    animation: none;
     background-size: cover;
     background-position: center;
     background-color: #1a1412;
   }
 
-  @keyframes camera-drift {
-    from { transform: scale(1.08) translate3d(0, 3%, 0); }
-    to   { transform: scale(1.18) translate3d(0, -3%, 0); }
+  @media (min-width: 900px) {
+    .mix-layer { object-position: center 12%; transition: none; }
+    .camera-middle .mix-layer { object-position: center 50%; }
+    .camera-bottom .mix-layer { object-position: center 76%; }
   }
+
+  .stage-root::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: 9;
+    background: rgba(10, 8, 7, 0.5);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 100ms ease-out;
+  }
+  .camera-cut-in::after { opacity: 1; }
+  .camera-cut-out::after { opacity: 0; transition: opacity 240ms ease-in; }
 
   .overlay { position: absolute; inset: 0; pointer-events: none; contain: layout paint; }
 
@@ -259,7 +273,7 @@
 
   @media (max-width: 899px) {
     .overlay--grain { display: none; }
-    .mix-layer { animation-name: camera-drift-mobile; }
+    .mix-layer { object-position: center; animation: camera-drift-mobile 16s ease-in-out infinite alternate; }
     @keyframes camera-drift-mobile {
       from { transform: scale(1.18) translate3d(0, 5%, 0); }
       to   { transform: scale(1.28) translate3d(0, -5%, 0); }
@@ -273,7 +287,7 @@
 
   @media (prefers-reduced-motion: reduce) {
     .paparazzi { display: none; }
-    .mix-layer { animation: none; }
+    .mix-layer { animation: none; transition: none; }
     .eyebrow__dot, .subtitle .typewriter-cursor { animation: none; }
     .headline, .subtitle, .eyebrow, .progress, .credit, .subtitle .typewriter-char {
       animation-duration: 0.01ms; animation-delay: 0s;
