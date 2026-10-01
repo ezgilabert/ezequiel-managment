@@ -6,27 +6,29 @@
   modules.createContentEffects = function ({ timing, easeProgress, state, later }) {
     function initProgress(counterElement) {
       if (!counterElement) return;
-      const start = performance.now() + timing.progressStart;
       const duration = timing.progressDuration;
       const target = timing.progressTarget;
+      let start = 0;
+      let displayedValue = null;
 
       function frame(now) {
         if (state.canceled) return;
         const elapsed = now - start;
-        if (elapsed < 0) {
-          counterElement.textContent = '0%';
-          state.progress = 0;
-          requestAnimationFrame(frame);
-          return;
-        }
         const progress = Math.min(elapsed / duration, 1);
         const value = easeProgress(progress) * target;
-        counterElement.textContent = Math.round(value) + '%';
+        const roundedValue = Math.round(value);
+        if (roundedValue !== displayedValue) {
+          counterElement.textContent = roundedValue + '%';
+          displayedValue = roundedValue;
+        }
         state.progress = progress;
         if (progress < 1) requestAnimationFrame(frame);
       }
 
-      requestAnimationFrame(frame);
+      later(() => {
+        start = performance.now();
+        requestAnimationFrame(frame);
+      }, timing.progressStart);
     }
 
     function initTypewriter() {

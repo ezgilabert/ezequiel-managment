@@ -21,6 +21,10 @@
         let progress = Math.min(elapsed / config.rampUpMs, 1);
         progress = progress * progress * (3 - 2 * progress);
         state.ramp = progress;
+        if (progress === 1) {
+          animationFrame = null;
+          return;
+        }
         animationFrame = requestAnimationFrame(rampLoop);
       }
       animationFrame = requestAnimationFrame(rampLoop);
@@ -63,11 +67,10 @@
 
         spawn(`flash flash--cone from-${side}`, config.cleanup.cone, (element) => {
           element.style.setProperty('--y', y + '%');
+          element.style.setProperty('--scale-x', coneScaleX);
+          element.style.setProperty('--scale-y', coneScaleY);
+          element.style.setProperty('--flash-opacity', Math.min(coneBrightness * 0.55, 1));
           element.style.animationDuration = coneDuration + 'ms';
-          element.style.filter = `brightness(${coneBrightness})`;
-          element.style.transformOrigin = `${side === 'left' ? 'left' : 'right'} ${y}%`;
-          element.style.transform = `scale(${coneScaleX}, ${coneScaleY})`;
-          element.style.opacity = (0.6 + depth * 0.4).toFixed(2);
         });
 
         const coreSize = rand(4, 16) + depth * 12;
@@ -77,14 +80,14 @@
           element.style.width = coreSize + 'px';
           element.style.height = coreSize + 'px';
           element.style.animationDuration = coreDuration + 'ms';
-          element.style.transform = `translateY(-50%) scale(${0.5 + finalIntensity * 0.9})`;
+          element.style.setProperty('--core-scale', 0.5 + finalIntensity * 0.9);
         });
 
-        if (coin(0.7)) {
+        if (coin(state.isMobile ? 0.4 : 0.7)) {
           const haloSize = rand(0.5, 1.5) + depth * 0.6;
           spawn(`flash flash--halo from-${side}`, config.cleanup.halo, (element) => {
             element.style.animationDuration = haloDuration + 'ms';
-            element.style.transform = `scale(${haloSize})`;
+            element.style.setProperty('--halo-scale', haloSize);
             const position = side === 'left' ? '0%' : '100%';
             element.style.background =
               `radial-gradient(ellipse 70% 80% at ${position} ${y}%,` +
@@ -93,7 +96,8 @@
           });
         }
 
-        const streaks = coin(0.4 + depth * 0.5) ? (coin(0.6) ? 1 : 2) : 0;
+        const streakChance = state.isMobile ? 0.35 + depth * 0.35 : 0.4 + depth * 0.5;
+        const streaks = coin(streakChance) ? (state.isMobile ? 1 : (coin(0.6) ? 1 : 2)) : 0;
         for (let index = 0; index < streaks; index++) {
           later(() => {
             spawn(`flash flash--streak from-${side}`, config.cleanup.streak, (element) => {
@@ -107,7 +111,7 @@
           }, index * rand(20, 60));
         }
 
-        if (y > 55) {
+        if (y > 55 && (!state.isMobile || coin(0.45))) {
           spawn(`flash flash--floor from-${side}`, config.cleanup.floor, (element) => {
             element.style.animationDuration = rand(160, 280) + 'ms';
             const position = side === 'left' ? '0%' : '100%';
