@@ -94,8 +94,6 @@
     .mix-layer[data-mix-index="0"] { transform: scale(1.18) translateY(6%); }
     .mix-layer[data-mix-index="1"] { transform: scale(1.18) translateY(0%); }
     .mix-layer[data-mix-index="2"] { transform: scale(1.18) translateY(-6%); }
-
-    .mix-layer:not([data-mix-index="0"]) { display: none; }
   }
 
   @media (min-width: 900px) {
@@ -597,8 +595,7 @@
       function initLayerRotation() {
         const allLayers = Array.from(document.querySelectorAll('.mix-layer'));
         if (!allLayers.length) return;
-        const isMobile = state.isMobile;
-        const layers = isMobile ? [allLayers[0]] : allLayers;
+        const layers = allLayers;
 
         let current = 0, started = false;
 
@@ -634,7 +631,7 @@
         }, { passive: true });
 
         window.__startVideoRotation = () => {
-          if (started || isMobile) return;
+          if (started) return;
           started = true;
           setInterval(() => { current = (current + 1) % layers.length; show(current); }, FLASH.layerRotationMs);
         };
@@ -830,14 +827,24 @@
           bootContent();
         };
 
+        // El contenido (textos, animaciones, progreso) NO debe depender
+        // del video para arrancar. El video es decorativo.
         if (!firstVideo) {
           startContent();
-        } else if (firstVideo.readyState >= 2) {
-          startContent();
         } else {
-          firstVideo.addEventListener('loadeddata', startContent, { once: true });
-          firstVideo.addEventListener('canplay',    startContent, { once: true });
-          setTimeout(startContent, 3000);
+          // Si el video ya está listo, arrancar de inmediato
+          if (firstVideo.readyState >= 2) {
+            startContent();
+          } else {
+            // Escuchar eventos del video (lo que ocurra primero)
+            firstVideo.addEventListener('loadeddata', startContent, { once: true });
+            firstVideo.addEventListener('canplay',    startContent, { once: true });
+            firstVideo.addEventListener('error',      startContent, { once: true });
+          }
+
+          // Fallback garantizado: arrancar el contenido en un tiempo corto
+          // En móvil es más agresivo para evitar pantallas "vacías"
+          setTimeout(startContent, state.isMobile ? 400 : 800);
         }
       }
 
