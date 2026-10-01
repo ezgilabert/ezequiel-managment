@@ -16,7 +16,6 @@
       });
 
       const FLASH = Object.freeze({
-        layerRotationMs: 3200,
         maxConcurrent: 16,
         startDelayMin: 300,
         startDelayRange: 400,
@@ -110,8 +109,7 @@
 
       function createVideoStage() {
         return window.LaunchPageModules.createVideoStage({
-          layers: Array.from(document.querySelectorAll('.mix-layer')),
-          rotationMs: FLASH.layerRotationMs
+          video: document.querySelector('.mix-layer')
         });
       }
 
@@ -127,7 +125,7 @@
           sampleBuckets
         });
       }
-      function bootContent(videoStage, contentEffects, paparazzi) {
+      function bootContent(contentEffects, paparazzi) {
         const contentStage = document.getElementById('contentStage');
         if (contentStage) contentStage.classList.add('is-ready');
 
@@ -135,27 +133,24 @@
         contentEffects.initProgress(counterEl);
         contentEffects.initTypewriter();
 
-        later(() => {
-          if (videoStage) videoStage.start();
-          paparazzi.start();
-        }, TIMING.textsDone);
+        later(() => paparazzi.start(), TIMING.textsDone);
       }
 
       function boot() {
         state.reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
         state.isMobile = window.matchMedia('(max-width: 899px)').matches;
 
-        const videoStage = createVideoStage();
+        createVideoStage();
         const contentEffects = createContentEffects();
         const paparazzi = createPaparazzi();
         window.addEventListener('pagehide', paparazzi.stop, { once: true });
 
-        const firstVideo = document.querySelector('.mix-layer[data-mix-index="0"]');
+        const firstVideo = document.querySelector('.mix-layer');
         let contentStarted = false;
         const startContent = () => {
           if (contentStarted || state.canceled) return;
           contentStarted = true;
-          bootContent(videoStage, contentEffects, paparazzi);
+          bootContent(contentEffects, paparazzi);
         };
 
         if (!firstVideo) {

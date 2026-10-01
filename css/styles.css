@@ -48,38 +48,19 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
-    object-position: center;
-    opacity: 0;
+    object-position: center 20%;
     filter: contrast(1.05) brightness(0.95) saturate(1.1);
     transform-origin: center;
     backface-visibility: hidden;
-    will-change: opacity, transform;
-    transition:
-      opacity 1.4s ease-in-out,
-      transform 1.8s ease-in-out,
-      object-position 1.8s ease-in-out;
+    animation: camera-drift 16s ease-in-out infinite alternate;
     background-size: cover;
     background-position: center;
     background-color: #1a1412;
   }
 
-  .mix-layer.is-visible { opacity: 1; }
-
-  .mix-layer[data-mix-index="0"] {
-    opacity: 1;
-    transition: opacity 0.3s ease-in-out;
-  }
-
-  @media (max-width: 899px) {
-    .mix-layer[data-mix-index="0"] { transform: scale(1.18) translateY(6%); }
-    .mix-layer[data-mix-index="1"] { transform: scale(1.18) translateY(0%); }
-    .mix-layer[data-mix-index="2"] { transform: scale(1.18) translateY(-6%); }
-  }
-
-  @media (min-width: 900px) {
-    .mix-layer[data-mix-index="0"] { object-position: center 20%; }
-    .mix-layer[data-mix-index="1"] { object-position: center 50%; }
-    .mix-layer[data-mix-index="2"] { object-position: center 80%; }
+  @keyframes camera-drift {
+    from { object-position: center 20%; transform: scale(1.08); }
+    to   { object-position: center 80%; transform: scale(1.18); }
   }
 
   .overlay { position: absolute; inset: 0; pointer-events: none; contain: layout paint; }
@@ -276,6 +257,14 @@
     .flash--streak { width: 180px; height: 1.5px; }
   }
 
+  @media (max-width: 899px) {
+    .mix-layer { animation-name: camera-drift-mobile; }
+    @keyframes camera-drift-mobile {
+      from { object-position: center 38%; transform: scale(1.18) translate3d(0, 5%, 0); }
+      to   { object-position: center 62%; transform: scale(1.28) translate3d(0, -5%, 0); }
+    }
+  }
+
   @media (max-width: 480px) {
     .progress { gap: 10px; font-size: 0.6rem; letter-spacing: 0.16em; }
     .progress__track { width: 70px; }
@@ -283,7 +272,7 @@
 
   @media (prefers-reduced-motion: reduce) {
     .paparazzi { display: none; }
-    .mix-layer { transition: opacity 0.6s linear; }
+    .mix-layer { animation: none; }
     .eyebrow__dot, .subtitle .typewriter-cursor { animation: none; }
     .headline, .subtitle, .eyebrow, .progress, .credit, .subtitle .typewriter-char {
       animation-duration: 0.01ms; animation-delay: 0s;
