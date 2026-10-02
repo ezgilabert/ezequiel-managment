@@ -199,7 +199,6 @@
         const firstVideo = document.querySelector('.mix-layer');
         let contentStarted = false;
         let contentBooted = false;
-        let loaderCanDismiss = !firstVideo || firstVideo.readyState >= 2;
         let loaderDismissScheduled = false;
         const loader = document.getElementById('pageLoader');
 
@@ -209,8 +208,8 @@
           bootContent(contentEffects, paparazzi);
         };
 
-        const dismissLoaderWhenReady = () => {
-          if (!loader || !loaderCanDismiss || loaderDismissScheduled) return;
+        const scheduleLoaderDismissal = () => {
+          if (!loader || loaderDismissScheduled) return;
           loaderDismissScheduled = true;
           const elapsed = performance.now() - loaderStartedAt;
           const loaderStyle = getComputedStyle(loader);
@@ -234,15 +233,10 @@
           }, remaining);
         };
 
-        const markLoaderReady = () => {
-          loaderCanDismiss = true;
-          if (contentStarted) dismissLoaderWhenReady();
-        };
-
         const startContent = () => {
           if (contentStarted || state.canceled) return;
           contentStarted = true;
-          if (loader) dismissLoaderWhenReady();
+          if (loader) scheduleLoaderDismissal();
           else bootContentOnce();
         };
 
@@ -252,13 +246,9 @@
           if (firstVideo.readyState >= 2) {
             startContent();
           } else {
-            const handleVideoReady = () => {
-              markLoaderReady();
-              startContent();
-            };
-            firstVideo.addEventListener('loadeddata', handleVideoReady, { once: true });
-            firstVideo.addEventListener('canplay',    handleVideoReady, { once: true });
-            firstVideo.addEventListener('error',      handleVideoReady, { once: true });
+            firstVideo.addEventListener('loadeddata', startContent, { once: true });
+            firstVideo.addEventListener('canplay', startContent, { once: true });
+            firstVideo.addEventListener('error', startContent, { once: true });
           }
           setTimeout(startContent, state.isMobile ? 400 : 800);
         }

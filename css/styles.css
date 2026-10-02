@@ -191,7 +191,7 @@
   }
   .page-loader__label {
     display: flex;
-    align-items: baseline;
+    align-items: center;
     gap: 5px;
     font-family: 'Cormorant Garamond', Georgia, serif;
     font-size: 2rem;
@@ -201,17 +201,17 @@
   }
   .page-loader__label > span:first-child {
     display: inline-block;
-    width: 0;
+    width: 9ch;
     overflow: hidden;
     white-space: nowrap;
+    clip-path: inset(0 100% 0 0);
     animation: loader-type-label var(--loader-type-duration) steps(8, end) calc(var(--loader-intro-delay) + var(--loader-content-enter-duration)) forwards;
   }
-  @keyframes loader-type-label { to { width: 9ch; } }
+  @keyframes loader-type-label { to { clip-path: inset(0); } }
   .page-loader__dots {
     display: flex;
-    align-items: flex-end;
+    align-items: center;
     gap: 4px;
-    padding-bottom: 8px;
     opacity: 0;
     animation: loader-dots-enter 250ms ease calc(var(--loader-intro-delay) + var(--loader-content-enter-duration) + var(--loader-type-duration)) forwards;
   }
