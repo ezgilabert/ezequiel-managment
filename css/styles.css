@@ -479,6 +479,10 @@
   }
 
   @media (max-width: 899px) {
+    .page-loader__ambient,
+    .page-loader__grid,
+    .page-loader__particles,
+    .page-loader__noise { display: none; }
     .overlay--grain { display: none; }
     .mix-layer { object-position: center; animation: camera-drift-mobile 16s ease-in-out infinite alternate; }
     @keyframes camera-drift-mobile {
