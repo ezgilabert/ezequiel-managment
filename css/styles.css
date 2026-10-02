@@ -201,9 +201,13 @@
   .page-loader__dots {
     display: flex;
     align-items: center;
+    align-self: flex-end;
     gap: 4px;
-    opacity: 1;
+    margin-bottom: 7px;
+    opacity: 0;
+    animation: loader-dots-enter 250ms ease calc(var(--loader-intro-delay) + var(--loader-content-enter-duration) + var(--loader-type-duration)) forwards;
   }
+  @keyframes loader-dots-enter { to { opacity: 1; } }
   .page-loader__dots i {
     width: 4px;
     height: 4px;

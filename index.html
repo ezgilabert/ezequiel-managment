@@ -11,7 +11,73 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
 <link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg">
-<link rel="stylesheet" href="css/styles.css">
+<style>
+  :root {
+    --loader-intro-delay: 250ms;
+    --loader-content-enter-duration: 350ms;
+    --loader-type-duration: 800ms;
+  }
+  html, body {
+    min-height: 100%;
+    margin: 0;
+    background: #0a0807;
+  }
+  .page-loader {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background: linear-gradient(135deg, #0d0217 0%, #1a0a2e 50%, #2a0a1e 100%);
+    color: #f5f0f0;
+    font: italic 2rem Georgia, serif;
+  }
+  .page-loader__stage { display: none; }
+  .page-loader__label {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .page-loader__label > span:first-child {
+    display: inline-block;
+    flex: 0 0 9ch;
+    width: 9ch;
+    overflow: hidden;
+    white-space: nowrap;
+    clip-path: inset(0 100% 0 0);
+    animation: initial-loader-type var(--loader-type-duration) steps(8, end)
+      calc(var(--loader-intro-delay) + var(--loader-content-enter-duration)) forwards;
+  }
+  @keyframes initial-loader-type { to { clip-path: inset(0); } }
+  .page-loader__dots {
+    display: flex;
+    align-items: center;
+    align-self: flex-end;
+    gap: 4px;
+    margin-bottom: 7px;
+    opacity: 0;
+    animation: initial-loader-dots-enter 250ms ease
+      calc(var(--loader-intro-delay) + var(--loader-content-enter-duration) + var(--loader-type-duration)) forwards;
+  }
+  @keyframes initial-loader-dots-enter { to { opacity: 1; } }
+  .page-loader__dots i {
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: #e8a87c;
+    animation: initial-loader-dot 1.4s ease-in-out infinite;
+  }
+  .page-loader__dots i:nth-child(2) { animation-delay: 200ms; }
+  .page-loader__dots i:nth-child(3) { animation-delay: 400ms; }
+  @keyframes initial-loader-dot {
+    0%, 100% { opacity: 0.2; transform: scale(0.8); }
+    50% { opacity: 1; transform: scale(1.3); }
+  }
+</style>
+<link rel="preload" href="css/styles.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="css/styles.css"></noscript>
 <link rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Fraunces:ital,opsz,wght@0,9..144,300;1,9..144,500&family=Cormorant+Garamond:ital,wght@1,400&display=swap"
       media="print"
