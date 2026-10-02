@@ -133,12 +133,25 @@
         const contentStage = document.getElementById('contentStage');
         if (contentStage) {
           contentStage.classList.add('is-ready');
-          if (!document.getElementById('pageLoader')) contentStage.removeAttribute('aria-hidden');
+          contentStage.removeAttribute('aria-hidden');
         }
 
         const counterEl = document.querySelector('.progress__value');
-        contentEffects.initProgress(counterEl);
-        contentEffects.initTypewriter(() => {
+        const revealFooter = () => {
+          const eyebrow = document.querySelector('.eyebrow');
+          const progress = document.querySelector('.progress');
+          const credit = document.querySelector('.credit');
+          if (!eyebrow || !progress || !credit) return;
+
+          eyebrow.classList.add('is-revealed');
+          later(() => {
+            progress.classList.add('is-revealed');
+            contentEffects.initProgress(counterEl, 0);
+          }, 350);
+          later(() => credit.classList.add('is-revealed'), 700);
+        };
+        const onSubtitleComplete = () => {
+          revealFooter();
           if (state.isMobile || state.reducedMotion) return;
           const stage = document.querySelector('.stage-root');
           if (!stage) return;
@@ -164,6 +177,11 @@
             }, cutInMs);
           }
           cutToNextShot();
+        };
+        const startSubtitleTypewriter = contentEffects.initTypewriter(onSubtitleComplete, 0);
+        contentEffects.initHeadlineTypewriter(() => {
+          if (startSubtitleTypewriter) startSubtitleTypewriter();
+          else revealFooter();
         });
 
         later(() => paparazzi.start(), TIMING.textsDone);
@@ -180,37 +198,52 @@
 
         const firstVideo = document.querySelector('.mix-layer');
         let contentStarted = false;
+        let contentBooted = false;
         let loaderCanDismiss = !firstVideo || firstVideo.readyState >= 2;
         let loaderDismissScheduled = false;
         const loader = document.getElementById('pageLoader');
+
+        const bootContentOnce = () => {
+          if (contentBooted || state.canceled) return;
+          contentBooted = true;
+          bootContent(contentEffects, paparazzi);
+        };
 
         const dismissLoaderWhenReady = () => {
           if (!loader || !loaderCanDismiss || loaderDismissScheduled) return;
           loaderDismissScheduled = true;
           const elapsed = performance.now() - loaderStartedAt;
+          const loaderStyle = getComputedStyle(loader);
+          const introDelay = parseFloat(loaderStyle.getPropertyValue('--loader-intro-delay')) || 0;
+          const contentEnterDuration = parseFloat(loaderStyle.getPropertyValue('--loader-content-enter-duration')) || 0;
+          const typeDuration = parseFloat(loaderStyle.getPropertyValue('--loader-type-duration')) || 0;
+          const cycleElapsed = elapsed - introDelay - contentEnterDuration - typeDuration;
           const remaining = state.reducedMotion
             ? Math.max(0, LOADER_MIN_DISPLAY_MS - elapsed)
-            : LOADER_CYCLE_MS - (elapsed % LOADER_CYCLE_MS);
+            : cycleElapsed < 0
+              ? -cycleElapsed + LOADER_CYCLE_MS
+              : LOADER_CYCLE_MS - (cycleElapsed % LOADER_CYCLE_MS);
           later(() => {
             loader.classList.add('is-hidden');
             later(() => {
               loader.setAttribute('aria-hidden', 'true');
               const contentStage = document.getElementById('contentStage');
               if (contentStage) contentStage.removeAttribute('aria-hidden');
+              bootContentOnce();
             }, LOADER_FADE_MS);
           }, remaining);
         };
 
         const markLoaderReady = () => {
           loaderCanDismiss = true;
-          dismissLoaderWhenReady();
+          if (contentStarted) dismissLoaderWhenReady();
         };
 
         const startContent = () => {
           if (contentStarted || state.canceled) return;
           contentStarted = true;
-          dismissLoaderWhenReady();
-          bootContent(contentEffects, paparazzi);
+          if (loader) dismissLoaderWhenReady();
+          else bootContentOnce();
         };
 
         if (!firstVideo) {

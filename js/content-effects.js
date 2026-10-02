@@ -4,7 +4,7 @@
   const modules = window.LaunchPageModules = window.LaunchPageModules || {};
 
   modules.createContentEffects = function ({ timing, easeProgress, state, later }) {
-    function initProgress(counterElement) {
+    function initProgress(counterElement, startDelay = timing.progressStart) {
       if (!counterElement) return;
       const duration = timing.progressDuration;
       const target = timing.progressTarget;
@@ -28,10 +28,84 @@
       later(() => {
         start = performance.now();
         requestAnimationFrame(frame);
-      }, timing.progressStart);
+      }, startDelay);
     }
 
-    function initTypewriter(onComplete) {
+    function initHeadlineTypewriter(onComplete) {
+      const element = document.querySelector('.headline');
+      if (!element || state.reducedMotion) {
+        if (onComplete) onComplete();
+        return;
+      }
+      const accessibleText = element.innerText.replace(/\s+/g, ' ').trim();
+
+      const textNodes = [];
+      (function collect(node) {
+        for (let index = 0; index < node.childNodes.length; index++) {
+          const child = node.childNodes[index];
+          if (child.nodeType === Node.TEXT_NODE) textNodes.push(child);
+          else if (child.nodeType === Node.ELEMENT_NODE) collect(child);
+        }
+      })(element);
+
+      const characterSpans = [];
+      for (const textNode of textNodes) {
+        const fragment = document.createDocumentFragment();
+        const tokens = textNode.nodeValue.split(/(\s+)/);
+        for (const token of tokens) {
+          if (token === '') continue;
+          if (/^\s+$/.test(token)) {
+            const space = document.createElement('span');
+            space.className = 'headline__typewriter-char headline__typewriter-space';
+            space.textContent = '\u00a0';
+            space.setAttribute('aria-hidden', 'true');
+            fragment.appendChild(space);
+            characterSpans.push(space);
+            continue;
+          }
+
+          const word = document.createElement('span');
+          word.className = 'headline__word';
+          for (const character of token) {
+            const characterSpan = document.createElement('span');
+            characterSpan.className = 'headline__typewriter-char';
+            characterSpan.textContent = character;
+            characterSpan.setAttribute('aria-hidden', 'true');
+            word.appendChild(characterSpan);
+            characterSpans.push(characterSpan);
+          }
+          fragment.appendChild(word);
+        }
+        textNode.parentNode.replaceChild(fragment, textNode);
+      }
+
+      element.setAttribute('aria-label', accessibleText);
+
+      let index = 0;
+      let nextAt = 0;
+      function typeFrame(now) {
+        if (state.canceled) return;
+        if (!nextAt) nextAt = now;
+        if (now < nextAt) {
+          requestAnimationFrame(typeFrame);
+          return;
+        }
+        if (index >= characterSpans.length) {
+          if (onComplete) onComplete();
+          return;
+        }
+
+        const characterSpan = characterSpans[index++];
+        characterSpan.classList.add('is-typed');
+        const character = characterSpan.textContent;
+        nextAt = now + (character === '.' || character === ',' ? 110 : 38);
+        requestAnimationFrame(typeFrame);
+      }
+
+      requestAnimationFrame(typeFrame);
+    }
+
+    function initTypewriter(onComplete, startDelay = timing.typewriterStart) {
       const element = document.getElementById('subtitleTypewriter');
       if (!element || state.reducedMotion) return;
 
@@ -85,14 +159,7 @@
       let index = 0;
       let nextAt = 0;
       let cursorReady = false;
-
-      later(() => {
-        if (state.canceled) return;
-        element.insertBefore(cursor, element.firstChild);
-        void cursor.offsetWidth;
-        cursor.classList.add('is-active');
-        cursorReady = true;
-      }, timing.cursorAppear);
+      let started = false;
 
       function typeFrame(now) {
         if (state.canceled) return;
@@ -125,9 +192,20 @@
         requestAnimationFrame(typeFrame);
       }
 
-      later(() => requestAnimationFrame(typeFrame), timing.typewriterStart);
+      return function startTypewriter() {
+        if (started || state.canceled) return;
+        started = true;
+        later(() => {
+          if (state.canceled) return;
+          element.insertBefore(cursor, element.firstChild);
+          void cursor.offsetWidth;
+          cursor.classList.add('is-active');
+          cursorReady = true;
+        }, startDelay === 0 ? 0 : timing.cursorAppear);
+        later(() => requestAnimationFrame(typeFrame), startDelay);
+      };
     }
 
-    return { initProgress, initTypewriter };
+    return { initProgress, initHeadlineTypewriter, initTypewriter };
   };
 })(window);
