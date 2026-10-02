@@ -28,7 +28,7 @@ Landing page estática de "Próximamente", hecha con HTML, CSS y JavaScript sin 
 - `index.html`: contenido semántico y punto de entrada del sitio.
 - `404.html`: página personalizada para rutas inexistentes.
 - `css/styles.css`: composición visual, capas, loader, animaciones y reglas responsive.
-- `css/404.css`: estilos responsive de la página 404.
+- `css/404.css`: estilos responsive de la página 404, con el fondo de póster y la paleta y tipografía de la portada.
 - `js/script.js`: inicialización, configuración compartida y coordinación de los efectos; inicia el contenido tras un breve fallback y mantiene el loader en ciclos completos hasta que el video está listo o falla.
 - `js/video-stage.js`: reproducción, rotación y limpieza de los videos.
 - `js/content-effects.js`: contador de progreso y texto tipo máquina de escribir.
