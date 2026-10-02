@@ -155,13 +155,7 @@
     flex-direction: column;
     align-items: center;
     gap: 5px;
-    opacity: 0;
-    filter: blur(10px);
-    transform: translateY(20px) scale(0.94);
-    animation: loader-content-enter var(--loader-content-enter-duration) cubic-bezier(0.16, 1, 0.3, 1) var(--loader-intro-delay) forwards;
-  }
-  @keyframes loader-content-enter {
-    to { opacity: 1; filter: blur(0); transform: translateY(0) scale(1); }
+    opacity: 1;
   }
   .page-loader__stage {
     position: relative;
@@ -202,20 +196,14 @@
   .page-loader__label > span:first-child {
     display: inline-block;
     width: 9ch;
-    overflow: hidden;
     white-space: nowrap;
-    clip-path: inset(0 100% 0 0);
-    animation: loader-type-label var(--loader-type-duration) steps(8, end) calc(var(--loader-intro-delay) + var(--loader-content-enter-duration)) forwards;
   }
-  @keyframes loader-type-label { to { clip-path: inset(0); } }
   .page-loader__dots {
     display: flex;
     align-items: center;
     gap: 4px;
-    opacity: 0;
-    animation: loader-dots-enter 250ms ease calc(var(--loader-intro-delay) + var(--loader-content-enter-duration) + var(--loader-type-duration)) forwards;
+    opacity: 1;
   }
-  @keyframes loader-dots-enter { to { opacity: 1; } }
   .page-loader__dots i {
     width: 4px;
     height: 4px;
@@ -500,10 +488,10 @@
   @media (prefers-reduced-motion: reduce) {
     .page-loader, .page-loader.is-hidden { transition: none; }
     .page-loader__content {
-      opacity: 0;
+      opacity: 1;
       filter: none;
       transform: none;
-      animation: loader-content-enter 1ms linear var(--loader-intro-delay) forwards;
+      animation: none;
     }
     .page-loader__label > span:first-child { width: auto; animation: none; }
     .page-loader__dots { opacity: 1; animation: none; }
