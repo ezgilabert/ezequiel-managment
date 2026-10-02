@@ -1,8 +1,8 @@
 # Ezequiel Management
 
-Landing page estática de "Próximamente", hecha con HTML, CSS y JavaScript sin dependencias ni proceso de build.
+Static "Coming Soon" landing page built with HTML, CSS, and JavaScript, with no dependencies or build process.
 
-## Estructura
+## Structure
 
 ```text
 .
@@ -21,25 +21,25 @@ Landing page estática de "Próximamente", hecha con HTML, CSS y JavaScript sin 
     `-- video-stage.js
 ```
 
-`404.html` es la página de error que GitHub Pages sirve para rutas inexistentes.
+`404.html` is the error page GitHub Pages serves for non-existent routes.
 
-## Responsabilidades
+## Responsibilities
 
-- `index.html`: contenido semántico y punto de entrada del sitio.
-- `404.html`: página personalizada para rutas inexistentes.
-- `css/styles.css`: composición visual, capas, loader, animaciones y reglas responsive.
-- `css/404.css`: estilos responsive de la página 404, con el fondo de póster y la paleta y tipografía de la portada.
-- `js/script.js`: inicialización, configuración compartida y coordinación de los efectos; inicia el contenido tras un breve fallback y cierra el loader aunque el video no termine de cargar.
-- `js/video-stage.js`: reproducción, rotación y limpieza de los videos.
-- `js/content-effects.js`: contador de progreso y texto tipo máquina de escribir.
-- `js/paparazzi.js`: generación y limpieza de los flashes.
-- `assets/img/favicon.svg`: icono del sitio.
-- `assets/poster.jpg`: imagen de respaldo para los videos.
+- `index.html`: semantic content and the site entry point.
+- `404.html`: custom page for non-existent routes.
+- `css/styles.css`: visual layout, layers, loader, animations, and responsive rules.
+- `css/404.css`: responsive styles for the 404 page, using the landing page's poster background, color palette, and typography.
+- `js/script.js`: initialization, shared configuration, and effects coordination; starts the content after a short fallback and dismisses the loader even if the video does not finish loading.
+- `js/video-stage.js`: video playback, rotation, and cleanup.
+- `js/content-effects.js`: progress counter and typewriter text effects.
+- `js/paparazzi.js`: flash generation and cleanup.
+- `assets/img/favicon.svg`: site icon.
+- `assets/poster.jpg`: video fallback image.
 
-Los scripts se cargan con `defer` desde `index.html`. Conservá ese orden: los módulos de video, contenido y flashes registran sus APIs antes de que se ejecute el orquestador.
+Scripts are loaded with `defer` from `index.html`. Preserve their order: the video, content, and flash modules register their APIs before the orchestrator runs.
 
-## Ejecución
+## Running the site
 
-Abrí `index.html` en un navegador. No hace falta instalar paquetes ni compilar. La tipografía y los videos se obtienen de Google Fonts y Pexels, por lo que esas partes requieren conexión a Internet.
+Open `index.html` in a browser. No packages or build steps are required. Fonts are loaded from Google Fonts without blocking the initial page load; fallback fonts are used when offline. Videos are hosted on Pexels and require an internet connection.
 
-Al publicar el sitio, mantené `index.html` en la raíz y conservá las carpetas `assets/`, `css/` y `js/` con sus nombres y rutas.
+When publishing the site, keep `index.html` in the root and preserve the `assets/`, `css/`, and `js/` directories with their existing names and paths.

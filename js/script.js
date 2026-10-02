@@ -24,10 +24,10 @@
         startDelayMin: 300,
         startDelayRange: 400,
 
-        // Ramp: cuánto tarda en intensificarse
+        // Ramp: time taken to intensify
         rampUpMs: 30000,
 
-        // Pausas entre eventos
+        // Pauses between events
         gapBuckets: [
           { p: 0.55, min: 300,  max: 900  },
           { p: 0.80, min: 900,  max: 2000 },
@@ -35,7 +35,7 @@
           { min: 4000, max: 7000 }
         ],
 
-        // Pausas dentro de una ráfaga
+        // Pauses within a burst
         intraGapBuckets: [
           { p: 0.50, min: 60,  max: 140 },
           { p: 0.85, min: 140, max: 280 },
@@ -61,7 +61,7 @@
       const coin   = (p = 0.5) => Math.random() < p;
       const pickSide = () => (coin() ? 'left' : 'right');
 
-      // Distribución sesgada hacia un extremo (para que no sea uniforme)
+      // Bias the distribution toward one end rather than making it uniform
       function biasedRandom(min, max, skew = 1) {
         return min + Math.pow(Math.random(), skew) * (max - min);
       }
