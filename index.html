@@ -10,7 +10,6 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
-<link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg">
 <style>
   :root {
     --loader-intro-delay: 250ms;
@@ -142,8 +141,7 @@
 
     <div class="mix-stage" id="mixStage" aria-hidden="true">
       <video class="mix-layer" muted loop playsinline webkit-playsinline
-             disablepictureinpicture preload="metadata" fetchpriority="high"
-                  poster="assets/poster.jpg">
+             disablepictureinpicture preload="none" data-poster="assets/poster.jpg">
              <source src="https://videos.pexels.com/video-files/9370435/9370435-hd_1080_1920_24fps.mp4" type="video/mp4" media="(max-width: 899px)">
              <source src="https://videos.pexels.com/video-files/9370435/9370435-uhd_2160_3840_24fps.mp4" type="video/mp4" media="(min-width: 900px)">
       </video>

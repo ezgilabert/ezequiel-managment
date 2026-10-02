@@ -7,10 +7,11 @@
     if (!video) return null;
 
     let stopped = false;
+    let started = false;
     let pendingPlay = null;
 
     const play = () => {
-      if (stopped || document.hidden) return;
+      if (stopped || !started || document.hidden) return;
       video.muted = true;
       video.defaultMuted = true;
       video.setAttribute('muted', '');
@@ -35,10 +36,11 @@
 
     const handleVisibilityChange = () => {
       if (document.hidden) video.pause();
-      else play();
+      else if (started) play();
     };
 
     const unlock = () => {
+      if (!started) return;
       play();
       document.removeEventListener('touchstart', unlock);
       document.removeEventListener('click', unlock);
@@ -60,8 +62,15 @@
     document.addEventListener('touchstart', unlock, { passive: true });
     document.addEventListener('click', unlock, { passive: true });
     window.addEventListener('pagehide', stop, { once: true });
-    play();
 
-    return { start: play, stop };
+    return {
+      start() {
+        if (stopped || started) return;
+        started = true;
+        if (video.dataset.poster) video.poster = video.dataset.poster;
+        play();
+      },
+      stop
+    };
   };
 })(window);

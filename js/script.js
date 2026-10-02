@@ -129,6 +129,14 @@
           sampleBuckets
         });
       }
+      function loadFavicon() {
+        if (document.querySelector('link[rel="icon"]')) return;
+        const favicon = document.createElement('link');
+        favicon.rel = 'icon';
+        favicon.type = 'image/svg+xml';
+        favicon.href = 'assets/img/favicon.svg';
+        document.head.appendChild(favicon);
+      }
       function bootContent(contentEffects, paparazzi) {
         const contentStage = document.getElementById('contentStage');
         if (contentStage) {
@@ -191,12 +199,11 @@
         state.reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
         state.isMobile = window.matchMedia('(max-width: 899px)').matches;
 
-        createVideoStage();
+        const videoStage = createVideoStage();
         const contentEffects = createContentEffects();
         const paparazzi = createPaparazzi();
         window.addEventListener('pagehide', paparazzi.stop, { once: true });
 
-        const firstVideo = document.querySelector('.mix-layer');
         let contentStarted = false;
         let contentBooted = false;
         let loaderDismissScheduled = false;
@@ -205,6 +212,8 @@
         const bootContentOnce = () => {
           if (contentBooted || state.canceled) return;
           contentBooted = true;
+          loadFavicon();
+          if (videoStage) videoStage.start();
           bootContent(contentEffects, paparazzi);
         };
 
@@ -240,18 +249,7 @@
           else bootContentOnce();
         };
 
-        if (!firstVideo) {
-          startContent();
-        } else {
-          if (firstVideo.readyState >= 2) {
-            startContent();
-          } else {
-            firstVideo.addEventListener('loadeddata', startContent, { once: true });
-            firstVideo.addEventListener('canplay', startContent, { once: true });
-            firstVideo.addEventListener('error', startContent, { once: true });
-          }
-          setTimeout(startContent, state.isMobile ? 400 : 800);
-        }
+        setTimeout(startContent, state.isMobile ? 400 : 800);
       }
 
       window.addEventListener('pagehide', () => {
