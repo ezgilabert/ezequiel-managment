@@ -15,6 +15,7 @@
         cursorFadeOut:     500
       });
       const LOADER_MIN_DISPLAY_MS = 1200;
+      const LOADER_DOTS_ENTER_MS = 250;
       const LOADER_CYCLE_MS = 3000;
       const LOADER_FADE_MS = 500;
       const loaderStartedAt = performance.now();
@@ -225,9 +226,10 @@
           const introDelay = parseFloat(loaderStyle.getPropertyValue('--loader-intro-delay')) || 0;
           const contentEnterDuration = parseFloat(loaderStyle.getPropertyValue('--loader-content-enter-duration')) || 0;
           const typeDuration = parseFloat(loaderStyle.getPropertyValue('--loader-type-duration')) || 0;
+          const loaderAnimationDuration = introDelay + contentEnterDuration + typeDuration + LOADER_DOTS_ENTER_MS;
           const cycleElapsed = elapsed - introDelay - contentEnterDuration - typeDuration;
           const remaining = state.reducedMotion
-            ? Math.max(0, LOADER_MIN_DISPLAY_MS - elapsed)
+            ? Math.max(0, Math.max(LOADER_MIN_DISPLAY_MS, loaderAnimationDuration) - elapsed)
             : cycleElapsed < 0
               ? -cycleElapsed + LOADER_CYCLE_MS
               : LOADER_CYCLE_MS - (cycleElapsed % LOADER_CYCLE_MS);
