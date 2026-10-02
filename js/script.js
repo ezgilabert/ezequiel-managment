@@ -15,6 +15,7 @@
         cursorFadeOut:     500
       });
       const LOADER_MIN_DISPLAY_MS = 1200;
+      const LOADER_CYCLE_MS = 3000;
       const LOADER_FADE_MS = 500;
       const loaderStartedAt = performance.now();
 
@@ -132,7 +133,7 @@
         const contentStage = document.getElementById('contentStage');
         if (contentStage) {
           contentStage.classList.add('is-ready');
-          contentStage.removeAttribute('aria-hidden');
+          if (!document.getElementById('pageLoader')) contentStage.removeAttribute('aria-hidden');
         }
 
         const counterEl = document.querySelector('.progress__value');
@@ -179,17 +180,36 @@
 
         const firstVideo = document.querySelector('.mix-layer');
         let contentStarted = false;
+        let loaderCanDismiss = !firstVideo || firstVideo.readyState >= 2;
+        let loaderDismissScheduled = false;
+        const loader = document.getElementById('pageLoader');
+
+        const dismissLoaderWhenReady = () => {
+          if (!loader || !loaderCanDismiss || loaderDismissScheduled) return;
+          loaderDismissScheduled = true;
+          const elapsed = performance.now() - loaderStartedAt;
+          const remaining = state.reducedMotion
+            ? Math.max(0, LOADER_MIN_DISPLAY_MS - elapsed)
+            : LOADER_CYCLE_MS - (elapsed % LOADER_CYCLE_MS);
+          later(() => {
+            loader.classList.add('is-hidden');
+            later(() => {
+              loader.setAttribute('aria-hidden', 'true');
+              const contentStage = document.getElementById('contentStage');
+              if (contentStage) contentStage.removeAttribute('aria-hidden');
+            }, LOADER_FADE_MS);
+          }, remaining);
+        };
+
+        const markLoaderReady = () => {
+          loaderCanDismiss = true;
+          dismissLoaderWhenReady();
+        };
+
         const startContent = () => {
           if (contentStarted || state.canceled) return;
           contentStarted = true;
-          const loader = document.getElementById('pageLoader');
-          if (loader) {
-            const remaining = Math.max(0, LOADER_MIN_DISPLAY_MS - (performance.now() - loaderStartedAt));
-            later(() => {
-              loader.classList.add('is-hidden');
-              later(() => loader.setAttribute('aria-hidden', 'true'), LOADER_FADE_MS);
-            }, remaining);
-          }
+          dismissLoaderWhenReady();
           bootContent(contentEffects, paparazzi);
         };
 
@@ -199,9 +219,13 @@
           if (firstVideo.readyState >= 2) {
             startContent();
           } else {
-            firstVideo.addEventListener('loadeddata', startContent, { once: true });
-            firstVideo.addEventListener('canplay',    startContent, { once: true });
-            firstVideo.addEventListener('error',      startContent, { once: true });
+            const handleVideoReady = () => {
+              markLoaderReady();
+              startContent();
+            };
+            firstVideo.addEventListener('loadeddata', handleVideoReady, { once: true });
+            firstVideo.addEventListener('canplay',    handleVideoReady, { once: true });
+            firstVideo.addEventListener('error',      handleVideoReady, { once: true });
           }
           setTimeout(startContent, state.isMobile ? 400 : 800);
         }
