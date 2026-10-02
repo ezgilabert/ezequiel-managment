@@ -25,7 +25,7 @@ Static "Coming Soon" landing page built with HTML, CSS, and JavaScript, with no 
 
 ## Responsibilities
 
-- `index.html`: semantic content and the site entry point, with critical inline loader styles so the loading screen can render before the main stylesheet finishes loading.
+- `index.html`: semantic content and the site entry point, with critical inline loader styles and visible loading text so the first page paint does not depend on JavaScript or the main stylesheet.
 - `404.html`: custom page for non-existent routes.
 - `css/styles.css`: visual layout, layers, loader, animations, and responsive rules.
 - `css/404.css`: responsive styles for the 404 page, using the landing page's poster background, color palette, and typography.
@@ -43,3 +43,5 @@ Scripts are loaded with `defer` from `index.html`. Preserve their order: the vid
 Open `index.html` in a browser. No packages or build steps are required. The main stylesheet is preloaded without blocking the critical loader; fonts are loaded from Google Fonts without blocking the initial page load, with fallback fonts used when offline. The video, poster, and favicon load only after the loader is dismissed to keep the initial mobile load lightweight. Videos are hosted on Pexels and require an internet connection.
 
 When publishing the site, keep `index.html` in the root and preserve the `assets/`, `css/`, and `js/` directories with their existing names and paths.
+
+The inline loader is the earliest UI this static page can display. A blank screen before the WebView or browser paints the page must be diagnosed in the device, native wrapper, or hosting/cache layer; page JavaScript and styles cannot run before that first paint.

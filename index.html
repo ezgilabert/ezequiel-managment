@@ -43,13 +43,8 @@
     display: inline-block;
     flex: 0 0 9ch;
     width: 9ch;
-    overflow: hidden;
     white-space: nowrap;
-    clip-path: inset(0 100% 0 0);
-    animation: initial-loader-type var(--loader-type-duration) steps(8, end)
-      calc(var(--loader-intro-delay) + var(--loader-content-enter-duration)) forwards;
   }
-  @keyframes initial-loader-type { to { clip-path: inset(0); } }
   .page-loader__dots {
     display: flex;
     align-items: center;
