@@ -15,10 +15,10 @@ body {
   display: flex;
   min-height: 100vh;
   min-height: 100dvh;
-  align-items: center;
-  justify-content: center;
+  align-items: stretch;
+  justify-content: stretch;
   margin: 0;
-  padding: 16px;
+  padding: 0;
   overflow: hidden;
   background: #000;
   color: #fff;
@@ -30,10 +30,11 @@ body {
 .error-poster {
   position: relative;
   display: flex;
-  width: min(100%, 420px, calc((100dvh - 32px) * 0.5625));
-  aspect-ratio: 9 / 16;
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
   flex-direction: column;
-  justify-content: flex-end;
+  justify-content: center;
   overflow: hidden;
   background: #0d0217;
 }
@@ -75,14 +76,15 @@ body {
 .error-poster__content {
   position: relative;
   z-index: 3;
-  padding: 2rem;
+  width: min(100%, 1100px);
+  padding: clamp(32px, 8vw, 112px);
 }
 
 .error-poster__number {
   margin: 0 0 1rem -0.04em;
   color: #fff;
   font-family: 'Fraunces', Georgia, serif;
-  font-size: 6.5rem;
+  font-size: clamp(8rem, 20vw, 16rem);
   font-weight: 300;
   letter-spacing: -0.06em;
   line-height: 0.85;
@@ -93,7 +95,7 @@ body {
   margin: 0 0 1.8rem;
   color: #fff;
   font-family: 'Fraunces', Georgia, serif;
-  font-size: 1.5rem;
+  font-size: clamp(2rem, 4.5vw, 4rem);
   font-weight: 300;
   letter-spacing: -0.025em;
   line-height: 1.25;
@@ -144,6 +146,13 @@ body {
 .error-poster__back:focus-visible {
   outline: 2px solid var(--error-accent);
   outline-offset: 6px;
+}
+
+@media (max-width: 600px) {
+  .error-poster { justify-content: flex-end; }
+  .error-poster__content {
+    padding: 32px 24px max(32px, env(safe-area-inset-bottom));
+  }
 }
 
 @media (max-width: 400px) {
