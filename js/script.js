@@ -14,6 +14,9 @@
         dashDelay:         100,
         cursorFadeOut:     500
       });
+      const LOADER_MIN_DISPLAY_MS = 1200;
+      const LOADER_FADE_MS = 500;
+      const loaderStartedAt = performance.now();
 
       const FLASH = Object.freeze({
         maxConcurrent: 16,
@@ -127,7 +130,10 @@
       }
       function bootContent(contentEffects, paparazzi) {
         const contentStage = document.getElementById('contentStage');
-        if (contentStage) contentStage.classList.add('is-ready');
+        if (contentStage) {
+          contentStage.classList.add('is-ready');
+          contentStage.removeAttribute('aria-hidden');
+        }
 
         const counterEl = document.querySelector('.progress__value');
         contentEffects.initProgress(counterEl);
@@ -176,6 +182,14 @@
         const startContent = () => {
           if (contentStarted || state.canceled) return;
           contentStarted = true;
+          const loader = document.getElementById('pageLoader');
+          if (loader) {
+            const remaining = Math.max(0, LOADER_MIN_DISPLAY_MS - (performance.now() - loaderStartedAt));
+            later(() => {
+              loader.classList.add('is-hidden');
+              later(() => loader.setAttribute('aria-hidden', 'true'), LOADER_FADE_MS);
+            }, remaining);
+          }
           bootContent(contentEffects, paparazzi);
         };
 
