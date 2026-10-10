@@ -16,7 +16,7 @@
       });
       const LOADER_MIN_DISPLAY_MS = 3000;
       const LOADER_CYCLE_MS = 3000;
-      const LOADER_FADE_MS = 500;
+      const LOADER_FADE_MS = 1200;   // coincide con loaderDissolve / stage-reveal
       const loaderStartedAt = performance.now();
 
       const FLASH = Object.freeze({
@@ -130,7 +130,7 @@
         });
       }
 
-      // ---- Loader flashes (propuesta 1: paparazzi) ----
+      // ---- Loader flashes (paparazzi continuo) ----
       function startLoaderFlashes(loader) {
         const layer = loader.querySelector('.page-loader__flashes');
         if (!layer) return () => {};
@@ -270,6 +270,7 @@
         let loaderDismissScheduled = false;
         let stopLoaderFlashes = null;
         const loader = document.getElementById('pageLoader');
+        const stageRoot = document.querySelector('.stage-root');
 
         if (loader && !state.reducedMotion) {
           stopLoaderFlashes = startLoaderFlashes(loader);
@@ -302,13 +303,17 @@
               return;
             }
 
+            // Disparar disolvencia del loader + revelar stage desde blur
             loader.classList.add('is-hidden');
+            if (stageRoot) stageRoot.classList.add('is-revealing');
+
             later(() => {
               if (stopLoaderFlashes) {
                 stopLoaderFlashes();
                 stopLoaderFlashes = null;
               }
               loader.setAttribute('aria-hidden', 'true');
+              if (stageRoot) stageRoot.classList.remove('is-revealing');
               const contentStage = document.getElementById('contentStage');
               if (contentStage) contentStage.removeAttribute('aria-hidden');
               bootContentOnce();

@@ -38,7 +38,7 @@
   .stage-root { position: fixed; inset: 0; isolation: isolate; }
 
   /* =========================================================
-     LOADER · PROPUESTA 1 (PAPARAZZI)
+     LOADER · PAPARAZZI + DISOLVENCIA CÁLIDA
      ========================================================= */
   .page-loader {
     position: fixed;
@@ -52,16 +52,20 @@
     color: #f5f0f0;
     opacity: 1;
     visibility: visible;
-    transition: opacity 500ms ease, visibility 0s linear 0s;
   }
+
+  /* Cuando se retira, se quema con blur + brillo + bloom cálido */
   .page-loader.is-hidden {
-    opacity: 0;
-    visibility: hidden;
     pointer-events: none;
-    transition: opacity 500ms ease, visibility 0s linear 500ms;
+    visibility: hidden;
+    animation: loaderDissolve 1200ms ease-out forwards;
+    transition: visibility 0s linear 1200ms;
   }
-  .page-loader.is-hidden,
-  .page-loader.is-hidden * { animation-play-state: paused; }
+  @keyframes loaderDissolve {
+    0%   { opacity: 1; filter: blur(0) brightness(1); }
+    40%  { opacity: 1; filter: blur(14px) brightness(1.35); }
+    100% { opacity: 0; filter: blur(70px) brightness(1.9); }
+  }
 
   .page-loader__bg {
     position: absolute;
@@ -173,6 +177,29 @@
     50%      { opacity: 1;   transform: scale(1.3); }
   }
 
+  /* Bloom cálido que expande desde el centro al retirarse */
+  .page-loader__bloom {
+    position: absolute;
+    inset: 0;
+    z-index: 7;
+    pointer-events: none;
+    mix-blend-mode: screen;
+    opacity: 0;
+    background: radial-gradient(circle at 50% 50%,
+      rgba(255, 180, 120, 0.95) 0%,
+      rgba(255, 120, 70, 0.5) 28%,
+      transparent 62%);
+    will-change: transform, opacity;
+  }
+  .page-loader.is-hidden .page-loader__bloom {
+    animation: loader-bloom 1200ms ease-out forwards;
+  }
+  @keyframes loader-bloom {
+    0%   { opacity: 0;   transform: scale(.7); }
+    42%  { opacity: .95; transform: scale(1); }
+    100% { opacity: 0;   transform: scale(1.7); }
+  }
+
   .page-loader__grain {
     position: absolute;
     inset: 0;
@@ -192,13 +219,25 @@
   }
 
   /* =========================================================
+     STAGE REVEAL (entrada desde blur + brillo)
+     ========================================================= */
+  .stage-root.is-revealing {
+    animation: stage-reveal 1200ms ease-out forwards;
+  }
+  @keyframes stage-reveal {
+    0%   { filter: blur(20px) brightness(1.6) saturate(1.2); }
+    42%  { filter: blur(6px)  brightness(1.25) saturate(1.1); }
+    100% { filter: blur(0)    brightness(1)    saturate(1); }
+  }
+
+  /* =========================================================
      ESCENARIO PRINCIPAL
      ========================================================= */
   .mix-stage {
     position: absolute;
     inset: 0;
     overflow: hidden;
-    background: #1a1412;
+    background: #050405;
     z-index: 1;
     contain: layout paint;
   }
@@ -216,7 +255,7 @@
     animation: none;
     background-size: cover;
     background-position: center;
-    background-color: #1a1412;
+    background-color: #050405;
   }
 
   @media (min-width: 900px) {
@@ -462,11 +501,17 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .page-loader, .page-loader.is-hidden { transition: none; }
+    .page-loader,
+    .page-loader.is-hidden { animation: none; transition: none; }
+    .page-loader.is-hidden { opacity: 0; visibility: hidden; }
+    .page-loader__bloom { display: none; }
+    .stage-root.is-revealing { animation: none; }
+
     .page-loader__flash,
     .page-loader__flash-full { display: none; }
     .page-loader__label { animation: none; text-shadow: 0 0 24px rgba(255, 195, 155, 0.35); }
     .page-loader__dots i { animation: none; opacity: 1; }
+
     .paparazzi { display: none; }
     .mix-layer { animation: none; transition: none; }
     .eyebrow__dot, .subtitle .typewriter-cursor { animation: none; }
