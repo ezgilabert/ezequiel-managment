@@ -20,7 +20,7 @@
     height: 100%;
     min-height: 100%;
     margin: 0;
-    background: #120923;
+    background: #0a0807;
   }
   .page-loader {
     position: fixed;
@@ -30,62 +30,39 @@
     align-items: center;
     justify-content: center;
     overflow: hidden;
-    background:
-      radial-gradient(ellipse at 18% 18%, rgba(54, 76, 169, 0.72), transparent 52%),
-      radial-gradient(ellipse at 82% 78%, rgba(177, 34, 101, 0.68), transparent 54%),
-      linear-gradient(135deg, #120923 0%, #211038 52%, #351126 100%);
-    background-color: #211038;
+    background: #050405;
     color: #f5f0f0;
-    font: italic 2rem Georgia, serif;
   }
   .page-loader__content {
     position: relative;
-    z-index: 5;
-    opacity: 1;
-    text-align: center;
-    text-shadow: 0 2px 18px rgba(0, 0, 0, 0.7);
-  }
-  .page-loader__stage { display: none; }
-  .page-loader__label {
+    z-index: 6;
     display: flex;
+    flex-direction: column;
     align-items: center;
-    gap: 5px;
+    gap: 6px;
+    text-align: center;
   }
-  .page-loader__label > span:first-child {
-    display: inline-block;
-    flex: 0 0 9ch;
-    width: 9ch;
-    overflow: hidden;
-    clip-path: inset(0 100% 0 0);
-    white-space: nowrap;
-    animation: loader-type var(--loader-type-duration) steps(8, end)
-      calc(var(--loader-intro-delay) + var(--loader-content-enter-duration)) forwards;
+  .page-loader__label {
+    display: block;
+    font-family: 'Fraunces', Georgia, serif;
+    font-style: italic;
+    font-weight: 500;
+    font-size: clamp(2.4rem, 6vw, 4.2rem);
+    line-height: 1;
+    color: #fff;
+    text-shadow: 0 0 30px rgba(255, 195, 155, .6);
   }
   .page-loader__dots {
-    display: flex;
-    align-items: center;
-    align-self: flex-end;
-    gap: 4px;
-    margin-bottom: 7px;
-    opacity: 0;
-    animation: initial-loader-dots-enter 250ms ease
-      calc(var(--loader-intro-delay) + var(--loader-content-enter-duration) + var(--loader-type-duration)) forwards;
+    display: inline-flex;
+    gap: 6px;
+    margin-top: 4px;
   }
-  @keyframes initial-loader-dots-enter { to { opacity: 1; } }
   .page-loader__dots i {
-    width: 4px;
-    height: 4px;
+    width: 5px;
+    height: 5px;
     border-radius: 50%;
-    background: #e8a87c;
-    animation: initial-loader-dot 1.4s ease-in-out infinite;
+    background: #ffb89a;
   }
-  .page-loader__dots i:nth-child(2) { animation-delay: 200ms; }
-  .page-loader__dots i:nth-child(3) { animation-delay: 400ms; }
-  @keyframes initial-loader-dot {
-    0%, 100% { opacity: 0.2; transform: scale(0.8); }
-    50% { opacity: 1; transform: scale(1.3); }
-  }
-  @keyframes loader-type { to { clip-path: inset(0); } }
 </style>
 <link rel="preload" href="css/styles.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
 <noscript><link rel="stylesheet" href="css/styles.css"></noscript>
@@ -100,53 +77,14 @@
 <body>
 
   <div class="page-loader" id="pageLoader" role="status" aria-label="Cargando página">
-    <svg class="page-loader__svg-defs" aria-hidden="true" focusable="false">
-      <defs>
-        <linearGradient id="loaderGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="#1a3a8a"></stop>
-          <stop offset="50%" stop-color="#c2185b"></stop>
-          <stop offset="100%" stop-color="#ff6b35"></stop>
-        </linearGradient>
-      </defs>
-    </svg>
-
-    <div class="page-loader__ambient page-loader__ambient--blue" aria-hidden="true"></div>
-    <div class="page-loader__ambient page-loader__ambient--magenta" aria-hidden="true"></div>
-    <div class="page-loader__ambient page-loader__ambient--purple" aria-hidden="true"></div>
-    <div class="page-loader__grid" aria-hidden="true"></div>
-    <div class="page-loader__particles" aria-hidden="true">
-      <span></span><span></span><span></span><span></span><span></span>
-      <span></span><span></span><span></span><span></span><span></span>
-    </div>
-    <div class="page-loader__noise" aria-hidden="true"></div>
-
+    <div class="page-loader__bg" aria-hidden="true"></div>
+    <div class="page-loader__flashes" id="loaderFlashes" aria-hidden="true"></div>
     <div class="page-loader__content">
-      <div class="page-loader__stage" aria-hidden="true">
-        <svg class="page-loader__device" width="65" height="105" viewBox="0 0 50 80">
-          <rect x="5" y="5" width="40" height="70" rx="6"></rect>
-          <line x1="20" y1="10" x2="30" y2="10"></line>
-          <circle cx="25" cy="68" r="3"></circle>
-        </svg>
-        <svg class="page-loader__device" width="90" height="115" viewBox="0 0 70 90">
-          <rect x="5" y="5" width="60" height="80" rx="5"></rect>
-          <circle cx="35" cy="78" r="3"></circle>
-        </svg>
-        <svg class="page-loader__device" width="130" height="95" viewBox="0 0 100 75">
-          <rect x="15" y="10" width="70" height="45" rx="3"></rect>
-          <polygon points="5,65 95,65 85,55 15,55"></polygon>
-          <line x1="45" y1="60" x2="55" y2="60"></line>
-        </svg>
-        <svg class="page-loader__device" width="150" height="115" viewBox="0 0 120 90">
-          <rect x="10" y="5" width="100" height="60" rx="4"></rect>
-          <line x1="45" y1="65" x2="35" y2="85"></line>
-          <line x1="75" y1="65" x2="85" y2="85"></line>
-        </svg>
-      </div>
-      <div class="page-loader__label">
-        <span>Cargando</span>
-        <span class="page-loader__dots" aria-hidden="true"><i></i><i></i><i></i></span>
-      </div>
+      <span class="page-loader__label">Cargando</span>
+      <span class="page-loader__dots" aria-hidden="true"><i></i><i></i><i></i></span>
     </div>
+    <div class="page-loader__grain" aria-hidden="true"></div>
+    <div class="page-loader__vignette" aria-hidden="true"></div>
   </div>
 
   <div class="stage-root">

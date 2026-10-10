@@ -1,4 +1,4 @@
-    (() => {
+(() => {
       'use strict';
 
       const TIMING = Object.freeze({
@@ -129,6 +129,66 @@
           sampleBuckets
         });
       }
+
+      // ---- Loader flashes (propuesta 1: paparazzi) ----
+      function startLoaderFlashes(loader) {
+        const layer = loader.querySelector('.page-loader__flashes');
+        if (!layer) return () => {};
+
+        let alive = true;
+        const flashTimers = new Set();
+
+        function scheduleFlash(fn, ms) {
+          const id = setTimeout(() => {
+            flashTimers.delete(id);
+            if (alive) fn();
+          }, ms);
+          flashTimers.add(id);
+          return id;
+        }
+
+        function spawnFlash() {
+          if (!alive) return;
+          const el = document.createElement('div');
+          el.className = 'page-loader__flash';
+          const size = 45 + Math.random() * 55;
+          el.style.width = size + 'vmax';
+          el.style.height = size + 'vmax';
+          el.style.left = (8 + Math.random() * 84) + '%';
+          el.style.top = (8 + Math.random() * 84) + '%';
+          el.style.animationDuration = (420 + Math.random() * 420) + 'ms';
+          layer.appendChild(el);
+          el.addEventListener('animationend', () => el.remove(), { once: true });
+        }
+
+        function spawnFullFlash() {
+          if (!alive) return;
+          const el = document.createElement('div');
+          el.className = 'page-loader__flash-full';
+          layer.appendChild(el);
+          el.addEventListener('animationend', () => el.remove(), { once: true });
+        }
+
+        function burst() {
+          if (!alive) return;
+          const count = 1 + Math.floor(Math.random() * 3);
+          for (let i = 0; i < count; i++) {
+            scheduleFlash(spawnFlash, i * (30 + Math.random() * 70));
+          }
+          if (Math.random() < 0.26) spawnFullFlash();
+          scheduleFlash(burst, 320 + Math.random() * 820);
+        }
+
+        burst();
+
+        return function stopLoaderFlashes() {
+          alive = false;
+          for (const id of flashTimers) clearTimeout(id);
+          flashTimers.clear();
+          layer.innerHTML = '';
+        };
+      }
+
       function loadFavicon() {
         if (document.querySelector('link[rel="icon"]')) return;
         const favicon = document.createElement('link');
@@ -137,6 +197,7 @@
         favicon.href = 'assets/img/favicon.svg';
         document.head.appendChild(favicon);
       }
+
       function bootContent(contentEffects, paparazzi) {
         const contentStage = document.getElementById('contentStage');
         if (contentStage) {
@@ -207,7 +268,12 @@
         let contentStarted = false;
         let contentBooted = false;
         let loaderDismissScheduled = false;
+        let stopLoaderFlashes = null;
         const loader = document.getElementById('pageLoader');
+
+        if (loader && !state.reducedMotion) {
+          stopLoaderFlashes = startLoaderFlashes(loader);
+        }
 
         const bootContentOnce = () => {
           if (contentBooted || state.canceled) return;
@@ -238,6 +304,10 @@
 
             loader.classList.add('is-hidden');
             later(() => {
+              if (stopLoaderFlashes) {
+                stopLoaderFlashes();
+                stopLoaderFlashes = null;
+              }
               loader.setAttribute('aria-hidden', 'true');
               const contentStage = document.getElementById('contentStage');
               if (contentStage) contentStage.removeAttribute('aria-hidden');
