@@ -4,25 +4,36 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="dark">
-  <meta name="theme-color" content="#0d0217">
+  <meta name="theme-color" content="#0a0807">
   <title>404 | Página no encontrada</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Fraunces:ital,opsz,wght@0,9..144,300;1,9..144,500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;1,9..144,300;1,9..144,500&display=swap" rel="stylesheet">
   <link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg">
   <link rel="stylesheet" href="css/404.css">
 </head>
 <body>
   <main class="error-poster">
-    <div class="error-poster__image" aria-hidden="true"></div>
-    <div class="error-poster__overlay" aria-hidden="true"></div>
+    <div class="error-poster__bg" aria-hidden="true"></div>
+    <div class="error-poster__grid" aria-hidden="true"></div>
 
     <section class="error-poster__content" aria-labelledby="error-title">
-      <h1 class="error-poster__number" id="error-title">404</h1>
-      <p class="error-poster__title">Esta página<br><em>nunca existió.</em></p>
-      <a class="error-poster__back" href="./">Volver al inicio</a>
+      <span class="error-poster__number" aria-hidden="true">404</span>
+
+      <div class="error-poster__side">
+        <h1 class="error-poster__title" id="error-title">
+          Esta página<br><em>nunca existió.</em>
+        </h1>
+        <p class="error-poster__lead">
+          Puede que el enlace esté roto, o que el contenido ya no esté disponible.
+        </p>
+        <a class="error-poster__back" href="./">Volver al inicio</a>
+      </div>
     </section>
+
+    <div class="error-poster__grain" aria-hidden="true"></div>
+    <div class="error-poster__vignette" aria-hidden="true"></div>
   </main>
 </body>
 </html>
